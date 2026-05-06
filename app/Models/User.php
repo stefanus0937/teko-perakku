@@ -23,6 +23,7 @@ class User extends Authenticatable
         'usia',
         'alamat',
         'foto',
+        'last_seen_at',
     ];
 
     protected $hidden = [
@@ -35,6 +36,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'last_seen_at' => 'datetime',
         ];
     }
 
@@ -61,5 +63,16 @@ class User extends Authenticatable
     public function reviews()
     {
         return $this->hasMany(Review::class);
+    }
+
+    public function favoritProduks()
+    {
+        return $this->belongsToMany(Produk::class, 'favorits', 'user_id', 'produk_id')->withTimestamps();
+    }
+
+    public function isOnline()
+    {
+        if (!$this->last_seen_at) return false;
+        return $this->last_seen_at->gt(now()->subMinutes(2));
     }
 }
