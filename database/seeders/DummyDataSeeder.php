@@ -69,7 +69,8 @@ class DummyDataSeeder extends Seeder
             ]);
         }
 
-        // 5. Usaha (10 items)
+        // 5. Usaha (Optional: already handled by UsahaSeeder for the 2 main UMKM users)
+        /*
         $jenisIds = JenisUsaha::pluck('id')->toArray();
         for ($i = 1; $i <= 10; $i++) {
             $usaha = Usaha::create([
@@ -84,6 +85,7 @@ class DummyDataSeeder extends Seeder
             ]);
             $usaha->jenisUsahas()->sync($faker->randomElements($jenisIds, rand(1, 2)));
         }
+        */
 
         // 6. Produk (20 items)
         $usahaIds = Usaha::pluck('id')->toArray();

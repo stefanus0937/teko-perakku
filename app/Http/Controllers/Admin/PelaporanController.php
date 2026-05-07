@@ -65,7 +65,12 @@ class PelaporanController extends Controller
         if ($user->role == 'umkm') {
             $usaha = Usaha::where('id', $request->usaha_id)->where('user_id', $user->id)->first();
             if (!$usaha) {
-                return redirect()->back()->with('error', 'Anda tidak memiliki akses ke usaha ini.');
+                return redirect()->back()->with('error', 'Anda hanya dapat membuat laporan untuk usaha milik sendiri.');
+            }
+        } elseif ($user->role == 'admin_wilayah') {
+            $usaha = Usaha::where('id', $request->usaha_id)->where('wilayah_id', $user->wilayah_id)->first();
+            if (!$usaha) {
+                return redirect()->back()->with('error', 'Anda hanya dapat membuat laporan untuk usaha di wilayah Anda.');
             }
         }
 
@@ -120,7 +125,12 @@ class PelaporanController extends Controller
         if ($user->role == 'umkm') {
             $usaha = Usaha::where('id', $request->usaha_id)->where('user_id', $user->id)->first();
             if (!$usaha) {
-                return redirect()->back()->with('error', 'Anda tidak memiliki akses ke usaha ini.');
+                return redirect()->back()->with('error', 'Anda hanya dapat memperbarui laporan untuk usaha milik sendiri.');
+            }
+        } elseif ($user->role == 'admin_wilayah') {
+            $usaha = Usaha::where('id', $request->usaha_id)->where('wilayah_id', $user->wilayah_id)->first();
+            if (!$usaha) {
+                return redirect()->back()->with('error', 'Anda hanya dapat memperbarui laporan untuk usaha di wilayah Anda.');
             }
         }
 

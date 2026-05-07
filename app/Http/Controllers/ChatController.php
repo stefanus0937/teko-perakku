@@ -27,15 +27,46 @@ class ChatController extends Controller
 
     public function show(User $user)
     {
+        $usahaId = request('usaha_id');
+        $productId = request('product_id');
+        $prefillMessage = '';
+        $product = null;
+
+        if ($productId) {
+            $product = \App\Models\Produk::with('fotoProduk')->find($productId);
+            if ($product) {
+                $url = route('guest-singleProduct', $product->slug);
+                $prefillMessage = "Halo, saya tertarik dengan produk " . $product->nama_produk . ".\n\n" . $url . "\n\nApakah produk ini masih tersedia?";
+            }
+        }
+
         $user->load('usaha');
         $currentUser = Auth::user();
-        $chatUsers = $this->getChatUsers($currentUser, $user->id);
+
+        // Mark messages as read immediately when opening the room
+        $readQuery = Chat::where('sender_id', $user->id)
+            ->where('receiver_id', $currentUser->id)
+            ->where('is_read', false);
         
-        $messages = Chat::where(function($q) use ($currentUser, $user) {
-            $q->where('sender_id', $currentUser->id)->where('receiver_id', $user->id);
-        })->orWhere(function($q) use ($currentUser, $user) {
-            $q->where('sender_id', $user->id)->where('receiver_id', $currentUser->id);
-        })->orderBy('created_at', 'asc')->get();
+        if ($usahaId) {
+            $readQuery->where('usaha_id', $usahaId);
+        } else {
+            $readQuery->whereNull('usaha_id');
+        }
+        $readQuery->update(['is_read' => true, 'is_delivered' => true]);
+        
+        // Pass usahaId to getChatUsers to ensure the sidebar reflects the current shop
+        $chatUsers = $this->getChatUsers($currentUser, $user->id, $usahaId);
+        
+        $messages = Chat::where(function($q) use ($currentUser, $user, $usahaId) {
+            $q->where('sender_id', $currentUser->id)
+              ->where('receiver_id', $user->id)
+              ->where('usaha_id', $usahaId);
+        })->orWhere(function($q) use ($currentUser, $user, $usahaId) {
+            $q->where('sender_id', $user->id)
+              ->where('receiver_id', $currentUser->id)
+              ->where('usaha_id', $usahaId);
+        })->orderBy('created_at', 'asc')->with('product.fotoProduk')->get();
 
         // Note: Read status is now handled via AJAX in the frontend to avoid pre-fetching issues.
 
@@ -51,71 +82,28 @@ class ChatController extends Controller
         if ($currentUser->role == 'user') $layout = 'layouts.user';
 
         // Custom display name if usaha_id is provided
-        if (request()->has('usaha_id')) {
-            $specificUsaha = \App\Models\Usaha::find(request('usaha_id'));
-            if ($specificUsaha && $specificUsaha->user_id == $user->id) {
-                $user->display_name = $specificUsaha->nama_usaha;
-                $user->specific_usaha = $specificUsaha;
+        $usaha = $usahaId ? \App\Models\Usaha::find($usahaId) : null;
+        if ($usaha) {
+            if (Auth::id() == $usaha->user_id) {
+                // Saya (Auth) adalah pemilik usaha, maka lawan bicara adalah pembeli
+                $user->display_name = $user->nama ?: $user->username;
+            } else {
+                // Saya (Auth) adalah pembeli, maka lawan bicara tampil sebagai Nama Usaha
+                $user->display_name = $usaha->nama_usaha;
+            }
+            $user->specific_usaha = $usaha;
+        } else {
+            // Jika chat partner adalah UMKM tapi tanpa context usaha tertentu (fallback)
+            if ($user->role === 'umkm' && $user->usaha) {
+                $user->display_name = $user->usaha->nama_usaha;
+            } else {
+                $user->display_name = $user->nama ?: $user->username;
             }
         }
         
-        if (!isset($user->display_name)) {
-            $user->display_name = $user->usaha->nama_usaha ?? ($user->nama ?? $user->username);
-        }
 
-        return view('chats.show_new', compact('user', 'messages', 'chatUsers', 'layout'));
-    }
 
-    private function getChatUsers($user, $activeChatUserId = null)
-    {
-        // Fetch users who:
-        // 1. Have already chatted with the current user OR
-        // 2. Is the user we are currently chatting with (to allow starting new chats)
-        return User::where('id', '!=', $user->id)
-            ->where(function($query) use ($user, $activeChatUserId) {
-                $query->whereHas('chatsSent', function($q) use ($user) {
-                    $q->where('receiver_id', $user->id);
-                })->orWhereHas('chatsReceived', function($q) use ($user) {
-                    $q->where('sender_id', $user->id);
-                });
-                
-                if ($activeChatUserId) {
-                    $query->orWhere('id', $activeChatUserId);
-                }
-            })
-            ->with(['usaha', 'chatsSent' => function($q) use ($user) {
-                $q->where('receiver_id', $user->id)->latest();
-            }, 'chatsReceived' => function($q) use ($user) {
-                $q->where('sender_id', $user->id)->latest();
-            }])
-            ->get()
-            ->map(function($u) use ($user) {
-                $lastSent = $u->chatsSent->first();
-                $lastReceived = $u->chatsReceived->first();
-                
-                $lastChat = collect([$lastSent, $lastReceived])->filter()->sortByDesc('created_at')->first();
-                
-                $u->display_name = $u->usaha->nama_usaha ?? ($u->nama ?? $u->username);
-                $u->last_message = $lastChat ? $lastChat->message : '';
-                $u->last_message_sender_id = $lastChat ? $lastChat->sender_id : null;
-                $u->last_message_is_read = $lastChat ? $lastChat->is_read : false;
-                $u->last_chat_time_raw = $lastChat ? $lastChat->created_at : null;
-                $u->last_chat_time = $lastChat ? $lastChat->created_at->format('H:i') : '';
-                $u->unread_count = Chat::where('sender_id', $u->id)
-                    ->where('receiver_id', $user->id)
-                    ->where('is_read', false)
-                    ->count();
-                return $u;
-            })
-            ->sort(function($a, $b) {
-                if ($a->unread_count != $b->unread_count) {
-                    return $b->unread_count <=> $a->unread_count;
-                }
-                if ($a->last_chat_time_raw != $b->last_chat_time_raw) {
-                    return $b->last_chat_time_raw <=> $a->last_chat_time_raw;
-                }
-                return strcasecmp($a->display_name, $b->display_name);
-            })->values();
+        return view('chats.show_new', compact('user', 'messages', 'chatUsers', 'layout', 'usahaId', 'prefillMessage', 'product'));
     }
 
     public function store(Request $request)
@@ -124,6 +112,8 @@ class ChatController extends Controller
 
         $request->validate([
             'receiver_id' => 'required|exists:users,id',
+            'usaha_id' => 'nullable|exists:usaha,id',
+            'product_id' => 'nullable|exists:produk,id',
             'message' => 'nullable|string',
             'attachment' => 'nullable|file|max:20480|mimes:jpg,jpeg,png,gif,pdf,docx,doc,xls,xlsx,ppt,pptx,txt,zip',
             'reply_to_id' => 'nullable|exists:chats,id',
@@ -140,9 +130,29 @@ class ChatController extends Controller
             $attachmentPath = $file->store('chat_attachments', 'public');
         }
 
+        // Security Check: If sender is UMKM, ensure usaha_id belongs to them.
+        // If sender is User, ensure usaha_id belongs to the receiver.
+        $currentUser = Auth::user();
+        $receiver = User::find($request->receiver_id);
+        $finalUsahaId = $request->usaha_id;
+
+        if ($currentUser->role === 'umkm') {
+            // UMKM is sending. usaha_id must be their own usaha.
+            if ($currentUser->usaha) {
+                $finalUsahaId = $currentUser->usaha->id;
+            }
+        } else {
+            // User is sending. usaha_id must be the receiver's usaha.
+            if ($receiver->role === 'umkm' && $receiver->usaha) {
+                $finalUsahaId = $receiver->usaha->id;
+            }
+        }
+
         $chat = Chat::create([
-            'sender_id' => Auth::id(),
+            'sender_id' => $currentUser->id,
             'receiver_id' => $request->receiver_id,
+            'usaha_id' => $finalUsahaId,
+            'product_id' => $request->product_id,
             'message' => $messageContent,
             'type' => $type,
             'attachment' => $attachmentPath,
@@ -151,7 +161,7 @@ class ChatController extends Controller
 
         \Log::info('Chat Created:', $chat->toArray());
 
-        $chat->load('replyTo');
+        $chat->load(['replyTo', 'usaha', 'product.fotoProduk']);
 
         broadcast(new \App\Events\MessageSent($chat))->toOthers();
 
@@ -160,6 +170,83 @@ class ChatController extends Controller
         }
 
         return back()->with('success', 'Pesan terkirim.');
+    }
+
+    private function getChatUsers($user, $activeChatUserId = null, $activeUsahaId = null)
+    {
+        // 1. Ambil semua kombinasi unik (partner_id, usaha_id) yang diikuti user ini
+        $sent = Chat::where('sender_id', $user->id)
+            ->select('receiver_id as partner_id', 'usaha_id')
+            ->distinct();
+            
+        $received = Chat::where('receiver_id', $user->id)
+            ->select('sender_id as partner_id', 'usaha_id')
+            ->distinct();
+            
+        $combinations = $sent->union($received)->get();
+        
+        // 2. Jika ada chat aktif yang belum dimulai, tambahkan ke list
+        if ($activeChatUserId) {
+             $exists = $combinations->where('partner_id', $activeChatUserId)->where('usaha_id', $activeUsahaId)->first();
+             if (!$exists) {
+                 $combinations->push((object)['partner_id' => $activeChatUserId, 'usaha_id' => $activeUsahaId]);
+             }
+        }
+
+        // 3. Petakan ke objek User dengan informasi tambahan
+        return $combinations->map(function($combo) use ($user) {
+            $partner = User::with('usaha')->find($combo->partner_id);
+            if (!$partner) return null;
+            
+            // Clone user object to avoid sharing state
+            $contact = clone $partner;
+            $contact->active_usaha_id = $combo->usaha_id;
+            
+            // Ambil pesan terakhir untuk pasangan (partner, usaha) spesifik ini
+            $lastChat = Chat::where('usaha_id', $combo->usaha_id)
+                ->where(function($q) use ($user, $combo) {
+                    $q->where(function($q1) use ($user, $combo) {
+                        $q1->where('sender_id', $user->id)->where('receiver_id', $combo->partner_id);
+                    })->orWhere(function($q1) use ($user, $combo) {
+                        $q1->where('sender_id', $combo->partner_id)->where('receiver_id', $user->id);
+                    });
+                })->latest()->first();
+
+            // Set nama tampilan secara dinamis
+            $usaha = $combo->usaha_id ? \App\Models\Usaha::find($combo->usaha_id) : null;
+            if ($usaha) {
+                if ($user->id == $usaha->user_id) {
+                    // Saya adalah penjual, maka lawan bicara adalah pembeli
+                    $contact->display_name = $partner->nama ?: $partner->username;
+                } else {
+                    // Saya adalah pembeli, maka lawan bicara adalah Toko
+                    $contact->display_name = $usaha->nama_usaha;
+                }
+            } else {
+                // Chat tanpa usaha_id (mungkin antar admin atau user biasa)
+                if ($partner->role === 'umkm' && $partner->usaha) {
+                    $contact->display_name = $partner->usaha->nama_usaha;
+                } else {
+                    $contact->display_name = $partner->nama ?: $partner->username;
+                }
+            }
+
+            $contact->last_message = $lastChat ? $lastChat->message : '';
+            $contact->last_message_sender_id = $lastChat ? $lastChat->sender_id : null;
+            $contact->last_message_is_read = $lastChat ? $lastChat->is_read : false;
+            $contact->last_chat_time_raw = $lastChat ? $lastChat->created_at : null;
+            $contact->last_chat_time = $lastChat ? $lastChat->created_at->format('H:i') : '';
+            
+            $contact->unread_count = Chat::where('sender_id', $partner->id)
+                ->where('receiver_id', $user->id)
+                ->where('usaha_id', $combo->usaha_id)
+                ->where('is_read', false)
+                ->count();
+                
+            return $contact;
+        })->filter()->sortByDesc(function($u) {
+            return $u->last_chat_time_raw;
+        })->values();
     }
 
     public function update(Request $request, Chat $chat)
@@ -225,11 +312,21 @@ class ChatController extends Controller
     public function markAsRead(User $user)
     {
         $currentUser = Auth::user();
-        \Log::info("Chat: User {$currentUser->id} marking messages from {$user->id} as READ");
-        $unreadMessages = Chat::where('sender_id', $user->id)
+        $usahaId = request('usaha_id');
+        
+        \Log::info("Chat: User {$currentUser->id} marking messages from {$user->id} for Usaha {$usahaId} as READ");
+        
+        $query = Chat::where('sender_id', $user->id)
             ->where('receiver_id', $currentUser->id)
-            ->where('is_read', false)
-            ->get();
+            ->where('is_read', false);
+
+        if ($usahaId) {
+            $query->where('usaha_id', $usahaId);
+        } else {
+            $query->whereNull('usaha_id');
+        }
+
+        $unreadMessages = $query->get();
 
         foreach ($unreadMessages as $msg) {
             $msg->update(['is_read' => true, 'is_delivered' => true]);

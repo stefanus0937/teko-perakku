@@ -98,9 +98,16 @@ class ProdukController extends Controller
         ]);
 
         if ($user->role == 'umkm') {
-            $usaha = Usaha::where('id', $request->usaha_id)->where('user_id', $user->id)->first();
-            if (!$usaha) {
-                return redirect()->back()->with('error', 'Anda tidak memiliki akses ke usaha ini.');
+            $usahaIds = (array) $request->usaha_id;
+            $ownedUsahaCount = Usaha::whereIn('id', $usahaIds)->where('user_id', $user->id)->count();
+            if ($ownedUsahaCount !== count($usahaIds)) {
+                return redirect()->back()->with('error', 'Anda hanya dapat menambahkan produk ke usaha milik sendiri.');
+            }
+        } elseif ($user->role == 'admin_wilayah') {
+            $usahaIds = (array) $request->usaha_id;
+            $wilayahUsahaCount = Usaha::whereIn('id', $usahaIds)->where('wilayah_id', $user->wilayah_id)->count();
+            if ($wilayahUsahaCount !== count($usahaIds)) {
+                return redirect()->back()->with('error', 'Anda hanya dapat menambahkan produk ke usaha di wilayah Anda.');
             }
         }
 
@@ -153,9 +160,16 @@ class ProdukController extends Controller
         ]);
 
         if ($user->role == 'umkm') {
-            $usaha = Usaha::where('id', $request->usaha_id)->where('user_id', $user->id)->first();
-            if (!$usaha) {
-                return redirect()->back()->with('error', 'Anda tidak memiliki akses ke usaha ini.');
+            $usahaIds = (array) $request->usaha_id;
+            $ownedUsahaCount = Usaha::whereIn('id', $usahaIds)->where('user_id', $user->id)->count();
+            if ($ownedUsahaCount !== count($usahaIds)) {
+                return redirect()->back()->with('error', 'Anda hanya dapat memindahkan produk ke usaha milik sendiri.');
+            }
+        } elseif ($user->role == 'admin_wilayah') {
+            $usahaIds = (array) $request->usaha_id;
+            $wilayahUsahaCount = Usaha::whereIn('id', $usahaIds)->where('wilayah_id', $user->wilayah_id)->count();
+            if ($wilayahUsahaCount !== count($usahaIds)) {
+                return redirect()->back()->with('error', 'Anda hanya dapat memindahkan produk ke usaha di wilayah Anda.');
             }
         }
 
