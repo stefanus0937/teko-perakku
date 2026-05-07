@@ -162,17 +162,27 @@
                         <div class="thumb">
                             <img src="{{ asset('storage/' . optional($produk->fotoProduk->first())->file_foto_produk) }}"
                                 alt="{{ $produk->nama_produk }}"
-                                onerror="this.onerror=null;this.src='{{ asset('images/produk-default.jpg') }}';">
+                                onerror="this.onerror=null;this.src='{{ asset('assets/images/produk-default.jpg') }}';">
                         </div>
                         <div class="down-content">
                             <h4>{{ $produk->nama_produk }}</h4>
                             <span class="product-price">Rp {{ number_format($produk->harga, 0, ',', '.') }}</span>
                             <ul class="stars">
-                                @for ($i = 0; $i < 5; $i++)
-                                    <li><i class="fa fa-star"></i></li>
+                                @php
+                                    $avg = $produk->reviews->avg('rating') ?: 0;
+                                    $full = floor($avg);
+                                @endphp
+                                @for($i = 1; $i <= 5; $i++)
+                                    <li><i class="fa fa-star{{ $i <= $full ? '' : ($i - $avg < 1 && $i - $avg > 0 ? '-half-o' : '-o') }}"></i></li>
                                 @endfor
                             </ul>
-                            <p class="product-reviews">20 Reviews</p>
+                            <p class="product-reviews">
+                                @if($produk->reviews->count() > 0)
+                                    {{ $produk->reviews->count() }} Reviews
+                                @else
+                                    Belum ada review
+                                @endif
+                            </p>
                         </div>
                     </a>
                 </div>

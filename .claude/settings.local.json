@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"d:\\\\TUGAS\\\\KP\\\\githubKu\\\\Teko-perakku\\\\app\\\\Http\\\\Controllers\" -Filter \"*.php\")",
+      "Bash(Select-Object -ExpandProperty Name)"
+    ]
+  }
+}

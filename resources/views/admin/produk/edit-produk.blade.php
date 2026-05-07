@@ -182,6 +182,7 @@
                     @endforeach
                 </select>
             </div>
+            @if(count($usahas) > 1)
             <div class="form-group">
                 <label>Pemilik (Usaha)</label>
                 <select name="usaha_id" class="form-input" required>
@@ -191,6 +192,9 @@
                     @endforeach
                 </select>
             </div>
+            @else
+                <input type="hidden" name="usaha_id" value="{{ $usahas->first()->id }}">
+            @endif
             <!-- Hidden stok field as it's not in UI but required in controller -->
             <input type="hidden" name="stok" value="{{ $produk->stok }}">
         </div>

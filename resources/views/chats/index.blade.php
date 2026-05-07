@@ -10,7 +10,7 @@
             <hr>
             <div class="list-group">
                 @forelse($chatUsers as $chatUser)
-                    <a href="{{ route('chats.show', $chatUser->id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <a href="{{ route('chats.show', ['user' => $chatUser->id, 'usaha_id' => $chatUser->active_usaha_id]) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                         <div>
                             <strong>{{ $chatUser->username }}</strong>
                             <p class="mb-0 text-muted small">Klik untuk melihat percakapan</p>

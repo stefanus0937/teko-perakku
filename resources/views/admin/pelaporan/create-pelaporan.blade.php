@@ -90,6 +90,7 @@
     <div class="form-container">
         <!-- Left Column -->
         <div class="form-column">
+            @if(count($usahas) > 1)
             <div class="form-group">
                 <label>Usaha</label>
                 <select name="usaha_id" class="form-input" required>
@@ -99,6 +100,9 @@
                     @endforeach
                 </select>
             </div>
+            @else
+                <input type="hidden" name="usaha_id" value="{{ $usahas->first()->id }}">
+            @endif
             <div class="form-group">
                 <label>Omset</label>
                 <input type="number" name="omset" class="form-input" placeholder="Rp. 0" required>

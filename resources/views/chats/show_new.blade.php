@@ -1,195 +1,439 @@
 @extends($layout ?? 'layouts.user')
 
-@section('title', 'Chat with ' . $user->username)
+@section('title', 'Chat with ' . $user->display_name)
 
 @section('css')
 <style>
+    :root {
+        --chat-bg: #f8f9fa;
+        --chat-sidebar-bg: #ffffff;
+        --chat-header-bg: #ffffff;
+        --chat-contact-hover: #f8f9fa;
+        --chat-contact-active: #f0f2f5;
+        --chat-window-bg: #fdfdfd;
+        --chat-msg-other: #f0f2f5;
+        --chat-msg-self: #fff0f0;
+        --chat-text: #1a1a1a;
+        --chat-text-muted: #71717a;
+        --chat-border: #e4e4e7; /* More distinct border */
+        --chat-input-bg: #ffffff;
+        --chat-header-text: #1a1a1a;
+        --chat-divider-bg: #ffffff;
+        --chat-accent: #ef4444;
+    }
+
+    body.dark-mode {
+        --chat-bg: #0f0f0f;
+        --chat-sidebar-bg: #1a1a1a;
+        --chat-header-bg: #1a1a1a;
+        --chat-contact-hover: #242424;
+        --chat-contact-active: #2d2d2d;
+        --chat-window-bg: #121212;
+        --chat-msg-other: #2d2d2d;
+        --chat-msg-self: #451a1a;
+        --chat-text: #e4e4e7;
+        --chat-text-muted: #a1a1aa;
+        --chat-border: #3f3f46;
+        --chat-input-bg: #242424;
+        --chat-header-text: #ffffff;
+        --chat-divider-bg: #1a1a1a;
+        --chat-accent: #f87171;
+    }
+
+    body { background-color: var(--chat-bg) !important; color: var(--chat-text) !important; overflow-x: hidden; }
+    
+    /* Override layout margins to lift chat higher */
+    .main-container { margin-top: 15px !important; margin-bottom: 15px !important; min-height: auto !important; }
+
     .chat-container {
         display: flex;
-        background: #fff;
-        border-radius: 20px;
+        background: var(--chat-sidebar-bg);
+        border-radius: 12px;
         overflow: hidden;
-        border: 1px solid #f1f1f4;
-        height: calc(100vh - 250px);
+        border: 1px solid var(--chat-border);
+        height: calc(100vh - 210px); /* Adjusted to prevent page scroll */
         min-height: 500px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
 
-    /* Contacts Sidebar (Same as index) */
+    /* Contacts Sidebar */
     .contacts-sidebar {
-        width: 350px;
-        border-right: 1px solid #f1f1f4;
+        width: 320px;
+        flex-shrink: 0;
+        border-right: 1px solid var(--chat-border);
         display: flex;
         flex-direction: column;
+        background: var(--chat-sidebar-bg);
     }
 
-    .sidebar-header { padding: 30px; }
-    .sidebar-header h2 { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
-    .search-box { position: relative; margin-bottom: 15px; }
-    .search-box input { width: 100%; padding: 12px 20px 12px 45px; border-radius: 12px; border: 1px solid #f1f1f4; background: #fafafa; font-size: 14px; outline: none; }
-    .search-box i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #a1a1aa; }
-    .contact-list { flex: 1; overflow-y: auto; padding: 0 15px 30px; }
-    .contact-item { display: flex; align-items: center; gap: 15px; padding: 15px; border-radius: 15px; text-decoration: none; color: inherit; margin-bottom: 5px; }
-    .contact-item.active { background: #f1f5f9; }
+    .sidebar-header { 
+        padding: 15px 20px; 
+        background: var(--chat-header-bg); 
+        display: flex; 
+        flex-direction: column;
+        gap: 12px;
+        border-bottom: 1px solid var(--chat-border);
+    }
+    
+    .sidebar-header h2 { font-size: 18px; font-weight: 700; margin: 0; color: var(--chat-header-text); }
+    
+    .search-box { position: relative; }
+    .search-box input { 
+        width: 100%; padding: 8px 15px 8px 40px; 
+        border-radius: 10px; border: 1px solid var(--chat-border); 
+        background: var(--chat-bg); color: var(--chat-text); 
+        font-size: 13px; outline: none; transition: all 0.2s;
+    }
+    .search-box input:focus { border-color: var(--chat-accent); }
+    .search-box i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--chat-text-muted); font-size: 13px;}
+
+    .contact-list { flex: 1; overflow-y: auto; background: var(--chat-sidebar-bg); }
+    .contact-item { 
+        display: flex; align-items: center; gap: 12px; 
+        padding: 12px 20px; text-decoration: none; color: inherit; 
+        border-bottom: 1px solid var(--chat-border); transition: all 0.2s;
+    }
+    .contact-item:hover { background: var(--chat-contact-hover); }
+    .contact-item.active { background: var(--chat-contact-active); border-left: 4px solid var(--chat-accent); }
+    
     .avatar-wrapper { position: relative; flex-shrink: 0; }
-    .avatar-img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
-    .status-dot { position: absolute; bottom: 2px; right: 2px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid #fff; background: #cbd5e1; }
-    .status-dot.online { background: #22c55e; }
-    .contact-info { flex: 1; min-width: 0; }
-    .contact-name { font-size: 14px; font-weight: 700; color: #18181b; }
+    .avatar-img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 1px solid var(--chat-border); }
+    
+    .contact-info { flex: 1; min-width: 0; padding-left: 12px; }
+    .contact-name-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
+    .last-msg { display: flex !important; justify-content: space-between !important; align-items: center !important; width: 100% !important; gap: 8px; }
+    .last-msg-text { font-size: 12px; color: var(--chat-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+    .contact-name { font-weight: 600; color: var(--chat-text); font-size: 15px; }
+    .chat-time { font-size: 11px; color: #8696a0; }
 
     /* Main Chat Window */
     .chat-window {
         flex: 1;
         display: flex;
         flex-direction: column;
-        background: #fff;
+        background: var(--chat-window-bg);
+        position: relative;
+    }
+    .chat-window::before {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-image: url('https://static.whatsapp.net/rsrc.php/v3/yl/r/rPj_wJ_Q4V0.png');
+        background-repeat: repeat;
+        opacity: 0.03;
+        z-index: 0;
+        pointer-events: none;
     }
 
     .chat-header {
-        padding: 20px 30px;
-        border-bottom: 1px solid #f1f1f4;
+        padding: 10px 25px;
+        background: var(--chat-header-bg);
         display: flex;
         align-items: center;
         gap: 15px;
+        height: 60px;
+        z-index: 1;
+        border-bottom: 1px solid var(--chat-border);
     }
 
-    .header-info h4 {
-        margin: 0;
-        font-size: 16px;
-        font-weight: 700;
-    }
-
-    .header-info span {
-        font-size: 12px;
-        font-weight: 600;
-        color: #71717a;
-    }
-
-    .header-info span.online {
-        color: #ef4444; /* Image shows Online in red/pinkish? Wait, it says 'Online' in red? Actually, looking closer at image 1, 'Online' is red. Image 2, it's also red. */
-    }
+    .header-info h4 { margin: 0; font-size: 15px; font-weight: 700; color: var(--chat-header-text); }
+    .header-info span { font-size: 12px; font-weight: 600; }
+    .header-info span.online { color: #22c55e; }
+    .header-info span.offline { color: var(--chat-text-muted); }
 
     .messages-area {
         flex: 1;
         overflow-y: auto;
-        padding: 30px;
+        padding: 20px 4%;
         display: flex;
         flex-direction: column;
-        gap: 20px;
-        background: #fff;
+        gap: 10px;
+        z-index: 1;
     }
 
     .message-row {
         display: flex;
         flex-direction: column;
-        max-width: 80%;
+        max-width: 75%;
     }
 
-    .message-row.self {
-        align-self: flex-end;
-        align-items: flex-end;
-    }
-
-    .message-row.other {
-        align-self: flex-start;
-        align-items: flex-start;
-    }
+    .message-row.self { align-self: flex-end; }
+    .message-row.other { align-self: flex-start; }
 
     .message-content {
-        padding: 12px 18px;
-        border-radius: 18px;
+        padding: 8px 12px;
+        border-radius: 12px;
         font-size: 14px;
-        line-height: 1.5;
+        line-height: 1.4;
         position: relative;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
 
     .other .message-content {
-        background: #f4f4f5;
-        color: #18181b;
-        border-bottom-left-radius: 4px;
+        background: var(--chat-msg-other);
+        color: var(--chat-text);
+        border-bottom-left-radius: 2px;
     }
 
     .self .message-content {
-        background: #fee2e2; /* Light red/pink like image */
-        color: #18181b;
-        border-bottom-right-radius: 4px;
+        background: var(--chat-msg-self);
+        color: var(--chat-text);
+        border-bottom-right-radius: 2px;
+        border: 1px solid rgba(239, 68, 68, 0.1);
     }
+    
+    .message-text { word-break: break-word; }
 
     .message-time {
-        font-size: 11px;
-        color: #a1a1aa;
-        margin-top: 5px;
+        font-size: 10px;
+        color: var(--chat-text-muted);
+        margin-top: 3px;
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 3px;
+        justify-content: flex-end;
     }
 
-    .self .message-time { justify-content: flex-end; }
-
     .input-bar {
-        padding: 20px 30px;
-        border-top: 1px solid #f1f1f4;
+        padding: 12px 20px;
+        background: var(--chat-header-bg);
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 12px;
+        z-index: 1;
+        border-top: 1px solid var(--chat-border);
     }
 
     .attachment-btn {
-        color: #71717a;
-        font-size: 20px;
+        color: var(--chat-text-muted);
+        font-size: 18px;
         cursor: pointer;
     }
 
-    .input-wrapper {
-        flex: 1;
-        position: relative;
-    }
+    .input-wrapper { flex: 1; }
 
     .message-input {
         width: 100%;
-        padding: 12px 20px;
-        border-radius: 12px;
-        border: 1px solid #f1f1f4;
+        padding: 10px 18px;
+        border-radius: 20px;
+        border: 1px solid var(--chat-border);
+        background: var(--chat-bg);
+        color: var(--chat-text);
         font-size: 14px;
         outline: none;
     }
+    .message-input:focus { border-color: var(--chat-accent); background: var(--chat-sidebar-bg); }
 
     .send-btn {
-        color: #ef4444;
-        font-weight: 700;
-        font-size: 14px;
+        color: var(--chat-accent);
         background: none;
         border: none;
         cursor: pointer;
+        font-weight: 700;
+        font-size: 13px;
+        padding: 5px 8px;
         text-transform: lowercase;
     }
 
-    .date-divider {
-        text-align: center;
-        position: relative;
-        margin: 20px 0;
-    }
-
-    .date-divider::before {
-        content: "";
-        position: absolute;
-        top: 50%;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background: #f1f1f4;
-        z-index: 1;
-    }
-
+    .date-divider { text-align: center; margin: 15px 0; z-index: 1; }
     .date-divider span {
-        background: #fff;
-        padding: 0 15px;
+        background: var(--chat-divider-bg);
+        padding: 3px 12px;
         font-size: 11px;
-        color: #a1a1aa;
-        position: relative;
-        z-index: 2;
-        text-transform: uppercase;
+        color: var(--chat-text-muted);
+        border-radius: 15px;
+        border: 1px solid var(--chat-border);
         font-weight: 600;
+    }
+
+    .tick-gray { color: #8696a0 !important; }
+    .tick-blue { color: #53bdeb !important; }
+
+    /* Message Actions */
+    .message-content { position: relative; overflow: visible !important; }
+    .message-actions {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        opacity: 0;
+        transition: opacity 0.2s;
+        cursor: pointer;
+        background: rgba(255,255,255,0.8);
+        border-radius: 50%;
+        width: 22px;
+        height: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        z-index: 10;
+        color: #667781;
+    }
+    .message-row:hover .message-actions { opacity: 1; }
+    
+    .action-dropdown {
+        display: none;
+        position: absolute;
+        top: 30px;
+        background: var(--chat-sidebar-bg);
+        border: 1px solid var(--chat-border);
+        border-radius: 8px;
+        z-index: 9999;
+        min-width: 170px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        padding: 5px 0;
+    }
+
+    /* Directional alignment */
+    .other .action-dropdown {
+        left: 0;
+        right: auto;
+    }
+
+    .self .action-dropdown {
+        right: 0;
+        left: auto;
+    }
+
+    .action-dropdown div {
+        padding: 10px 15px;
+        font-size: 13px;
+        color: var(--chat-text);
+        transition: background 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .action-dropdown div:hover { background: var(--chat-bg); color: var(--chat-accent); }
+    .action-dropdown div i { width: 16px; font-size: 14px; opacity: 0.7; }
+
+    /* Reply Style */
+    .reply-content {
+        background: rgba(0,0,0,0.05);
+        border-left: 4px solid var(--chat-accent);
+        padding: 5px 8px;
+        border-radius: 4px;
+        margin-bottom: 5px;
+        font-size: 12px;
+        color: var(--chat-text-muted);
+    }
+    .reply-preview-container, .file-preview-container {
+        padding: 10px 15px;
+        background: var(--chat-sidebar-bg);
+        border-top: 1px solid var(--chat-border);
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .reply-preview-content, .file-preview-content {
+        border-left: 4px solid var(--chat-accent);
+        padding-left: 10px;
+        font-size: 13px;
+        flex: 1;
+    }
+    .close-preview { cursor: pointer; color: var(--chat-text-muted); transition: color 0.2s; }
+    .close-preview:hover { color: #ef4444; }
+
+    .edited-label { font-size: 10px; font-style: italic; color: var(--chat-text-muted); margin-right: 5px; }
+
+    /* File Attachment UI */
+    .attachment-btn { position: relative; overflow: hidden; }
+    #file-input { position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    
+    .typing-status {
+        color: #22c55e;
+        font-size: 12px;
+        font-weight: 500;
+        margin-top: 2px;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Product Preview Bar */
+    .product-preview-bar {
+        padding: 10px 15px;
+        background: var(--chat-sidebar-bg);
+        border-top: 1px solid var(--chat-border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        z-index: 2;
+    }
+    .product-preview-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
+    }
+    .product-preview-img {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 1px solid var(--chat-border);
+    }
+    .product-preview-info {
+        display: flex;
+        flex-direction: column;
+    }
+    .product-preview-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--chat-text);
+    }
+    .product-preview-price {
+        font-size: 11px;
+        color: var(--chat-accent);
+        font-weight: 700;
+    }
+
+    /* Product Card inside Chat Bubble */
+    .product-card-msg {
+        background: rgba(0, 0, 0, 0.03);
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 8px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        max-width: 100%;
+        display: block;
+        text-decoration: none !important;
+        color: inherit !important;
+    }
+    .product-card-header {
+        display: flex;
+        gap: 12px;
+        padding: 8px;
+        background: rgba(0, 0, 0, 0.02);
+    }
+    .product-card-img {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 4px;
+        flex-shrink: 0;
+    }
+    .product-card-body {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .product-card-title {
+        font-weight: 700;
+        font-size: 13px;
+        margin-bottom: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .product-card-subtitle {
+        font-size: 11px;
+        color: var(--chat-text-muted);
     }
 </style>
 @endsection
@@ -207,13 +451,43 @@
 
         <div class="contact-list">
             @foreach($chatUsers as $chatUser)
-            <a href="{{ route('chats.show', $chatUser->id) }}" class="contact-item {{ $user->id == $chatUser->id ? 'active' : '' }}" data-name="{{ strtolower($chatUser->display_name) }}">
+            <a href="{{ route('chats.show', ['user' => $chatUser->id, 'usaha_id' => $chatUser->active_usaha_id]) }}" 
+               class="contact-item {{ ($user->id == $chatUser->id && $usahaId == $chatUser->active_usaha_id) ? 'active' : '' }}" 
+               data-name="{{ strtolower($chatUser->display_name) }}"
+               data-user-id="{{ $chatUser->id }}"
+               data-usaha-id="{{ $chatUser->active_usaha_id ?? 'null' }}">
                 <div class="avatar-wrapper">
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode($chatUser->username) }}&background=random" class="avatar-img" alt="">
-                    <div class="status-dot" id="status-dot-{{ $chatUser->id }}"></div>
+                    @if($chatUser->usaha && $chatUser->usaha->foto_usaha)
+                        <img src="{{ asset('storage/' . $chatUser->usaha->foto_usaha) }}" class="avatar-img" alt="">
+                    @elseif($chatUser->foto)
+                        <img src="{{ asset('storage/' . $chatUser->foto) }}" class="avatar-img" alt="">
+                    @else
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode($chatUser->display_name) }}&background=random" class="avatar-img" alt="">
+                    @endif
+                    <div class="status-dot {{ $chatUser->isOnline() ? 'online' : '' }}" id="status-dot-{{ $chatUser->id }}"></div>
                 </div>
                 <div class="contact-info">
-                    <div class="contact-name">{{ $chatUser->display_name }}</div>
+                    <div class="contact-name-row">
+                        <span class="contact-name">{{ $chatUser->display_name }}</span>
+                        <span class="chat-time">{{ $chatUser->last_chat_time }}</span>
+                    </div>
+                    <div class="last-msg">
+                        <span class="last-msg-text">
+                            @if($chatUser->unread_count > 0)
+                                <strong style="color: var(--chat-text);">{{ $chatUser->last_message ?: 'Klik untuk memulai chat' }}</strong>
+                            @else
+                                {{ $chatUser->last_message ?: 'Klik untuk memulai chat' }}
+                            @endif
+                        </span>
+                        @php
+                            $isActive = ($user->id == $chatUser->id && ($usahaId == $chatUser->active_usaha_id || (!$usahaId && !$chatUser->active_usaha_id)));
+                        @endphp
+                        @if($chatUser->unread_count > 0 && !$isActive)
+                            <span class="unread-badge" style="background: #25d366; color: #000; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0;">
+                                {{ $chatUser->unread_count }}
+                            </span>
+                        @endif
+                    </div>
                 </div>
             </a>
             @endforeach
@@ -222,62 +496,212 @@
 
     <div class="chat-window">
         <div class="chat-header">
+            <a href="{{ route('chats.index') }}" class="btn btn-link text-dark d-md-none mr-2 p-0">
+                <i class="fas fa-arrow-left"></i>
+            </a>
             <div class="avatar-wrapper">
-                <img src="https://ui-avatars.com/api/?name={{ urlencode($user->username) }}&background=random" class="avatar-img" alt="">
-                <div class="status-dot" id="header-status-dot"></div>
+                @if(isset($user->specific_usaha) && $user->specific_usaha->foto_usaha)
+                    <img src="{{ asset('storage/' . $user->specific_usaha->foto_usaha) }}" class="avatar-img" alt="">
+                @elseif($user->usaha && $user->usaha->foto_usaha)
+                    <img src="{{ asset('storage/' . $user->usaha->foto_usaha) }}" class="avatar-img" alt="">
+                @elseif($user->foto)
+                    <img src="{{ asset('storage/' . $user->foto) }}" class="avatar-img" alt="">
+                @else
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode($user->display_name) }}&background=random" class="avatar-img" alt="">
+                @endif
+                <div class="status-dot {{ $user->isOnline() ? 'online' : '' }}" id="header-status-dot"></div>
             </div>
             <div class="header-info">
-                <h4>{{ $user->role === 'umkm' && $user->usaha ? $user->usaha->nama_usaha : $user->username }}</h4>
-                <span id="user-status">Offline</span>
+                <h4>{{ $user->display_name }}</h4>
+                <div id="user-status-container">
+                    @if($user->isOnline())
+                        <span id="user-status" class="online">Online</span>
+                    @else
+                        <span id="user-status" class="offline">
+                            @if($user->last_seen_at)
+                                Terakhir dilihat {{ $user->last_seen_at->diffForHumans() }}
+                            @else
+                                Offline
+                            @endif
+                        </span>
+                    @endif
+                </div>
             </div>
         </div>
 
-        <div class="messages-area" id="message-container">
-            <div class="date-divider"><span>Today</span></div>
-            
+        <div class="messages-area" id="message-container" style="display: flex; flex-direction: column; height: 100%;">
+            @if($messages->isEmpty())
+                <div class="text-muted" id="empty-chat-state" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
+                    <div class="text-center">
+                        <i class="far fa-comments mb-3" style="font-size: 64px; opacity: 0.1;"></i>
+                        <h5 class="mb-2" style="font-weight: 600; color: var(--chat-text);">Mulai Percakapan</h5>
+                    </div>
+                </div>
+            @endif
+
+            @php
+                $currentDate = null;
+            @endphp
             @foreach($messages as $message)
-                <div class="message-row {{ $message->sender_id == Auth::id() ? 'self' : 'other' }}">
+                @php
+                    $msgDate = $message->created_at->format('Y-m-d');
+                    $displayDate = $message->created_at->isToday() ? 'Today' : ($message->created_at->isYesterday() ? 'Yesterday' : $message->created_at->format('d M Y'));
+                @endphp
+                
+                @if($currentDate !== $msgDate)
+                    <div class="date-divider"><span>{{ $displayDate }}</span></div>
+                    @php $currentDate = $msgDate; @endphp
+                @endif
+                <div class="message-row {{ $message->sender_id == Auth::id() ? 'self' : 'other' }}" id="message-{{ $message->id }}">
                     <div class="message-content">
-                        @if($message->type === 'image')
-                            <img src="{{ asset('storage/' . $message->attachment) }}" style="max-width: 100%; border-radius: 12px; margin-bottom: 5px;"><br>
-                        @elseif($message->type === 'file')
-                            <a href="{{ asset('storage/' . $message->attachment) }}" target="_blank" class="text-dark">
-                                <i class="fas fa-file-alt mr-2"></i> {{ $message->message ?: 'File' }}
+                        @if(!$message->deleted_by_sender && !$message->deleted_by_receiver)
+                            <div class="message-actions" onclick="toggleActionMenu({{ $message->id }})">
+                                <i class="fas fa-chevron-down" style="font-size: 10px;"></i>
+                                <div class="action-dropdown" id="dropdown-{{ $message->id }}">
+                                    <div onclick="handleReply({{ $message->id }}, '{{ $message->sender_id == Auth::id() ? 'Anda' : $user->display_name }}', '{{ str_replace(["'", "\n"], ["\\'", ' '], $message->message ?: 'Berkas') }}')"><i class="fas fa-reply"></i> Balas</div>
+                                    @if($message->sender_id == Auth::id() && $message->type === 'text')
+                                        <div onclick="handleEdit({{ $message->id }}, '{{ str_replace(["'", "\n"], ["\\'", ' '], $message->message ?: '') }}')"><i class="fas fa-edit"></i> Edit</div>
+                                    @endif
+                                    @if($message->sender_id == Auth::id())
+                                        <div onclick="handleDelete({{ $message->id }}, 'everyone')"><i class="fas fa-trash-alt"></i> Hapus untuk semua</div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+
+                        @if($message->replyTo)
+                            <div class="reply-content">
+                                <strong>{{ $message->replyTo->sender_id == Auth::id() ? 'Anda' : $user->display_name }}</strong><br>
+                                {{ $message->replyTo->message ?: 'Berkas' }}
+                            </div>
+                        @endif
+
+                        @if($message->product)
+                            <a href="{{ route('guest-singleProduct', $message->product->slug) }}" class="product-card-msg" target="_blank">
+                                <div class="product-card-header">
+                                    <img src="{{ asset('storage/' . optional($message->product->fotoProduk->first())->file_foto_produk) }}" class="product-card-img" onerror="this.onerror=null;this.src='{{ asset('assets/images/produk-default.jpg') }}';">
+                                    <div class="product-card-body">
+                                        <div class="product-card-title">{{ $message->product->nama_produk }}</div>
+                                        <div class="product-card-subtitle">{{ request()->getHost() }}</div>
+                                    </div>
+                                </div>
                             </a>
                         @endif
-                        
-                        @if($message->type === 'text' || $message->message)
-                            {!! nl2br(e($message->message)) !!}
-                        @endif
-                    </div>
-                    <div class="message-time">
-                        {{ $message->created_at->format('H:i') }}
-                        @if($message->sender_id == Auth::id())
-                            <i class="fas fa-check{{ $message->is_read ? '-double text-primary' : '' }}" style="font-size: 8px;"></i>
-                        @endif
+
+                        <div class="message-text">
+                            @if($message->type === 'image')
+                                <img src="{{ asset('storage/' . $message->attachment) }}" style="max-width: 250px; max-height: 300px; border-radius: 8px; margin-bottom: 5px; object-fit: contain; display: block; background: #eee;">
+                                @if($message->message)
+                                    <br>{!! nl2br(preg_replace('/(https?:\/\/[^\s]+)/', '<a href="$1" target="_blank" style="text-decoration: underline; color: inherit;">$1</a>', e($message->message))) !!}
+                                @endif
+                            @elseif($message->type === 'file')
+                                @php
+                                    $ext = pathinfo($message->attachment, PATHINFO_EXTENSION);
+                                    $icon = 'fa-file-alt';
+                                    if ($ext === 'pdf') $icon = 'fa-file-pdf';
+                                    elseif (in_array($ext, ['doc', 'docx'])) $icon = 'fa-file-word';
+                                    elseif (in_array($ext, ['xls', 'xlsx'])) $icon = 'fa-file-excel';
+                                    elseif (in_array($ext, ['ppt', 'pptx'])) $icon = 'fa-file-powerpoint';
+                                    elseif ($ext === 'zip') $icon = 'fa-file-archive';
+                                    elseif ($ext === 'txt') $icon = 'fa-file-lines';
+                                @endphp
+                                <a href="{{ asset('storage/' . $message->attachment) }}" target="_blank" style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); margin-bottom: 5px;">
+                                    <i class="fas {{ $icon }}" style="font-size: 24px; color: var(--chat-accent);"></i>
+                                    <div style="flex: 1; overflow: hidden;">
+                                        <div class="text-truncate" style="font-weight: 500;">{{ $message->message ?: 'Berkas' }}</div>
+                                        <div style="font-size: 10px; opacity: 0.7;">Klik untuk membuka</div>
+                                    </div>
+                                    <i class="fas fa-download" style="font-size: 14px; opacity: 0.5;"></i>
+                                </a>
+                            @else
+                                {!! nl2br(preg_replace('/(https?:\/\/[^\s]+)/', '<a href="$1" target="_blank" style="text-decoration: underline; color: inherit;">$1</a>', e($message->message))) !!}
+                            @endif
+
+                            @if($message->is_edited)
+                                <span class="edited-label">(diedit)</span>
+                            @endif
+                        </div>
+                        <div class="message-time">
+                            {{ $message->created_at->format('H:i') }}
+                            @if($message->sender_id == Auth::id())
+                                @if($message->is_read)
+                                    <i class="fas fa-check-double tick-blue" style="font-size: 10px; margin-left: 4px;" id="msg-tick-{{ $message->id }}"></i>
+                                @elseif($message->is_delivered)
+                                    <i class="fas fa-check-double tick-gray" style="font-size: 10px; margin-left: 4px;" id="msg-tick-{{ $message->id }}"></i>
+                                @else
+                                    <i class="fas fa-check tick-gray" style="font-size: 10px; margin-left: 4px;" id="msg-tick-{{ $message->id }}"></i>
+                                @endif
+                            @endif
+                        </div>
                     </div>
                 </div>
             @endforeach
         </div>
 
-        <form id="chat-form" class="input-bar">
+        <div class="file-preview-container" id="file-preview">
+            <div class="file-preview-content">
+                <small style="color: var(--chat-accent); font-weight: 600;">Unggahan Berkas</small>
+                <div id="file-name-preview" class="text-truncate" style="max-width: 300px; color: var(--chat-text-muted);"></div>
+            </div>
+            <i class="fas fa-times close-preview" onclick="cancelFile()"></i>
+        </div>
+
+        <div class="reply-preview-container" id="reply-preview">
+            <div class="reply-preview-content">
+                <small id="reply-user-name" style="color: var(--chat-accent); font-weight: 600;"></small>
+                <div id="reply-text-preview" class="text-truncate" style="max-width: 300px; color: var(--chat-text-muted);"></div>
+            </div>
+            <i class="fas fa-times close-preview" onclick="cancelReply()"></i>
+        </div>
+
+        @if(isset($product) && $product)
+        <div class="product-preview-bar" id="product-preview">
+            <div class="product-preview-content">
+                <img src="{{ asset('storage/' . optional($product->fotoProduk->first())->file_foto_produk) }}" alt="" class="product-preview-img" onerror="this.onerror=null;this.src='{{ asset('assets/images/produk-default.jpg') }}';">
+                <div class="product-preview-info">
+                    <span class="product-preview-name">{{ $product->nama_produk }}</span>
+                    <span class="product-preview-price">Rp {{ number_format($product->harga, 0, ',', '.') }}</span>
+                </div>
+            </div>
+            <i class="fas fa-times close-preview" onclick="document.getElementById('product-preview').remove(); document.getElementById('product-id-input').value = '';"></i>
+        </div>
+        @endif
+
+        <form id="chat-form" class="input-bar" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="receiver_id" value="{{ $user->id }}">
-            <i class="fas fa-paperclip attachment-btn"></i>
+            <input type="hidden" name="usaha_id" value="{{ $usahaId }}">
+            <input type="hidden" name="product_id" value="{{ $product->id ?? '' }}" id="product-id-input">
+            <input type="hidden" name="reply_to_id" id="reply-id-input">
+            <input type="hidden" id="edit-id-input">
+            <input type="file" id="attachment-input" name="attachment" style="display: none;">
+            <i class="fas fa-paperclip attachment-btn" onclick="document.getElementById('attachment-input').click()"></i>
             <div class="input-wrapper">
-                <input type="text" name="message" id="message-input" placeholder="Ketik sesuatu" class="message-input" autocomplete="off">
+                <input type="text" name="message" id="message-input" value="{{ $prefillMessage ?? '' }}" placeholder="Ketik sesuatu" class="message-input" autocomplete="off" {{ !empty($prefillMessage) ? 'autofocus' : '' }}>
             </div>
-            <button type="submit" class="send-btn">kirim</button>
+            <button type="submit" id="send-btn" class="send-btn">kirim</button>
         </form>
     </div>
 </div>
 @endsection
 
 @section('js')
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // Global identifier for this specific chat room
+        window.activeChatUserId = {{ $user->id }};
+        window.activeUsahaId = {{ $usahaId ?? 'null' }};
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 @vite(['resources/js/app.js'])
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Axios CSRF configuration
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        let token = document.head.querySelector('meta[name="csrf-token"]');
+        if (token) {
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
+        }
+
         const messageContainer = document.getElementById('message-container');
         const chatForm = document.getElementById('chat-form');
 
@@ -285,100 +709,491 @@
             messageContainer.scrollTop = messageContainer.scrollHeight;
         }
 
+        // Focus and move cursor to end for pre-filled messages
+        const msgInput = document.getElementById('message-input');
+        if (msgInput && msgInput.value.trim() !== '') {
+            msgInput.focus();
+            const val = msgInput.value;
+            msgInput.value = '';
+            msgInput.value = val;
+        }
+
         if (chatForm) {
             chatForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const formData = new FormData(this);
-                if (!formData.get('message')) return;
-
+                const editId = document.getElementById('edit-id-input').value;
+                const url = editId ? `{{ url('chats') }}/${editId}` : '{{ route("chats.store") }}';
+                
                 const input = document.getElementById('message-input');
-                input.disabled = true;
+                const sendBtn = document.getElementById('send-btn');
+                
+                if (!input.value.trim() && !document.getElementById('attachment-input').files.length) return;
 
-                axios.post('{{ route("chats.store") }}', formData)
-                    .then(response => {
-                        input.value = '';
-                        input.disabled = false;
-                        input.focus();
-                        // Real-time update handled by Echo
+                const formData = new FormData(this);
+                
+                input.disabled = true;
+                if(sendBtn) {
+                    sendBtn.disabled = true;
+                    sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                }
+
+                if (editId) {
+                    // Use JSON for updates
+                    axios.put(url, {
+                        message: input.value
                     })
-                    .catch(error => {
-                        console.error(error);
-                        input.disabled = false;
-                    });
+                    .then(response => {
+                        handleSuccess(response.data, true);
+                    })
+                    .catch(handleError);
+                } else {
+                    // Use FormData for new messages (support attachments)
+                    axios.post(url, formData)
+                    .then(response => {
+                        handleSuccess(response.data, false);
+                    })
+                    .catch(handleError);
+                }
+
+                function handleSuccess(data, isEdit) {
+                    input.value = '';
+                    input.disabled = false;
+                    if(sendBtn) {
+                        sendBtn.disabled = false;
+                        sendBtn.innerText = 'kirim';
+                    }
+                    document.getElementById('attachment-input').value = '';
+                    if (document.getElementById('product-id-input')) document.getElementById('product-id-input').value = '';
+                    if (document.getElementById('product-preview')) document.getElementById('product-preview').remove();
+                    cancelReply();
+                    cancelFile();
+                    if (isEdit) {
+                        document.getElementById('edit-id-input').value = '';
+                        updateMessageInUI(data);
+                    } else {
+                        appendMessage(data, true);
+                        updateSidebar(data);
+                        
+                        // Clear product_id from URL to prevent re-fill on refresh
+                        const urlParams = new URLSearchParams(window.location.search);
+                        if (urlParams.has('product_id')) {
+                            urlParams.delete('product_id');
+                            const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+                            window.history.replaceState({}, '', newUrl);
+                        }
+                    }
+                    input.focus();
+                }
+
+                function handleError(error) {
+                    console.error(error);
+                    input.disabled = false;
+                    if(sendBtn) {
+                        sendBtn.disabled = false;
+                        sendBtn.innerText = 'kirim';
+                    }
+                    const msg = error.response && error.response.data && error.response.data.error ? error.response.data.error : 'Gagal memproses pesan';
+                    alert(msg);
+                }
             });
         }
+        
+        const pendingDelivered = {};
+        const pendingRead = {};
 
         // --- WEB SOCKET (LARAVEL ECHO) ---
         @if(Auth::check())
         window.addEventListener('load', () => {
             if (window.Echo) {
-                window.Echo.private('chat.{{ Auth::id() }}')
-                    .listen('.message.sent', (e) => {
-                        if (e.message.sender_id == {{ $user->id }}) {
-                            appendMessage(e.message, false);
-                            axios.post(`/chats/${e.message.sender_id}/read`);
+                const chatChannel = window.Echo.private('chat.{{ Auth::id() }}');
+                
+                chatChannel.listen('.message.sent', (e) => {
+                        // Isolation check: only process if the message belongs to this specific chat room (partner + shop)
+                        const isPartnerSender = e.message.sender_id == window.activeChatUserId;
+                        const isMeSenderToPartner = e.message.sender_id == {{ Auth::id() }} && e.message.receiver_id == window.activeChatUserId;
+                        const isSameUsaha = (e.message.usaha_id || 'null') == (window.activeUsahaId || 'null');
+
+                        if ((isPartnerSender || isMeSenderToPartner) && isSameUsaha) {
+                            appendMessage(e.message, e.message.sender_id == {{ Auth::id() }});
+                            // Mark as read if it's from the partner
+                            if (isPartnerSender) {
+                                axios.post(`{{ route('chats.read', $user->id) }}`, { usaha_id: '{{ $usahaId }}' });
+                            }
                         }
                         updateSidebar(e.message);
+                    })
+                    .listen('.message.delivered', (e) => {
+                        if (e.chat) {
+                            const tick = document.getElementById('msg-tick-' + e.chat.id);
+                            if (tick) {
+                                if (!tick.classList.contains('tick-blue')) {
+                                    tick.className = 'fas fa-check-double tick-gray';
+                                }
+                            } else {
+                                pendingDelivered[e.chat.id] = true;
+                            }
+                        }
+                    })
+                    .listen('.message.read', (e) => {
+                        if (e.chat) {
+                            console.log('WS Event: Message ' + e.chat.id + ' READ by receiver');
+                            const tick = document.getElementById('msg-tick-' + e.chat.id);
+                            if (tick) {
+                                tick.className = 'fas fa-check-double tick-blue';
+                            } else {
+                                pendingRead[e.chat.id] = true;
+                            }
+
+                            // Remove unread badge from sidebar for this contact
+                            const contactItem = document.querySelector(`.contact-item[data-user-id="${e.chat.receiver_id}"][data-usaha-id="${e.chat.usaha_id || 'null'}"]`);
+                            if (contactItem) {
+                                const badge = contactItem.querySelector('.unread-badge');
+                                if (badge) badge.style.display = 'none';
+                                const lastMsgTextStrong = contactItem.querySelector('.last-msg-text strong');
+                                if (lastMsgTextStrong) {
+                                    const span = lastMsgTextStrong.parentElement;
+                                    span.innerText = lastMsgTextStrong.innerText;
+                                }
+                            }
+                        }
+                    })
+                    .listen('.message.updated', (e) => {
+                        updateMessageInUI(e.message);
+                    })
+                    .listen('.message.deleted', (e) => {
+                        removeMessageFromUI(e.chat_id, e.delete_type);
+                    })
+                    .listenForWhisper('typing', (e) => {
+                        if (e.user_id == {{ $user->id }}) {
+                            showTypingIndicator(e.typing);
+                        }
                     });
 
+                // Chat Module Presence (Status Online di Chat)
+                window.Echo.join('chat-module')
+                    .here((users) => { updateChatStatuses(users); })
+                    .joining((user) => { updateChatStatus(user, true); })
+                    .leaving((user) => { updateChatStatus(user, false); });
+
+                // Global Site Presence (Untuk Tick 2 Abu)
                 window.Echo.join('online')
-                    .here((users) => { updateStatuses(users); })
-                    .joining((user) => { updateStatus(user, true); })
-                    .leaving((user) => { updateStatus(user, false); });
+                    .here((users) => { /* Online globally */ })
+                    .joining((user) => { /* User joined globally */ })
+                    .leaving((user) => { /* User left globally */ });
+                
+                // Typing Whisper logic
+                const msgInput = document.getElementById('message-input');
+                let typingTimer;
+                msgInput.addEventListener('input', () => {
+                    window.Echo.private('chat.{{ $user->id }}').whisper('typing', {
+                        user_id: {{ Auth::id() }},
+                        typing: true
+                    });
+                    
+                    clearTimeout(typingTimer);
+                    typingTimer = setTimeout(() => {
+                        window.Echo.private('chat.{{ $user->id }}').whisper('typing', {
+                            user_id: {{ Auth::id() }},
+                            typing: false
+                        });
+                    }, 3000);
+                });
             }
         });
         @endif
 
+        function showTypingIndicator(isTyping) {
+            const container = document.getElementById('user-status-container');
+            const statusSpan = document.getElementById('user-status');
+            
+            if (isTyping) {
+                if (!document.getElementById('typing-text')) {
+                    statusSpan.style.display = 'none';
+                    const typingText = document.createElement('span');
+                    typingText.id = 'typing-text';
+                    typingText.className = 'typing-status';
+                    typingText.innerText = 'Sedang mengetik...';
+                    container.appendChild(typingText);
+                }
+            } else {
+                const typingText = document.getElementById('typing-text');
+                if (typingText) {
+                    typingText.remove();
+                    statusSpan.style.display = 'inline';
+                }
+            }
+        }
+
         function updateSidebar(msg) {
-            const contactItem = document.querySelector(`.contact-item[href$="/chats/${msg.sender_id}"]`);
+            const partnerId = msg.sender_id == {{ Auth::id() }} ? msg.receiver_id : msg.sender_id;
+            const contactItem = document.querySelector(`.contact-item[data-user-id="${partnerId}"][data-usaha-id="${msg.usaha_id || 'null'}"]`);
             if (contactItem) {
                 const sidebar = document.querySelector('.contact-list');
                 sidebar.prepend(contactItem);
                 
-                // Update last message if needed (optional since show view doesn't show preview in sidebar for now)
+                // Update last message preview
+                const lastMsgText = contactItem.querySelector('.last-msg-text');
+                if (lastMsgText) {
+                    if ({{ Auth::id() }} != msg.sender_id) {
+                        lastMsgText.innerHTML = `<strong>${msg.message || (msg.type === 'image' ? 'Gambar' : 'Berkas')}</strong>`;
+                    } else {
+                        lastMsgText.innerText = msg.message || (msg.type === 'image' ? 'Gambar' : 'Berkas');
+                    }
+                }
+
+                // Update unread count bubble if not in current room
+                const isActiveRoom = (partnerId == window.activeChatUserId && (msg.usaha_id || 'null') == (window.activeUsahaId || 'null'));
+                
+                if (!isActiveRoom && msg.sender_id != {{ Auth::id() }}) {
+                    const lastMsgRow = contactItem.querySelector('.last-msg');
+                    let badge = lastMsgRow.querySelector('.unread-badge');
+                    if (!badge) {
+                        const badgeHtml = `<span class="unread-badge" style="background: #25d366; color: #000; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0;">1</span>`;
+                        lastMsgRow.insertAdjacentHTML('beforeend', badgeHtml);
+                    } else {
+                        badge.innerText = parseInt(badge.innerText) + 1;
+                        badge.style.display = 'flex';
+                    }
+                }
+            }
+        }
+
+        window.toggleActionMenu = function(id) {
+            const dropdown = document.getElementById(`dropdown-${id}`);
+            const allDropdowns = document.querySelectorAll('.action-dropdown');
+            
+            const wasOpen = dropdown && dropdown.style.display === 'block';
+            
+            allDropdowns.forEach(d => d.style.display = 'none');
+            
+            if (dropdown && !wasOpen) {
+                dropdown.style.display = 'block';
+            }
+        };
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.message-actions')) {
+                document.querySelectorAll('.action-dropdown').forEach(d => d.style.display = 'none');
+            }
+        });
+
+        window.handleReply = function(id, name, text) {
+            document.getElementById('reply-id-input').value = id;
+            document.getElementById('reply-user-name').innerText = name;
+            document.getElementById('reply-text-preview').innerText = text;
+            document.getElementById('reply-preview').style.display = 'flex';
+            document.getElementById('message-input').focus();
+            document.querySelectorAll('.action-dropdown').forEach(d => d.style.display = 'none');
+        };
+
+        window.cancelReply = function() {
+            const input = document.getElementById('reply-id-input');
+            if(input) input.value = '';
+            const preview = document.getElementById('reply-preview');
+            if(preview) preview.style.display = 'none';
+        };
+
+        window.cancelFile = function() {
+            const input = document.getElementById('attachment-input');
+            if(input) input.value = '';
+            const preview = document.getElementById('file-preview');
+            if(preview) preview.style.display = 'none';
+        };
+
+        document.getElementById('attachment-input').addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                document.getElementById('file-name-preview').innerText = this.files[0].name;
+                document.getElementById('file-preview').style.display = 'flex';
+            }
+        });
+
+        window.handleEdit = function(id, text) {
+            document.getElementById('edit-id-input').value = id;
+            document.getElementById('message-input').value = text;
+            const sendBtn = document.getElementById('send-btn');
+            if(sendBtn) sendBtn.innerText = 'Simpan';
+            document.getElementById('message-input').focus();
+            document.querySelectorAll('.action-dropdown').forEach(d => d.style.display = 'none');
+        };
+
+        window.handleDelete = function(id, type) {
+            if (!confirm('Hapus pesan ini?')) return;
+            const url = type === 'me' ? `{{ url('chats') }}/${id}/me` : `{{ url('chats') }}/${id}/everyone`;
+            axios.delete(url).then(() => {
+                removeMessageFromUI(id, type);
+            });
+        };
+
+        function linkify(text) {
+            return (text || '').replace(/\n/g, '<br>').replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="text-decoration: underline; color: inherit;">$1</a>');
+        }
+
+        function updateMessageInUI(msg) {
+            const msgEl = document.getElementById(`message-${msg.id}`);
+            if (msgEl) {
+                const textEl = msgEl.querySelector('.message-text');
+                textEl.innerHTML = linkify(msg.message);
+                if (!textEl.querySelector('.edited-label')) {
+                    textEl.insertAdjacentHTML('beforeend', ' <span class="edited-label">(diedit)</span>');
+                }
+            }
+        }
+
+        function removeMessageFromUI(id, type) {
+            const msgEl = document.getElementById(`message-${id}`);
+            if (msgEl) {
+                if (type === 'everyone') {
+                    const textEl = msgEl.querySelector('.message-text');
+                    if(textEl) {
+                        textEl.innerHTML = '<i class="fas fa-ban mr-1"></i> Pesan telah dihapus';
+                        textEl.style.fontStyle = 'italic';
+                        textEl.style.opacity = '0.7';
+                    }
+                    const actions = msgEl.querySelector('.message-actions');
+                    if (actions) actions.remove();
+                } else {
+                    msgEl.remove();
+                }
             }
         }
 
         function appendMessage(msg, isSelf) {
+            if (document.getElementById(`message-${msg.id}`)) return;
+            
+            const emptyState = document.getElementById('empty-chat-state');
+            if (emptyState) emptyState.remove();
+
             const sideClass = isSelf ? 'self' : 'other';
-            const time = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            const check = isSelf ? (msg.is_read ? '<i class="fas fa-check-double text-primary" style="font-size: 8px;"></i>' : '<i class="fas fa-check" style="font-size: 8px;"></i>') : '';
+            const time = new Date(msg.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
+            
+            let check = '';
+            if (isSelf) {
+                if (msg.is_read || pendingRead[msg.id]) {
+                    check = `<i class="fas fa-check-double tick-blue" style="font-size: 10px; margin-left: 4px;" id="msg-tick-${msg.id}"></i>`;
+                    delete pendingRead[msg.id];
+                    delete pendingDelivered[msg.id];
+                } else if (msg.is_delivered || pendingDelivered[msg.id]) {
+                    check = `<i class="fas fa-check-double tick-gray" style="font-size: 10px; margin-left: 4px;" id="msg-tick-${msg.id}"></i>`;
+                    delete pendingDelivered[msg.id];
+                } else {
+                    check = `<i class="fas fa-check tick-gray" style="font-size: 10px; margin-left: 4px;" id="msg-tick-${msg.id}"></i>`;
+                }
+            }
+
+            let replyHtml = '';
+            if (msg.reply_to) {
+                replyHtml = `
+                    <div class="reply-content">
+                        <strong>${msg.reply_to.sender_id == {{ Auth::id() }} ? 'Anda' : '{{ $user->display_name }}'}</strong><br>
+                        ${msg.reply_to.message || 'Berkas'}
+                    </div>
+                `;
+            }
 
             let contentHtml = '';
             if (msg.type === 'image') {
-                contentHtml = `<img src="/storage/${msg.attachment}" style="max-width: 100%; border-radius: 12px; margin-bottom: 5px;"><br>${msg.message || ''}`;
+                contentHtml = `<img src="/storage/${msg.attachment}" style="max-width: 250px; max-height: 300px; border-radius: 8px; margin-bottom: 5px; object-fit: contain; display: block; background: #eee;">`;
+                if (msg.message) {
+                    contentHtml += `<br>${linkify(msg.message)}`;
+                }
             } else if (msg.type === 'file') {
-                contentHtml = `<a href="/storage/${msg.attachment}" target="_blank" class="text-dark"><i class="fas fa-file-alt mr-2"></i> ${msg.message || 'File'}</a>`;
+                const ext = msg.attachment.split('.').pop().toLowerCase();
+                let icon = 'fa-file-alt';
+                if (ext === 'pdf') icon = 'fa-file-pdf';
+                else if (['doc', 'docx'].includes(ext)) icon = 'fa-file-word';
+                else if (['xls', 'xlsx'].includes(ext)) icon = 'fa-file-excel';
+                else if (['ppt', 'pptx'].includes(ext)) icon = 'fa-file-powerpoint';
+                else if (ext === 'zip') icon = 'fa-file-archive';
+                else if (ext === 'txt') icon = 'fa-file-lines';
+
+                contentHtml = `<a href="/storage/${msg.attachment}" target="_blank" style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1);">
+                                    <i class="fas ${icon}" style="font-size: 24px; color: var(--chat-accent);"></i>
+                                    <div style="flex: 1; overflow: hidden;">
+                                        <div class="text-truncate" style="font-weight: 500;">${msg.message || 'Berkas'}</div>
+                                        <div style="font-size: 10px; opacity: 0.7;">Klik untuk membuka</div>
+                                    </div>
+                                    <i class="fas fa-download" style="font-size: 14px; opacity: 0.5;"></i>
+                                </a>`;
             } else {
-                contentHtml = msg.message.replace(/\n/g, '<br>');
+                contentHtml = linkify(msg.message);
+            }
+
+            if (msg.is_edited) {
+                contentHtml += ' <span class="edited-label">(diedit)</span>';
+            }
+
+            const actionsHtml = `
+                <div class="message-actions" onclick="toggleActionMenu(${msg.id})">
+                    <i class="fas fa-chevron-down" style="font-size: 10px;"></i>
+                    <div class="action-dropdown" id="dropdown-${msg.id}">
+                        <div onclick="handleReply(${msg.id}, '${isSelf ? 'Anda' : '{{ $user->display_name }}'}', '${(msg.message || 'Berkas').replace(/'/g, "\\'").replace(/\n/g, ' ')}')"><i class="fas fa-reply"></i> Balas</div>
+                        ${isSelf && msg.type === 'text' ? `<div onclick="handleEdit(${msg.id}, '${(msg.message || '').replace(/'/g, "\\'").replace(/\n/g, ' ')}')"><i class="fas fa-edit"></i> Edit</div>` : ''}
+                        ${isSelf ? `<div onclick="handleDelete(${msg.id}, 'everyone')"><i class="fas fa-trash-alt"></i> Hapus untuk semua</div>` : ''}
+                    </div>
+                </div>
+            `;
+
+            let productCardHtml = '';
+            if (msg.product) {
+                const productUrl = `{{ url('produk') }}/${msg.product.slug}`;
+                const productImg = msg.product.foto_produk && msg.product.foto_produk.length > 0 
+                    ? `/storage/${msg.product.foto_produk[0].file_foto_produk}` 
+                    : '{{ asset("assets/images/produk-default.jpg") }}';
+                
+                productCardHtml = `
+                    <a href="${productUrl}" class="product-card-msg" target="_blank">
+                        <div class="product-card-header">
+                            <img src="${productImg}" class="product-card-img" onerror="this.onerror=null;this.src='{{ asset("assets/images/produk-default.jpg") }}';">
+                            <div class="product-card-body">
+                                <div class="product-card-title">${msg.product.nama_produk}</div>
+                                <div class="product-card-subtitle">{{ request()->getHost() }}</div>
+                            </div>
+                        </div>
+                    </a>
+                `;
             }
 
             const html = `
-                <div class="message-row ${sideClass}">
-                    <div class="message-content">${contentHtml}</div>
-                    <div class="message-time">${time} ${check}</div>
+                <div class="message-row ${sideClass}" id="message-${msg.id}">
+                    <div class="message-content">
+                        ${actionsHtml}
+                        ${replyHtml}
+                        ${productCardHtml}
+                        <div class="message-text">${contentHtml}</div>
+                        <div class="message-time">${time} ${check}</div>
+                    </div>
                 </div>
             `;
             messageContainer.insertAdjacentHTML('beforeend', html);
             messageContainer.scrollTop = messageContainer.scrollHeight;
         }
 
-        function updateStatus(user, isOnline) {
+        function updateChatStatus(user, isOnline) {
             const dot = document.getElementById(`status-dot-${user.id}`);
             if (dot) dot.classList.toggle('online', isOnline);
             
             if (user.id == {{ $user->id }}) {
                 const statusText = document.getElementById('user-status');
                 const headerDot = document.getElementById('header-status-dot');
-                statusText.innerText = isOnline ? 'Online' : 'Offline';
-                statusText.className = isOnline ? 'online' : '';
-                headerDot.classList.toggle('online', isOnline);
+                if (isOnline) {
+                    statusText.innerText = 'Online';
+                    statusText.className = 'online';
+                    headerDot.classList.add('online');
+                } else {
+                    // Update to last seen or just "Offline"
+                    statusText.innerText = 'Terakhir online baru saja';
+                    statusText.className = 'offline';
+                    headerDot.classList.remove('online');
+                }
             }
         }
 
-        function updateStatuses(users) {
-            users.forEach(u => updateStatus(u, true));
+        function updateChatStatuses(users) {
+            users.forEach(u => updateChatStatus(u, true));
         }
+        // Mark all as read for this room on load
+        axios.post(`{{ route('chats.read', $user->id) }}`, { usaha_id: '{{ $usahaId }}' });
     });
 </script>
 @endsection
