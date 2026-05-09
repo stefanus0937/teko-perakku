@@ -22,16 +22,7 @@ class DummyDataSeeder extends Seeder
         $faker = Faker::create('id_ID');
 
         // 1. Kategori Produk
-        $categories = ['Cincin', 'Kalung', 'Anting', 'Gelang', 'Bros', 'Miniatur', 'Peralatan Makan', 'Hiasan Dinding', 'Gantungan Kunci', 'Kerajinan Filigree'];
-        foreach ($categories as $cat) {
-            KategoriProduk::updateOrCreate(
-                ['slug' => Str::slug($cat)],
-                [
-                    'nama_kategori_produk' => $cat,
-                    'kode_kategori_produk' => 'KAT-' . strtoupper(Str::random(4)),
-                ]
-            );
-        }
+        KategoriProdukSeeder::seedCategories();
 
         // 2. Jenis Usaha
         $jenisUsahas = ['Produksi', 'Reseller', 'Eksportir', 'Toko Ritel', 'Bengkel Perak'];
@@ -101,9 +92,7 @@ class DummyDataSeeder extends Seeder
             ]);
             // Note: slug is handled by boot() in Produk model
             $produk->usaha()->sync($faker->randomElement($usahaIds));
-            $produk->kategoriProduk()->sync([
-                $faker->randomElement($catIds)
-            ]);
+            $produk->kategoriProduk()->sync($faker->randomElements($catIds, rand(1, 2)));
 
             // 6b. Foto Produk (1-3 photos per product)
             $fotoDummy = ['men-01.jpg', 'women-01.jpg', 'kid-01.jpg', 'filigeri.jpg', 'souvenir.jpg', 'aksesoris-manten.jpg'];

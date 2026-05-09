@@ -15,8 +15,17 @@ return new class extends Migration
             $table->id();
             $table->foreignId('sender_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('receiver_id')->constrained('users')->onDelete('cascade');
-            $table->text('message');
+            $table->foreignId('usaha_id')->nullable()->constrained('usaha')->onDelete('cascade');
+            $table->foreignId('product_id')->nullable()->constrained('produk')->nullOnDelete();
+            $table->foreignId('reply_to_id')->nullable()->constrained('chats')->nullOnDelete();
+            $table->text('message')->nullable();
+            $table->string('type')->default('text');
+            $table->string('attachment')->nullable();
             $table->boolean('is_read')->default(false);
+            $table->boolean('is_delivered')->default(false);
+            $table->boolean('deleted_by_sender')->default(false);
+            $table->boolean('deleted_by_receiver')->default(false);
+            $table->boolean('is_edited')->default(false);
             $table->timestamps();
         });
     }

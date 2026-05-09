@@ -25,7 +25,12 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Pagination\Paginator::useBootstrapFive();
 
         \Illuminate\Support\Facades\View::composer(['guest.layouts.main', 'layouts.user', 'layouts.umkm', 'layouts.admin_premium'], function ($view) {
-            $view->with('kategoris', \App\Models\KategoriProduk::all());
+            $kategoris = \App\Models\KategoriProduk::ordered()->get();
+            $structuredKategoris = $kategoris->where('sort_order', '>', 0);
+
+            $view->with('kategoris', $kategoris);
+            $view->with('categoryGroups', $structuredKategoris->groupBy('category_type'));
+            $view->with('categoryTypeLabels', \App\Models\KategoriProduk::TYPE_LABELS);
             $view->with('randomKategoris', \App\Models\KategoriProduk::inRandomOrder()->get());
         });
 

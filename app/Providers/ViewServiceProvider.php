@@ -23,10 +23,16 @@ class ViewServiceProvider extends ServiceProvider
     public function boot(): void
     {
         View::composer('*', function ($view) {
+            $kategoris = KategoriProduk::ordered()->get();
+            $structuredKategoris = $kategoris->where('sort_order', '>', 0);
+
             $view->with([
                 'randomKategoris' => KategoriProduk::inRandomOrder()->take(4)->get(),
                 'randomProduks' => Produk::inRandomOrder()->take(8)->get(),
-                'kategoris' => KategoriProduk::all(),
+                'kategoris' => $kategoris,
+                'categoryGroups' => $structuredKategoris->groupBy('category_type'),
+                'categoryTypeLabels' => KategoriProduk::TYPE_LABELS,
+                'categoryTypeDescriptions' => KategoriProduk::TYPE_DESCRIPTIONS,
             ]);
         });
     }

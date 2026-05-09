@@ -22,6 +22,20 @@
             <input type="text" class="form-control" id="nama_kategori_produk" name="nama_kategori_produk" placeholder="Masukkan Nama Produk" required>
         </div>
 
+        <div class="mb-3">
+            <label for="category_type" class="form-label">Jenis Kategori</label>
+            <select class="form-control" id="category_type" name="category_type" required>
+                @foreach($categoryTypeLabels as $value => $label)
+                    <option value="{{ $value }}">{{ $label }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="sort_order" class="form-label">Urutan Tampil</label>
+            <input type="number" class="form-control" id="sort_order" name="sort_order" value="0" min="0">
+        </div>
+
         <!-- Tombol Submit -->
         <button type="submit" class="btn btn-primary">Simpan Data</button>
         <a href="{{ route('admin.kategori_produk-index') }}" class="btn btn-secondary">Batal</a>

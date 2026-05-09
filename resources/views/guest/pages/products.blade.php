@@ -2,23 +2,10 @@
 @section('title', 'Berbagai Macam Produk')
 @section('content')
 
-    <!-- ***** Main Banner Area Start ***** -->
-    <div class="page-heading" id="top">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="inner-content">
-                        <h2>Temukan Produk Favoritmu!</h2>
-                        <span>Pilihan lengkap & harga terbaik hanya di toko kami</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- ***** Main Banner Area End ***** -->
+@include('partials._rating-styles')
 
     <!-- ***** Products Area Starts ***** -->
-    <section class="section" id="products">
+    <section class="section guest-content-start" id="products">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
@@ -51,12 +38,22 @@
                                 <div class="down-content">
                                     <h4>{{ $produk->nama_produk }}</h4>
                                     <span>Rp {{ number_format($produk->harga, 0, ',', '.') }}</span>
-                                    <ul class="stars">
-                                        @for ($i = 0; $i < 5; $i++)
-                                            <li><i class="fa fa-star"></i></li>
-                                        @endfor
-                                    </ul>
-                                    <p>{{ $produk->deskripsi }}</p>
+
+                                    @include('partials._rating', [
+                                        'reviews'   => $produk->reviews,
+                                        'showAvg'   => true,
+                                        'showCount' => true,
+                                        'size'      => 'sm',
+                                    ])
+
+                                    @php $shop = $produk->usaha->first(); @endphp
+                                    @if($shop)
+                                        <span class="product-shop" title="{{ $shop->nama_usaha }}">
+                                            <i class="fa-regular fa-building"></i>{{ $shop->nama_usaha }}
+                                        </span>
+                                    @endif
+
+                                    <p>{{ \Illuminate\Support\Str::limit($produk->deskripsi, 80) }}</p>
                                 </div>
                             </div>
                         </div>

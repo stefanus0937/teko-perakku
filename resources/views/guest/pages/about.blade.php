@@ -1,22 +1,8 @@
 @extends('guest.layouts.main')
 @section('title', 'Tentang Kami')
 @section('content')
-    <!-- ***** Main Banner Area Start ***** -->
-    <div class="page-heading about-page-heading" id="top">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="inner-content">
-                        <h2>Tentang Kami</h2>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- ***** Main Banner Area End ***** -->
-
     <!-- ***** Contact Area Starts ***** -->
-    <section class="contact-info section-padding py-5">
+    <section class="contact-info section-padding py-5 guest-content-start">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-10">

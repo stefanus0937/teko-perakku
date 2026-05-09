@@ -8,6 +8,8 @@
 
 @section('content')
 
+@include('partials._rating-styles')
+
 {{-- Breadcrumb Navigation --}}
 <div class="container">
     <div class="row">
@@ -51,9 +53,69 @@
                         <li><i class="fa fa-envelope"></i>{{ $usaha->email_usaha ?? '' }}</li>
                         <li><i class="fa fa-phone"></i>{{ $usaha->telp_usaha ?? '' }}</li>
                     </ul>
-                    <div class="alamat-info">
+                    <div class="alamat-info mb-3">
                         <i class="fa fa-map-marker"></i>
-                        <a href="{{ $usaha->link_gmap_usaha }}">{{ $usaha->link_gmap_usaha ?? 'Alamat tidak tersedia.' }}</a>
+                        <a href="{{ $usaha->link_gmap_usaha }}" target="_blank">{{ $usaha->link_gmap_usaha ?? 'Alamat tidak tersedia.' }}</a>
+                    </div>
+
+                    <div class="usaha-social-wrapper mb-4 pt-3" style="border-top: 1px solid #eee;">
+                        <div class="social-icons-row d-flex gap-2 flex-wrap">
+                            {{-- WhatsApp --}}
+                            @if($usaha->link_wa_usaha || $usaha->telp_usaha)
+                                @php
+                                    $waNumber = $usaha->link_wa_usaha ?: $usaha->telp_usaha;
+                                    $waNumber = preg_replace('/[^0-9]/', '', $waNumber);
+                                    if (str_starts_with($waNumber, '0')) {
+                                        $waNumber = '62' . substr($waNumber, 1);
+                                    }
+                                @endphp
+                                <a href="https://wa.me/{{ $waNumber }}" target="_blank" class="social-icon whatsapp" title="WhatsApp"><i class="fa fa-phone"></i></a>
+                            @endif
+
+                            {{-- Instagram --}}
+                            @if($usaha->link_instagram_usaha)
+                                <a href="{{ $usaha->link_instagram_usaha }}" target="_blank" class="social-icon instagram" title="Instagram"><i class="fa fa-instagram"></i></a>
+                            @endif
+
+                            {{-- Facebook --}}
+                            @if($usaha->link_facebook_usaha)
+                                <a href="{{ $usaha->link_facebook_usaha }}" target="_blank" class="social-icon facebook" title="Facebook"><i class="fa fa-facebook"></i></a>
+                            @endif
+
+                            {{-- TikTok --}}
+                            @if($usaha->link_tiktok_usaha)
+                                <a href="{{ $usaha->link_tiktok_usaha }}" target="_blank" class="social-icon tiktok" title="TikTok"><i class="fa fa-music"></i></a>
+                            @endif
+
+                            {{-- Shopee --}}
+                            @if($usaha->link_shopee_usaha)
+                                <a href="{{ $usaha->link_shopee_usaha }}" target="_blank" class="social-icon shopee" title="Shopee">
+                                    <img src="{{ asset('assets/images/shopee-icon.png') }}" alt="Shopee">
+                                </a>
+                            @endif
+
+                            {{-- Tokopedia --}}
+                            @if($usaha->link_tokopedia_usaha)
+                                <a href="{{ $usaha->link_tokopedia_usaha }}" target="_blank" class="social-icon tokped" title="Tokopedia">
+                                    <img src="{{ asset('assets/images/tokopedia-icon.png') }}" alt="Tokopedia">
+                                </a>
+                            @endif
+
+                            {{-- Website --}}
+                            @if($usaha->link_website_usaha)
+                                <a href="{{ $usaha->link_website_usaha }}" target="_blank" class="social-icon website" title="Website"><i class="fa fa-globe"></i></a>
+                            @endif
+
+                            {{-- Google Maps --}}
+                            @if($usaha->link_gmap_usaha)
+                                <a href="{{ $usaha->link_gmap_usaha }}" target="_blank" class="social-icon maps" title="Google Maps"><i class="fa fa-map-marker"></i></a>
+                            @endif
+
+                            {{-- Email --}}
+                            @if($usaha->email_usaha)
+                                <a href="mailto:{{ $usaha->email_usaha }}" class="social-icon email" title="Email"><i class="fa fa-envelope"></i></a>
+                            @endif
+                        </div>
                     </div>
 
                     <div class="pengrajin-list-wrapper">
@@ -95,15 +157,20 @@
                                         <div class="down-content">
                                             <h4>{{ $produk->nama_produk }}</h4>
                                             <span class="product-price">Rp {{ number_format($produk->harga, 0, ',', '.') }}</span>
-                                            <ul class="stars">
-                                                @php
-                                                    $avgRating = $produk->reviews->avg('rating') ?: 0;
-                                                    $fullStars = floor($avgRating);
-                                                @endphp
-                                                @for ($i = 1; $i <= 5; $i++)
-                                                    <li><i class="fa fa-star{{ $i <= $fullStars ? '' : '-o' }}"></i></li>
-                                                @endfor
-                                            </ul>
+
+                                            @include('partials._rating', [
+                                                'reviews'   => $produk->reviews,
+                                                'showAvg'   => true,
+                                                'showCount' => true,
+                                                'size'      => 'sm',
+                                            ])
+
+                                            {{-- Nama toko (sudah jelas konteks halaman ini, tapi konsisten dgn card lain) --}}
+                                            @if(isset($usaha) && $usaha)
+                                                <span class="product-shop" title="{{ $usaha->nama_usaha }}">
+                                                    <i class="fa-regular fa-building"></i>{{ $usaha->nama_usaha }}
+                                                </span>
+                                            @endif
                                         </div>
                                     </a>
                                 </div>

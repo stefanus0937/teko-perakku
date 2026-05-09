@@ -91,14 +91,21 @@
                 Kategori <i class="fas fa-chevron-down nav-chevron" aria-hidden="true"></i>
             </a>
             <div class="category-dropdown" id="categoryDropdown" role="menu">
-                @forelse(($kategoris ?? collect()) as $kategori)
-                    <a href="{{ route('guest-katalog', ['kategori' => $kategori->slug]) }}"
-                       class="category-item {{ request('kategori') === $kategori->slug ? 'is-active' : '' }}">
-                        {{ $kategori->nama_kategori_produk }}
-                    </a>
-                @empty
-                    <span class="category-item category-empty">Belum ada kategori</span>
-                @endforelse
+                <div class="category-dropdown-grid">
+                    @foreach(($categoryTypeLabels ?? []) as $type => $label)
+                        <div class="category-dropdown-column">
+                            <h4>{{ $label }}</h4>
+                            @forelse(($categoryGroups[$type] ?? collect()) as $kategori)
+                                <a href="{{ route('guest-katalog', ['kategori' => $kategori->slug]) }}"
+                                   class="category-item {{ request('kategori') === $kategori->slug ? 'is-active' : '' }}">
+                                    {{ $kategori->nama_kategori_produk }}
+                                </a>
+                            @empty
+                                <span class="category-item category-empty">Belum ada kategori</span>
+                            @endforelse
+                        </div>
+                    @endforeach
+                </div>
             </div>
         </div>
 
@@ -119,10 +126,36 @@
    ========================================================= */
 
 .main-header {
+    --header-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
     border-bottom: 1px solid #e4e4e7;
     padding: 20px 80px;
     background: #fff;
     font-family: 'Plus Jakarta Sans', sans-serif;
+    /* Pastikan header selalu DI ATAS konten halaman.
+       Project ini punya .filter-group-dropdown .dropdown-menu dengan z-index 1000,
+       jadi header butuh z-index lebih tinggi agar dropdown filter halaman tidak
+       menembus area header saat scroll/buka. */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 1100;
+    box-shadow: var(--header-shadow);
+    /* Cegah konten halaman "bocor" ke header karena negative margin / transform */
+    isolation: isolate;
+}
+
+:root {
+    --header-height: 142px;
+}
+
+html {
+    scroll-padding-top: calc(var(--header-height) + 24px);
+}
+
+body {
+    padding-top: var(--header-height);
 }
 
 .header-top {
@@ -433,14 +466,43 @@
     border: 1px solid #e4e4e7;
     border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-    min-width: 220px;
-    max-height: 340px;        /* FIX BUG: cegah overflow vertical */
+    min-width: 680px;
+    max-height: min(520px, calc(100vh - var(--header-height) - 28px));
     overflow-y: auto;
-    padding: 8px;
+    padding: 0;
     z-index: 1000;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
+}
+
+.main-header .category-dropdown-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.35fr 1fr;
+    gap: 0;
+    padding: 34px 28px;
+}
+
+.main-header .category-dropdown-column {
+    padding: 0 28px;
+    border-right: 1px solid #e4e4e7;
+}
+
+.main-header .category-dropdown-column:first-child {
+    padding-left: 0;
+}
+
+.main-header .category-dropdown-column:last-child {
+    border-right: 0;
+    padding-right: 0;
+}
+
+.main-header .category-dropdown-column h4 {
+    margin: 0 0 18px;
+    color: #18181b;
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1.3;
 }
 
 /* Hover-open untuk desktop, click-toggle untuk semua */
@@ -470,7 +532,7 @@
 
 .main-header .category-item {
     display: block;
-    padding: 10px 14px;
+    padding: 10px 12px;
     text-decoration: none;
     color: #18181b;
     font-size: 13px;
@@ -485,7 +547,7 @@
 .main-header .category-item:hover {
     background: #f4f4f5;
     color: #980808;
-    padding-left: 18px;
+    padding-left: 16px;
 }
 
 .main-header .category-item.is-active {
@@ -588,6 +650,33 @@
         transition: max-height 0.3s ease, padding 0.3s ease, margin-top 0.3s ease;
     }
 
+    .main-header .category-dropdown-grid {
+        display: block;
+        padding: 0;
+    }
+
+    .main-header .category-dropdown-column {
+        padding: 12px 0;
+        border-right: 0;
+        border-bottom: 1px solid #e4e4e7;
+    }
+
+    .main-header .category-dropdown-column:first-child,
+    .main-header .category-dropdown-column:last-child {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .main-header .category-dropdown-column:last-child {
+        border-bottom: 0;
+    }
+
+    .main-header .category-dropdown-column h4 {
+        font-size: 13px;
+        margin: 0 0 8px;
+        padding: 0 12px 0 28px;
+    }
+
     .main-header .category-dropdown::before { display: none; }
 
     .main-header .category-dropdown-wrapper.is-open .category-dropdown {
@@ -632,6 +721,8 @@ body.dark-mode .main-header .nav-link::after { background: #f87171; }
 body.dark-mode .main-header .search-input   { background: #2a2a2a; border-color: #444; color: #fff; }
 body.dark-mode .main-header .profile-dropdown,
 body.dark-mode .main-header .category-dropdown { background: #1e1e1e; border-color: #333; }
+body.dark-mode .main-header .category-dropdown-column { border-color: #333; }
+body.dark-mode .main-header .category-dropdown-column h4 { color: #fff; }
 body.dark-mode .main-header .dropdown-item-link,
 body.dark-mode .main-header .category-item  { color: #e4e4e7; }
 body.dark-mode .main-header .dropdown-item-link:hover,
@@ -645,6 +736,23 @@ body.dark-mode .main-header .hamburger-btn span  { background: #e4e4e7; }
 
     var header = document.querySelector('.main-header');
     if (!header) return;
+
+    var syncHeaderHeight = function () {
+        document.documentElement.style.setProperty('--header-height', header.offsetHeight + 'px');
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', syncHeaderHeight);
+    } else {
+        syncHeaderHeight();
+    }
+
+    window.addEventListener('load', syncHeaderHeight);
+    window.addEventListener('resize', syncHeaderHeight);
+
+    if ('ResizeObserver' in window) {
+        new ResizeObserver(syncHeaderHeight).observe(header);
+    }
 
     /* ── Profile dropdown toggle ──────────────────────── */
     var profileTrigger  = header.querySelector('#profileTrigger');
@@ -673,6 +781,7 @@ body.dark-mode .main-header .hamburger-btn span  { background: #e4e4e7; }
             var open = categoryWrap.classList.toggle('is-open');
             categoryMenu.classList.toggle('is-open', open);
             categoryToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            window.requestAnimationFrame(syncHeaderHeight);
         });
     }
 
@@ -685,6 +794,7 @@ body.dark-mode .main-header .hamburger-btn span  { background: #e4e4e7; }
             var open = navMenu.classList.toggle('is-open');
             hamburger.classList.toggle('is-open', open);
             hamburger.setAttribute('aria-expanded', open ? 'true' : 'false');
+            window.requestAnimationFrame(syncHeaderHeight);
         });
     }
 
@@ -699,6 +809,7 @@ body.dark-mode .main-header .hamburger-btn span  { background: #e4e4e7; }
             categoryWrap.classList.remove('is-open');
             categoryMenu && categoryMenu.classList.remove('is-open');
             categoryToggle && categoryToggle.setAttribute('aria-expanded', 'false');
+            window.requestAnimationFrame(syncHeaderHeight);
         }
     });
 
@@ -711,6 +822,7 @@ body.dark-mode .main-header .hamburger-btn span  { background: #e4e4e7; }
         categoryMenu    && categoryMenu.classList.remove('is-open');
         navMenu         && navMenu.classList.remove('is-open');
         hamburger       && hamburger.classList.remove('is-open');
+        window.requestAnimationFrame(syncHeaderHeight);
     });
 }());
 </script>

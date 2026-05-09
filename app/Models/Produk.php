@@ -17,6 +17,7 @@ class Produk extends Model
         'deskripsi',
         'harga',
         'stok',
+        'video_produk',
     ];
 
     public static function boot()

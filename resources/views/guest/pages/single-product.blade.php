@@ -229,6 +229,7 @@
 @endpush
 
 @section('content')
+    @include('partials._rating-styles')
     @php
         // Mengambil data review secara langsung dari database untuk memastikan sinkronisasi data
         $actualReviews = \App\Models\Review::where('produk_id', $produk->id)->get();
@@ -270,18 +271,18 @@
                     <div class="gallery-wrapper">
                         {{-- Gambar Utama --}}
                         {{-- Gambar Utama yang Bisa Diklik --}}
-                        <div class="main-image-container mb-3">
+                        <div class="main-image-container mb-3" id="mainMediaContainer">
                             @if($produk->fotoProduk->isNotEmpty())
-                                {{-- Bungkus <img> dengan <a> --}}
-                                <a href="{{ asset('storage/' . $produk->fotoProduk->first()->file_foto_produk) }}" data-lightbox="product-gallery">
+                                <a href="{{ asset('storage/' . $produk->fotoProduk->first()->file_foto_produk) }}" data-lightbox="product-gallery" id="mainImageLink">
                                     <img src="{{ asset('storage/' . $produk->fotoProduk->first()->file_foto_produk) }}" alt="{{ $produk->nama_produk }}" id="mainProductImage" class="img-fluid"
                                      onerror="this.onerror=null;this.src='{{ asset('assets/images/produk-default.jpg') }}';">
                                 </a>
                             @else
-                                <a href="{{ asset('assets/images/produk-default.jpg') }}" data-lightbox="product-gallery">
+                                <a href="{{ asset('assets/images/produk-default.jpg') }}" data-lightbox="product-gallery" id="mainImageLink">
                                     <img src="{{ asset('assets/images/produk-default.jpg') }}" alt="Produk Default" id="mainProductImage" class="img-fluid">
                                 </a>
                             @endif
+                            <video id="mainProductVideo" class="img-fluid" style="display: none; width: 100%;" controls></video>
                         </div>
                         
                         {{-- Thumbnail Gambar Scroller --}}
@@ -289,11 +290,19 @@
                             <button class="thumb-nav-btn prev" id="thumbPrevBtn"><i class="fa fa-chevron-left"></i></button>
                             <div class="thumbnail-container" id="thumbnailContainer">
                                 @foreach ($produk->fotoProduk as $index => $foto)
-                                    <div class="thumbnail-item {{ $index == 0 ? 'active' : '' }}">
+                                    <div class="thumbnail-item {{ $index == 0 ? 'active' : '' }}" data-type="image" data-src="{{ asset('storage/' . $foto->file_foto_produk) }}">
                                         <img src="{{ asset('storage/' . $foto->file_foto_produk) }}" alt="Thumbnail" class="img-fluid" 
-                                         onerror="this.onerror=null;this.src='{{ asset('assets/images/produk-default.jpg') }}';" onclick="changeMainImage(this)">
+                                         onerror="this.onerror=null;this.src='{{ asset('assets/images/produk-default.jpg') }}';" onclick="changeMainMedia(this)">
                                     </div>
                                 @endforeach
+                                @if($produk->video_produk)
+                                    <div class="thumbnail-item" data-type="video" data-src="{{ asset('storage/' . $produk->video_produk) }}">
+                                        <div class="video-thumb-placeholder" onclick="changeMainMedia(this)" style="position: relative; cursor: pointer;">
+                                            <img src="{{ asset('assets/images/produk-default.jpg') }}" class="img-fluid" style="opacity: 0.6;">
+                                            <i class="fa fa-play-circle" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 30px; color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.5);"></i>
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                             <button class="thumb-nav-btn next" id="thumbNextBtn"><i class="fa fa-chevron-right"></i></button>
                         </div>
@@ -330,8 +339,19 @@
                         <div class="rating-stock-wrapper">
                             <div class="rating-wrapper">
                                 <div class="stars-custom">
+                                    @php
+                                        $fullStars = floor($actualAverageRating);
+                                        $hasHalfStar = ($actualAverageRating - $fullStars) >= 0.5;
+                                    @endphp
+
                                     @for($i = 1; $i <= 5; $i++)
-                                        <i class="fa fa-star{{ $i <= floor($actualAverageRating) ? '' : ($i - $actualAverageRating < 1 && $i - $actualAverageRating > 0 ? '-half-o' : '-o') }}"></i>
+                                        @if($i <= $fullStars)
+                                            <i class="fa-solid fa-star"></i>
+                                        @elseif($hasHalfStar && $i == $fullStars + 1)
+                                            <i class="fa-solid fa-star-half-stroke"></i>
+                                        @else
+                                            <i class="fa-regular fa-star"></i>
+                                        @endif
                                     @endfor
                                 </div>
                                 <span class="ms-2 text-muted" style="font-size: 13px;">({{ $actualReviewsCount }} Ulasan)</span>
@@ -360,22 +380,77 @@
                                         <span class="usaha-spesialisasi">{{ $usaha->deskripsi_usaha ?? 'Kerajinan Perak Kotagede' }}</span>
                                     </div>
                                 </a>
-                                <div class="social-links mt-2">
-                                    @auth
-                                        @if(Auth::user()->role === 'user' && Auth::id() !== $usaha->user_id)
-                                            <a href="{{ route('chats.show', ['user' => $usaha->user_id, 'usaha_id' => $usaha->id, 'product_id' => $produk->id]) }}" class="btn btn-sm btn-primary mb-2 shadow-sm">
-                                                <i class="fa fa-comments"></i> Chat Penjual
+                                <div class="usaha-actions-wrapper" style="border-top: 1px solid #dee2e6; padding-top: 15px; margin-top: 10px;">
+                                    <div class="chat-action mb-3">
+                                        @auth
+                                            @if(Auth::user()->role === 'user' && Auth::id() !== $usaha->user_id)
+                                                <a href="{{ route('chats.show', ['user' => $usaha->user_id, 'usaha_id' => $usaha->id, 'product_id' => $produk->id]) }}" class="btn btn-sm btn-primary shadow-sm">
+                                                    <i class="fa fa-comments"></i> Chat Penjual
+                                                </a>
+                                            @endif
+                                        @else
+                                            <a href="{{ route('loginForm') }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fa fa-sign-in"></i> Login untuk Chat
+                                            </a>
+                                        @endauth
+                                    </div>
+                                    
+                                    <div class="social-icons-row d-flex gap-2 flex-wrap">
+                                        {{-- WhatsApp --}}
+                                        @if($usaha->link_wa_usaha || $usaha->telp_usaha)
+                                            @php
+                                                $waNumber = $usaha->link_wa_usaha ?: $usaha->telp_usaha;
+                                                $waNumber = preg_replace('/[^0-9]/', '', $waNumber);
+                                                if (str_starts_with($waNumber, '0')) {
+                                                    $waNumber = '62' . substr($waNumber, 1);
+                                                }
+                                            @endphp
+                                            <a href="https://wa.me/{{ $waNumber }}" target="_blank" class="social-icon whatsapp" title="WhatsApp"><i class="fa fa-phone"></i></a>
+                                        @endif
+
+                                        {{-- Instagram --}}
+                                        @if($usaha->link_instagram_usaha)
+                                            <a href="{{ $usaha->link_instagram_usaha }}" target="_blank" class="social-icon instagram" title="Instagram"><i class="fa fa-instagram"></i></a>
+                                        @endif
+
+                                        {{-- Facebook --}}
+                                        @if($usaha->link_facebook_usaha)
+                                            <a href="{{ $usaha->link_facebook_usaha }}" target="_blank" class="social-icon facebook" title="Facebook"><i class="fa fa-facebook"></i></a>
+                                        @endif
+
+                                        {{-- TikTok --}}
+                                        @if($usaha->link_tiktok_usaha)
+                                            <a href="{{ $usaha->link_tiktok_usaha }}" target="_blank" class="social-icon tiktok" title="TikTok"><i class="fa fa-music"></i></a>
+                                        @endif
+
+                                        {{-- Shopee --}}
+                                        @if($usaha->link_shopee_usaha)
+                                            <a href="{{ $usaha->link_shopee_usaha }}" target="_blank" class="social-icon shopee" title="Shopee">
+                                                <img src="{{ asset('assets/images/shopee-icon.png') }}" alt="Shopee">
                                             </a>
                                         @endif
-                                    @else
-                                        <a href="{{ route('loginForm') }}" class="btn btn-sm btn-outline-primary mb-2">
-                                            <i class="fa fa-sign-in"></i> Login untuk Chat
-                                        </a>
-                                    @endauth
-                                    <div class="d-flex gap-2">
-                                        <a href="#" target="_blank" class="social-icon email" title="Email"><i class="fa fa-envelope"></i></a>
-                                        <a href="https://wa.me/" target="_blank" class="social-icon whatsapp" title="WhatsApp"><i class="fa fa-phone"></i></a>
-                                        <a href="#" target="_blank" class="social-icon instagram" title="Instagram"><i class="fa fa-instagram"></i></a>
+
+                                        {{-- Tokopedia --}}
+                                        @if($usaha->link_tokopedia_usaha)
+                                            <a href="{{ $usaha->link_tokopedia_usaha }}" target="_blank" class="social-icon tokped" title="Tokopedia">
+                                                <img src="{{ asset('assets/images/tokopedia-icon.png') }}" alt="Tokopedia">
+                                            </a>
+                                        @endif
+
+                                        {{-- Website --}}
+                                        @if($usaha->link_website_usaha)
+                                            <a href="{{ $usaha->link_website_usaha }}" target="_blank" class="social-icon website" title="Website"><i class="fa fa-globe"></i></a>
+                                        @endif
+
+                                        {{-- Google Maps --}}
+                                        @if($usaha->link_gmap_usaha)
+                                            <a href="{{ $usaha->link_gmap_usaha }}" target="_blank" class="social-icon maps" title="Google Maps"><i class="fa fa-map-marker"></i></a>
+                                        @endif
+
+                                        {{-- Email --}}
+                                        @if($usaha->email_usaha)
+                                            <a href="mailto:{{ $usaha->email_usaha }}" class="social-icon email" title="Email"><i class="fa fa-envelope"></i></a>
+                                        @endif
                                     </div>
                                 </div>
                             @else
@@ -403,7 +478,7 @@
         </div>
         <div class="container">
             <div class="row">
-                @foreach ($randomProduks as $relatedProduct)
+                @foreach ($randomProduks->take(4) as $relatedProduct)
                     <div class="col-lg-3 col-md-6 mb-4">
                         <div class="product-item">
                             <a href="{{ route('guest-singleProduct', $relatedProduct->slug) }}">
@@ -415,33 +490,27 @@
                                 <div class="down-content">
                                     <h4>{{ $relatedProduct->nama_produk }}</h4>
                                     <span class="product-price">Rp {{ number_format($relatedProduct->harga, 0, ',', '.') }}</span>
-                                    <ul class="stars">
-                                        @php
-                                            $avg = $relatedProduct->reviews->avg('rating') ?: 0;
-                                            $full = floor($avg);
-                                        @endphp
-                                        @for($i = 1; $i <= 5; $i++)
-                                            <li><i class="fa fa-star{{ $i <= $full ? '' : ($i - $avg < 1 && $i - $avg > 0 ? '-half-o' : '-o') }}"></i></li>
-                                        @endfor
-                                    </ul>
-                                    <p class="product-reviews">
-                                        @if($relatedProduct->reviews->count() > 0)
-                                            {{ $relatedProduct->reviews->count() }} Reviews
-                                        @else
-                                            Belum ada review
-                                        @endif
-                                    </p>
+
+                                    {{-- Rating dari relasi reviews milik produk terkait
+                                         (sebelumnya pakai $actualAverageRating dari produk utama → bug, semua sama) --}}
+                                    @include('partials._rating', [
+                                        'reviews'   => $relatedProduct->reviews,
+                                        'showAvg'   => true,
+                                        'showCount' => true,
+                                        'size'      => 'sm',
+                                    ])
+
+                                    @php $relShop = $relatedProduct->usaha->first(); @endphp
+                                    @if($relShop)
+                                        <span class="product-shop" title="{{ $relShop->nama_usaha }}">
+                                            <i class="fa-regular fa-building"></i>{{ $relShop->nama_usaha }}
+                                        </span>
+                                    @endif
                                 </div>
                             </a>
                         </div>
                     </div>
                 @endforeach
-            </div>
-
-            <div class="col-lg-12">
-                <div class="text-center mt-5">
-                    <a href="{{ route('guest-katalog') }}" class="see-all-button btn">Lihat Semua</a>
-                </div>
             </div>
         </div>
     </section>
@@ -460,8 +529,19 @@
                         <div class="rating-avg-box">
                             <div class="rating-avg-value">{{ number_format($actualAverageRating, 1) }}</div>
                             <div class="rating-avg-stars">
+                                @php
+                                    $fullStars = floor($actualAverageRating);
+                                    $hasHalfStar = ($actualAverageRating - $fullStars) >= 0.5;
+                                @endphp
+
                                 @for($i = 1; $i <= 5; $i++)
-                                    <i class="fa fa-star{{ $i <= floor($actualAverageRating) ? '' : ($i - $actualAverageRating < 1 && $i - $actualAverageRating > 0 ? '-half-o' : '-o') }}"></i>
+                                    @if($i <= $fullStars)
+                                        <i class="fa-solid fa-star"></i>
+                                    @elseif($hasHalfStar && $i == $fullStars + 1)
+                                        <i class="fa-solid fa-star-half-stroke"></i>
+                                    @else
+                                        <i class="fa-regular fa-star"></i>
+                                    @endif
                                 @endfor
                             </div>
                             <div class="rating-avg-count">{{ number_format($actualAverageRating, 1) }} dari 5 Bintang</div>
@@ -475,7 +555,7 @@
                                     $percent = $actualReviewsCount > 0 ? ($sCount / $actualReviewsCount) * 100 : 0;
                                 @endphp
                                 <div class="rating-bar-item">
-                                    <div class="rating-bar-label">{{ $star }} <i class="fa fa-star"></i></div>
+                                    <div class="rating-bar-label">{{ $star }} <i class="fa-solid fa-star"></i></div>
                                     <div class="rating-bar-progress">
                                         <div class="rating-bar-fill" style="width: {{ $percent }}%"></div>
                                     </div>
@@ -555,7 +635,11 @@
                                             <div class="review-date">{{ $review->created_at->diffForHumans() }}</div>
                                             <div class="review-stars">
                                                 @for($i = 1; $i <= 5; $i++)
-                                                    <i class="fa fa-star{{ $i <= $review->rating ? '' : '-o' }}"></i>
+                                                    @if($i <= $review->rating)
+                                                        <i class="fa-solid fa-star"></i>
+                                                    @else
+                                                        <i class="fa-regular fa-star"></i>
+                                                    @endif
                                                 @endfor
                                             </div>
                                         </div>
@@ -598,9 +682,10 @@
         }
     }
 
-    // Fungsi untuk mengubah gambar utama, sekarang bisa diakses secara global
-    function changeMainImage(thumbnailElement) {
-        const index = Array.from(document.querySelectorAll('.thumbnail-item')).indexOf(thumbnailElement.parentElement);
+    // Fungsi untuk mengubah media utama (bisa foto atau video)
+    function changeMainMedia(element) {
+        const thumbItem = element.closest('.thumbnail-item');
+        const index = Array.from(document.querySelectorAll('.thumbnail-item')).indexOf(thumbItem);
         if (index > -1) {
             updateGallery(index);
         }
@@ -610,19 +695,36 @@
     function updateGallery(index) {
         const thumbnails = document.querySelectorAll('.thumbnail-item');
         const mainImage = document.getElementById('mainProductImage');
-        const mainImageLink = mainImage ? mainImage.parentElement : null;
+        const mainImageLink = document.getElementById('mainImageLink');
+        const mainVideo = document.getElementById('mainProductVideo');
 
-        if (thumbnails.length === 0 || !mainImage) return;
+        if (thumbnails.length === 0) return;
 
-        const newImageSrc = thumbnails[index].querySelector('img').src;
+        const activeThumb = thumbnails[index];
+        const type = activeThumb.getAttribute('data-type');
+        const src = activeThumb.getAttribute('data-src');
 
-        mainImage.src = newImageSrc;
-        if (mainImageLink) {
-            mainImageLink.href = newImageSrc;
+        if (type === 'video') {
+            if (mainImageLink) mainImageLink.style.display = 'none';
+            if (mainVideo) {
+                mainVideo.src = src;
+                mainVideo.style.display = 'block';
+                mainVideo.play();
+            }
+        } else {
+            if (mainVideo) {
+                mainVideo.pause();
+                mainVideo.style.display = 'none';
+            }
+            if (mainImageLink) {
+                mainImageLink.style.display = 'block';
+                mainImageLink.href = src;
+                if (mainImage) mainImage.src = src;
+            }
         }
 
         thumbnails.forEach(thumb => thumb.classList.remove('active'));
-        thumbnails[index].classList.add('active');
+        activeThumb.classList.add('active');
 
         // Simpan index saat ini untuk tombol prev/next
         window.currentImageIndex = index;
@@ -777,7 +879,7 @@
     function generateStarsHtml(rating) {
         let stars = '';
         for (let i = 1; i <= 5; i++) {
-            stars += `<i class="fa fa-star${i <= rating ? '' : '-o'}"></i> `;
+            stars += `<i class="${i <= rating ? 'fa-solid' : 'fa-regular'} fa-star"></i> `;
         }
         return stars;
     }

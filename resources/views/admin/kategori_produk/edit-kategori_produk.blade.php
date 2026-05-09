@@ -26,6 +26,23 @@
                     value="{{ old('nama_kategori_produk', $kategoriProduk->nama_kategori_produk) }}" required>
             </div>
 
+            <div class="form-group mb-3">
+                <label for="category_type">Jenis Kategori</label>
+                <select class="form-control" id="category_type" name="category_type" required>
+                    @foreach($categoryTypeLabels as $value => $label)
+                        <option value="{{ $value }}" {{ old('category_type', $kategoriProduk->category_type) === $value ? 'selected' : '' }}>
+                            {{ $label }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="sort_order">Urutan Tampil</label>
+                <input type="number" class="form-control" id="sort_order" name="sort_order"
+                    value="{{ old('sort_order', $kategoriProduk->sort_order) }}" min="0">
+            </div>
+
             <!-- Tombol Submit -->
             <button type="submit" class="btn btn-primary">Update Data</button>
             <a href="{{ route('admin.kategori_produk-index') }}" class="btn btn-secondary">Batal</a>

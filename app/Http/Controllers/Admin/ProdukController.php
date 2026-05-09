@@ -96,6 +96,7 @@ class ProdukController extends Controller
             'stok' => 'nullable|integer',
             'usaha_id' => 'required|exists:usaha,id',
             'foto_produk.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'video_produk' => 'nullable|mimes:mp4,mov,ogg,qt|max:20000',
         ]);
 
         if ($user->role == 'umkm') {
@@ -117,6 +118,10 @@ class ProdukController extends Controller
         ]);
         // Set the first category as the main one for the produk table column (compatibility)
         $produkData['kategori_produk_id'] = $request->kategori_produk_id[0];
+
+        if ($request->hasFile('video_produk')) {
+            $produkData['video_produk'] = $request->file('video_produk')->store('video_produk', 'public');
+        }
 
         $produk = Produk::create($produkData);
 
@@ -165,6 +170,7 @@ class ProdukController extends Controller
             'stok' => 'nullable|integer',
             'usaha_id' => 'required|exists:usaha,id',
             'foto_produk.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'video_produk' => 'nullable|mimes:mp4,mov,ogg,qt|max:20000',
         ]);
 
         if ($user->role == 'umkm') {
@@ -186,6 +192,18 @@ class ProdukController extends Controller
         ]);
         // Update the main category for the produk table column (compatibility)
         $produkData['kategori_produk_id'] = $request->kategori_produk_id[0];
+
+        if ($request->hasFile('video_produk')) {
+            if ($produk->video_produk) {
+                Storage::disk('public')->delete($produk->video_produk);
+            }
+            $produkData['video_produk'] = $request->file('video_produk')->store('video_produk', 'public');
+        } elseif ($request->delete_video == '1') {
+            if ($produk->video_produk) {
+                Storage::disk('public')->delete($produk->video_produk);
+            }
+            $produkData['video_produk'] = null;
+        }
 
         $produk->update($produkData);
 
@@ -227,6 +245,10 @@ class ProdukController extends Controller
         foreach ($produk->fotoProduk as $foto) {
             Storage::disk('public')->delete($foto->file_foto_produk);
             $foto->delete();
+        }
+
+        if ($produk->video_produk) {
+            Storage::disk('public')->delete($produk->video_produk);
         }
 
         $produk->usaha()->detach();

@@ -14,15 +14,15 @@ class WilayahSeeder extends Seeder
     {
         $wilayahs = [
             [
-                'nama_wilayah' => 'Kecamatan Perak',
+                'nama_wilayah' => 'Kelurahan Rejowinangun',
                 'keterangan' => 'Wilayah pusat kerajinan perak',
             ],
             [
-                'nama_wilayah' => 'Kecamatan Jombang',
+                'nama_wilayah' => 'Kelurahan Prenggan',
                 'keterangan' => 'Wilayah pusat administrasi',
             ],
             [
-                'nama_wilayah' => 'Kecamatan Diwek',
+                'nama_wilayah' => 'Kelurahan Purbayan',
                 'keterangan' => 'Wilayah pengembangan UMKM',
             ],
         ];

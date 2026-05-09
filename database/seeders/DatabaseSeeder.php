@@ -18,8 +18,8 @@ class DatabaseSeeder extends Seeder
             WilayahSeeder::class,
             UserSeeder::class,
             UsahaSeeder::class,
+            KategoriProdukSeeder::class,
             DummyDataSeeder::class,
-            // KategoriProdukSeeder::class,
             // JenisUsahaSeeder::class,
             // ProdukSeeder::class,
         ]);

@@ -12,23 +12,29 @@ class KategoriProdukController extends Controller
     public function index()
     {
         // Mengambil semua data kategori produk dari database
-        $kategoriProduk = KategoriProduk::all(); // atau bisa juga pakai paginate()
+        $kategoriProduk = KategoriProduk::ordered()->get(); // atau bisa juga pakai paginate()
         // Mengirim data ke view
         return view('admin.kategori_produk.index-kategori_produk', [
-            'kategoriProduks' => $kategoriProduk
+            'kategoriProduks' => $kategoriProduk,
+            'categoryTypeLabels' => KategoriProduk::TYPE_LABELS,
         ]);
     }
 
     public function create()
     {
-        return view('admin.kategori_produk.create-kategori_produk');
+        return view('admin.kategori_produk.create-kategori_produk', [
+            'categoryTypeLabels' => KategoriProduk::TYPE_LABELS,
+        ]);
     }
 
     public function edit($id)
     {
         // Mengambil data kategori produk berdasarkan ID
         $kategoriProduk = KategoriProduk::findOrFail($id);
-        return view('admin.kategori_produk.edit-kategori_produk', compact('kategoriProduk'));
+        return view('admin.kategori_produk.edit-kategori_produk', [
+            'kategoriProduk' => $kategoriProduk,
+            'categoryTypeLabels' => KategoriProduk::TYPE_LABELS,
+        ]);
     }
 
     public function store(Request $request)
@@ -37,10 +43,17 @@ class KategoriProdukController extends Controller
         $request->validate([
             'kode_kategori_produk' => 'required|string|max:255',
             'nama_kategori_produk' => 'required|string|max:255',
+            'category_type' => 'required|string|in:' . implode(',', array_keys(KategoriProduk::TYPE_LABELS)),
+            'sort_order' => 'nullable|integer|min:0|max:65535',
         ]);
 
         // Simpan data ke database
-        KategoriProduk::create($request->all());
+        KategoriProduk::create($request->only([
+            'kode_kategori_produk',
+            'nama_kategori_produk',
+            'category_type',
+            'sort_order',
+        ]));
 
         return redirect()->route('admin.kategori_produk-index')
             ->with('success', 'Kategori Produk berhasil ditambahkan.');
@@ -52,6 +65,8 @@ class KategoriProdukController extends Controller
         $data = $request->validate([
             'kode_kategori_produk' => 'required|string|max:255',
             'nama_kategori_produk' => 'required|string|max:255',
+            'category_type' => 'required|string|in:' . implode(',', array_keys(KategoriProduk::TYPE_LABELS)),
+            'sort_order' => 'nullable|integer|min:0|max:65535',
         ]);
 
         // Generate slug dari nama kategori

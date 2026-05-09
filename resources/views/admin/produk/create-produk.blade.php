@@ -55,39 +55,73 @@
 
     .gallery-item {
         aspect-ratio: 1;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+    }
+    .btn-add-gallery {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: #f9fafb;
+        border: 2px dashed #d1d5db;
+        border-radius: 12px;
+        color: #9ca3af;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin: 0;
+    }
+    .btn-add-gallery i {
+        font-size: 24px;
+        margin: 0;
+        padding: 0;
+    }
+    .btn-add-gallery:hover {
+        border-color: #991b1b;
+        color: #991b1b;
+    }
+    .remove-image {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: #ef4444;
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        cursor: pointer;
+        border: 2px solid white;
+        z-index: 10;
+        transition: all 0.2s;
+    }
+    .remove-image:hover {
+        transform: scale(1.1);
+        background: #dc2626;
+    }
+    .video-preview-container {
+        margin-top: 12px;
         border-radius: 8px;
         overflow: hidden;
         background: #f3f4f6;
         border: 1px solid #e5e7eb;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         position: relative;
+        display: none;
     }
-
-    .gallery-item img {
+    .video-preview-container video {
         width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .btn-add-gallery {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #f9fafb;
-        border: 2px dashed #e5e7eb;
-        border-radius: 8px;
-        color: #9ca3af;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .btn-add-gallery:hover {
-        border-color: #991b1b;
-        color: #991b1b;
+        display: block;
     }
 
     .action-footer {
@@ -212,18 +246,30 @@
             <div class="form-group">
                 <label>Foto Produk</label>
                 <div class="gallery-container" id="gallery-preview">
-                    <div class="gallery-item">
+                    <div class="gallery-item" id="add-photo-btn">
                         <label class="btn-add-gallery">
                             <i class="fas fa-plus"></i>
-                            <input type="file" name="foto_produk[]" multiple style="display: none;" onchange="previewGallery(this)">
+                            <input type="file" name="foto_produk[]" id="foto_input" multiple style="display: none;" onchange="handleFileSelect(this)">
                         </label>
+                    </div>
+                </div>
+                <p style="font-size: 12px; color: #6b7280; margin-top: 8px;">* Klik ikon + untuk menambah foto. Anda bisa memilih banyak foto sekaligus.</p>
+            </div>
+
+            <div class="form-group" style="margin-top: 24px;">
+                <label>Video Produk (Opsional)</label>
+                <input type="file" name="video_produk" class="form-input" accept="video/*" onchange="previewVideo(this)">
+                <div class="video-preview-container" id="video-preview-box">
+                    <video id="video-preview" controls></video>
+                    <div class="remove-image" onclick="clearVideo()" title="Hapus Video">
+                        <i class="fas fa-times"></i>
                     </div>
                 </div>
             </div>
 
             <div class="form-group" style="margin-top: 40px;">
                 <label>Deskripsi</label>
-                <textarea name="deskripsi" class="form-input" rows="10" placeholder="Masukkan deskripsi produk"></textarea>
+                <textarea name="deskripsi" class="form-input" rows="10" placeholder="Masukkan deskripsi produk" required></textarea>
             </div>
         </div>
     </div>
@@ -246,25 +292,73 @@
         });
     });
 
-    function previewGallery(input) {
-        const container = document.getElementById('gallery-preview');
-        const addButton = container.querySelector('.gallery-item:last-child');
+    let selectedFiles = [];
+    function handleFileSelect(input) {
+        if (!input.files) return;
         
-        const oldPreviews = container.querySelectorAll('.gallery-item:not(:last-child)');
+        const files = Array.from(input.files);
+        selectedFiles = [...selectedFiles, ...files];
+        
+        updatePreviews();
+        updateInputFiles();
+    }
+    function updatePreviews() {
+        const container = document.getElementById('gallery-preview');
+        const addButton = document.getElementById('add-photo-btn');
+        
+        // Remove old previews
+        const oldPreviews = container.querySelectorAll('.gallery-item:not(#add-photo-btn)');
         oldPreviews.forEach(el => el.remove());
-
-        if (input.files) {
-            Array.from(input.files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const div = document.createElement('div');
-                    div.className = 'gallery-item';
-                    div.innerHTML = `<img src="${e.target.result}">`;
-                    container.insertBefore(div, addButton);
-                }
-                reader.readAsDataURL(file);
-            });
+        selectedFiles.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const div = document.createElement('div');
+                div.className = 'gallery-item';
+                div.innerHTML = `
+                    <img src="${e.target.result}">
+                    <div class="remove-image" onclick="removeFile(${index})">
+                        <i class="fas fa-times"></i>
+                    </div>
+                `;
+                container.insertBefore(div, addButton);
+            }
+            reader.readAsDataURL(file);
+        });
+    }
+    function removeFile(index) {
+        selectedFiles.splice(index, 1);
+        updatePreviews();
+        updateInputFiles();
+    }
+    function updateInputFiles() {
+        const input = document.getElementById('foto_input');
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach(file => dataTransfer.items.add(file));
+        input.files = dataTransfer.files;
+    }
+    function previewVideo(input) {
+        const box = document.getElementById('video-preview-box');
+        const video = document.getElementById('video-preview');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                video.src = e.target.result;
+                box.style.display = 'block';
+            }
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            box.style.display = 'none';
         }
+    }
+    function clearVideo() {
+        const input = document.querySelector('input[name="video_produk"]');
+        const box = document.getElementById('video-preview-box');
+        const video = document.getElementById('video-preview');
+        
+        input.value = '';
+        video.src = '';
+        box.style.display = 'none';
     }
 </script>
 @stop

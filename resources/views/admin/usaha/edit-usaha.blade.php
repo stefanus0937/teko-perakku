@@ -250,7 +250,7 @@
             </div>
             <div class="form-group">
                 <label>Username</label>
-                <input type="text" name="username" class="form-input" value="{{ $usaha->user->username ?? '' }}" readonly>
+                <input type="text" name="username" class="form-input" value="{{ $usaha->user->username ?? '' }}" required>
             </div>
             <div class="form-group">
                 <label>Email</label>
@@ -262,12 +262,11 @@
             </div>
             <div class="form-group">
                 <label>Pemilik (Pengrajin)</label>
-                <select name="pengerajin_id[]" class="form-input" multiple style="height: 100px;">
+                <select name="pengerajin_id[]" class="form-input">
                     @foreach($pengerajins as $p)
                         <option value="{{ $p->id }}" {{ $usaha->pengerajins->contains($p->id) ? 'selected' : '' }}>{{ $p->nama_pengerajin }}</option>
                     @endforeach
                 </select>
-                <small class="text-muted">Tahan Ctrl (Windows) / Cmd (Mac) untuk memilih lebih dari satu pengrajin.</small>
             </div>
             <div class="form-group">
                 <label>Wilayah</label>

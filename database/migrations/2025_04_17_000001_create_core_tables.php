@@ -66,6 +66,8 @@ return new class extends Migration
             $table->string('kode_kategori_produk')->unique();
             $table->string('nama_kategori_produk');
             $table->string('slug')->unique();
+            $table->string('category_type')->default('product_form')->index();
+            $table->unsignedSmallInteger('sort_order')->default(0);
             $table->timestamps();
         });
 
@@ -120,6 +122,13 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        Schema::create('produk_kategoris_pivot', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('produk_id')->constrained('produk')->onDelete('cascade');
+            $table->foreignId('kategori_produk_id')->constrained('kategori_produk')->onDelete('cascade');
+            $table->timestamps();
+        });
+
         Schema::create('usaha_jenis', function (Blueprint $table) {
             $table->id();
             $table->foreignId('usaha_id')->constrained('usaha')->onDelete('cascade');
@@ -139,6 +148,7 @@ return new class extends Migration
     {
         Schema::dropIfExists('usaha_pengerajin');
         Schema::dropIfExists('usaha_jenis');
+        Schema::dropIfExists('produk_kategoris_pivot');
         Schema::dropIfExists('usaha_produk');
         Schema::dropIfExists('foto_produk');
         Schema::dropIfExists('produk');

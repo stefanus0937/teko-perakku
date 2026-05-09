@@ -30,6 +30,8 @@
             <tr>
                 <th>Kode Kategori Produk</th>
                 <th>Nama Kategori Produk</th>
+                <th>Jenis Kategori</th>
+                <th>Urutan</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -38,6 +40,8 @@
                 <tr>
                     <td>{{ $kategoriProduk->kode_kategori_produk }}</td>
                     <td>{{ $kategoriProduk->nama_kategori_produk }}</td>
+                    <td>{{ $categoryTypeLabels[$kategoriProduk->category_type] ?? 'Kategori Produk' }}</td>
+                    <td>{{ $kategoriProduk->sort_order }}</td>
                     <td>
                         <a href="{{ route('admin.kategori_produk-edit', $kategoriProduk->id) }}"
                             class="btn btn-warning btn-sm">
@@ -89,7 +93,7 @@
                 ], // 👉 Default sorting berdasarkan Nama Usaha ASC
                 columnDefs: [{
                         orderable: false,
-                        targets: 2
+                        targets: 4
                     }, // 👉 Kolom Foto dan Actions tidak bisa sort
                 ]
             });

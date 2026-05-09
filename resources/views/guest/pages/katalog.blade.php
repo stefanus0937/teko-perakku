@@ -2,23 +2,24 @@
 @section('title', 'Katalog')
 @section('content')
 
-<div class="page-heading" id="top">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="inner-content">
-                    {{-- Teks disesuaikan dengan desain Figma --}}
-                    <h2>Katalog Produk</h2>
-                    <span>Penjelajahan tanpa batas, temukan produk kerajinan terbaik yang dibuat dengan penuh dedikasi oleh para pengerajin lokal.</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@include('partials._rating-styles')
 
-<section class="section" id="products">
+<section class="section guest-content-start" id="products">
     <div class="container">
         <div class="row mb-5">
+            @php
+                $selectedKategoriSlugs = collect($selectedKategoriSlugs ?? request()->input('kategori', []))
+                    ->when(is_string(request()->input('kategori')), fn ($collection) => collect([request()->input('kategori')]))
+                    ->filter()
+                    ->unique()
+                    ->values();
+                $selectedKategoriItems = $kategoris->whereIn('slug', $selectedKategoriSlugs);
+                $kategoriButtonText = $selectedKategoriItems->isEmpty()
+                    ? 'Semua Produk'
+                    : ($selectedKategoriItems->count() === 1
+                        ? $selectedKategoriItems->first()->nama_kategori_produk
+                        : $selectedKategoriItems->count() . ' kategori dipilih');
+            @endphp
             @if (request()->filled('search'))
                 <div class="col-lg-12 search-heading">
                     <h2 class="search-title">Hasil Pencarian</h2>
@@ -29,45 +30,60 @@
                 </div>
             @endif
             <form action="{{ route('guest-katalog') }}" method="GET" class="w-100">
+                @if (request()->filled('search'))
+                    <input type="hidden" name="search" value="{{ request('search') }}">
+                @endif
                 <div class="filters-wrapper">
                     <div class="filter-row">
                     {{-- Filter Kategori --}}
-                        <div class="filter-group-custom">
+                        <div class="filter-group-custom filter-group-category">
                             <label for="kategoriDropdown">Kategori:</label>
-                            @php
-                                $namaKategoriAktif = 'Semua Produk'; // Default
-                                if (request('kategori')) {
-                                    // Cari koleksi kategori berdasarkan slug yang ada di URL
-                                    $kategoriAktif = $kategoris->firstWhere('slug', request('kategori'));
-                                    if ($kategoriAktif) {
-                                        $namaKategoriAktif = $kategoriAktif->nama_kategori_produk;
-                                    }
-                                }
-                            @endphp
                             <div class="dropdown">
-                                <button class="form-select-custom dropdown-toggle {{ request('kategori') ? 'filter-active' : '' }}" type="button" id="kategoriDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    {{ $namaKategoriAktif }}
+                                <button class="form-select-custom dropdown-toggle {{ $selectedKategoriItems->isNotEmpty() ? 'filter-active' : '' }}" type="button" id="kategoriDropdown" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                                    {{ $kategoriButtonText }}
                                 </button>
-                                <div>
-                                    <ul class="dropdown-menu" aria-labelledby="kategoriDropdown">
-                                        
-                                        <li>
-                                            <a class="dropdown-item {{ !request('kategori') ? 'active' : '' }}"
-                                            href="{{ route('guest-katalog', request()->except('kategori')) }}">
-                                            Semua Produk
-                                            </a>
-                                        </li>
-                                        @foreach ($kategoris as $kategori)
-                                        <li>
-                                            <a class="dropdown-item {{ request('kategori') == $kategori->slug ? 'active' : '' }}"
-                                            href="{{ route('guest-katalog', array_merge(request()->except('page'), ['kategori' => $kategori->slug])) }}">
-                                                {{ $kategori->nama_kategori_produk }}
-                                            </a>
-                                        </li>
+                                <div class="dropdown-menu category-filter-menu" aria-labelledby="kategoriDropdown">
+                                    <div class="category-filter-grid">
+                                        @foreach (($categoryTypeLabels ?? []) as $type => $label)
+                                            <div class="category-filter-column">
+                                                <h6>{{ $label }}</h6>
+                                            @foreach (($categoryGroups[$type] ?? collect()) as $kategori)
+                                                <label class="category-check {{ $selectedKategoriSlugs->contains($kategori->slug) ? 'is-active' : '' }}">
+                                                    <input type="checkbox"
+                                                           name="kategori[]"
+                                                           value="{{ $kategori->slug }}"
+                                                           {{ $selectedKategoriSlugs->contains($kategori->slug) ? 'checked' : '' }}>
+                                                    <span class="category-check-box"></span>
+                                                    <span>{{ $kategori->nama_kategori_produk }}</span>
+                                                </label>
+                                            @endforeach
+                                            </div>
                                         @endforeach
-                                    </ul>
+                                    </div>
+
+                                    <div class="category-filter-actions">
+                                        <a href="{{ route('guest-katalog', request()->except(['kategori', 'page'])) }}" class="btn-filter-clear">Reset</a>
+                                        <button type="submit" class="btn-filter-apply">Terapkan</button>
+                                    </div>
                                 </div>
                             </div>
+                            @if($selectedKategoriItems->isNotEmpty())
+                                <div class="active-filter-tags">
+                                    @foreach($selectedKategoriItems as $kategori)
+                                        @php
+                                            $remainingKategori = $selectedKategoriSlugs->reject(fn ($slug) => $slug === $kategori->slug)->values()->all();
+                                            $removeQuery = request()->except(['kategori', 'page']);
+                                            if (!empty($remainingKategori)) {
+                                                $removeQuery['kategori'] = $remainingKategori;
+                                            }
+                                        @endphp
+                                        <a href="{{ route('guest-katalog', $removeQuery) }}" class="active-filter-tag">
+                                            {{ $kategori->nama_kategori_produk }}
+                                            <span aria-hidden="true">&times;</span>
+                                        </a>
+                                    @endforeach
+                                </div>
+                            @endif
                         </div>
 
                         <div class="filter-group-custom filter-group-dropdown">
@@ -89,29 +105,42 @@
                                         <div class="price-inputs-wrapper">
                                             <div class="price-input-group-new">
                                                 <label for="min_harga" class="price-label-new">Min</label>
-                                                <input type="number" class="price-input" name="min_harga" id="min_harga" placeholder="100.000" value="{{ request('min_harga') }}">
+                                                <input type="number"
+                                                    class="price-input"
+                                                    name="min_harga"
+                                                    id="min_harga"
+                                                    placeholder="100.000"
+                                                    value="{{ request('min_harga') }}">
                                             </div>
+
                                             <span class="price-separator">-</span>
+
                                             <div class="price-input-group-new">
                                                 <label for="max_harga" class="price-label-new">Maks</label>
-                                                <input type="number" class="price-input" name="max_harga" id="max_harga" placeholder="1.000.000" value="{{ request('max_harga') }}">
+                                                <input type="number"
+                                                    class="price-input"
+                                                    name="max_harga"
+                                                    id="max_harga"
+                                                    placeholder="1.000.000"
+                                                    value="{{ request('max_harga') }}">
                                             </div>
                                         </div>
-                                        
-                                        @if (request('kategori'))
-                                        <input type="hidden" name="kategori" value="{{ request('kategori') }}">
+
+                                        @if (request('urutkan'))
+                                            <input type="hidden"
+                                                name="urutkan"
+                                                value="{{ request('urutkan') }}">
                                         @endif
 
-                                        {{-- Ini untuk membawa nilai filter Urutkan yang sedang aktif --}}
-                                        @if (request('urutkan'))
-                                        <input type="hidden" name="urutkan" value="{{ request('urutkan') }}">
-                                        @endif
-                                        
                                         <div class="price-buttons-wrapper">
-                                            <button type="submit" class="btn-apply-new">Terapkan</button>
-                                            
-                                            {{-- Tombol Reset menggunakan link (<a>) untuk menghapus parameter URL --}}
-                                            <a href="{{ url()->current() }}?{{ http_build_query(request()->except(['min_harga', 'max_harga'])) }}" class="btn-reset-new">Reset</a>
+                                            <button type="submit" class="btn-apply-new">
+                                                Terapkan
+                                            </button>
+
+                                            <a href="{{ url()->current() }}?{{ http_build_query(request()->except(['min_harga', 'max_harga'])) }}"
+                                            class="btn-reset-new">
+                                                Reset
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -167,22 +196,22 @@
                         <div class="down-content">
                             <h4>{{ $produk->nama_produk }}</h4>
                             <span class="product-price">Rp {{ number_format($produk->harga, 0, ',', '.') }}</span>
-                            <ul class="stars">
-                                @php
-                                    $avg = $produk->reviews->avg('rating') ?: 0;
-                                    $full = floor($avg);
-                                @endphp
-                                @for($i = 1; $i <= 5; $i++)
-                                    <li><i class="fa fa-star{{ $i <= $full ? '' : ($i - $avg < 1 && $i - $avg > 0 ? '-half-o' : '-o') }}"></i></li>
-                                @endfor
-                            </ul>
-                            <p class="product-reviews">
-                                @if($produk->reviews->count() > 0)
-                                    {{ $produk->reviews->count() }} Reviews
-                                @else
-                                    Belum ada review
-                                @endif
-                            </p>
+
+                            {{-- Rating: bintang + jumlah review --}}
+                            @include('partials._rating', [
+                                'reviews'   => $produk->reviews,
+                                'showAvg'   => true,
+                                'showCount' => true,
+                                'size'      => 'sm',
+                            ])
+
+                            {{-- Nama toko --}}
+                            @php $shop = $produk->usaha->first(); @endphp
+                            @if($shop)
+                                <span class="product-shop" title="{{ $shop->nama_usaha }}">
+                                    <i class="fa-regular fa-building"></i>{{ $shop->nama_usaha }}
+                                </span>
+                            @endif
                         </div>
                     </a>
                 </div>
@@ -225,5 +254,17 @@
             });
         }
     });
+
+    document.addEventListener('DOMContentLoaded', function () {
+    const categoryChecks = document.querySelectorAll('.category-check input');
+
+    categoryChecks.forEach(input => {
+        input.addEventListener('change', function () {
+            this.closest('.category-check')
+                .classList.toggle('is-active', this.checked);
+        });
+    });
+});
+
 </script>
 @endpush

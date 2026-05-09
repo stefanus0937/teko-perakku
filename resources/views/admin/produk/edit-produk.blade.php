@@ -55,9 +55,9 @@
 
     .gallery-item {
         aspect-ratio: 1;
-        border-radius: 8px;
+        border-radius: 12px;
         overflow: hidden;
-        background: #f3f4f6;
+        background: #f9fafb;
         border: 1px solid #e5e7eb;
         display: flex;
         align-items: center;
@@ -72,22 +72,70 @@
     }
 
     .btn-add-gallery {
+        position: absolute;
+        top: 0;
+        left: 0;
         width: 100%;
         height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
         background: #f9fafb;
-        border: 2px dashed #e5e7eb;
-        border-radius: 8px;
+        border: 2px dashed #d1d5db;
+        border-radius: 12px;
         color: #9ca3af;
         cursor: pointer;
         transition: all 0.2s;
+        margin: 0;
+    }
+
+    .btn-add-gallery i {
+        font-size: 24px;
+        margin: 0;
+        padding: 0;
     }
 
     .btn-add-gallery:hover {
         border-color: #991b1b;
         color: #991b1b;
+    }
+
+    .remove-image {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: #ef4444;
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        cursor: pointer;
+        border: 2px solid white;
+        z-index: 10;
+        transition: all 0.2s;
+    }
+
+    .remove-image:hover {
+        transform: scale(1.1);
+        background: #dc2626;
+    }
+
+    .video-preview-container {
+        margin-top: 12px;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #f3f4f6;
+        border: 1px solid #e5e7eb;
+        position: relative;
+    }
+
+    .video-preview-container video {
+        width: 100%;
+        display: block;
     }
 
     .action-footer {
@@ -230,22 +278,37 @@
                 <label>Foto Produk</label>
                 <div class="gallery-container" id="gallery-preview">
                     @foreach($produk->fotoProduk as $foto)
-                        <div class="gallery-item">
+                        <div class="gallery-item" id="photo-{{ $foto->id }}">
                             <img src="{{ asset('storage/' . $foto->file_foto_produk) }}">
+                            <div class="remove-image" onclick="deleteExistingPhoto({{ $foto->id }})" title="Hapus Foto">
+                                <i class="fas fa-times"></i>
+                            </div>
                         </div>
                     @endforeach
-                    <div class="gallery-item">
+                    <div class="gallery-item" id="add-photo-btn">
                         <label class="btn-add-gallery">
                             <i class="fas fa-plus"></i>
-                            <input type="file" name="foto_produk[]" multiple style="display: none;" onchange="previewGallery(this)">
+                            <input type="file" name="foto_produk[]" id="foto_input" multiple style="display: none;" onchange="handleFileSelect(this)">
                         </label>
+                    </div>
+                </div>
+                <p style="font-size: 12px; color: #6b7280; margin-top: 8px;">* Klik ikon + untuk menambah foto baru. Anda bisa memilih banyak foto sekaligus.</p>
+            </div>
+
+            <div class="form-group" style="margin-top: 24px;">
+                <label>Video Produk (Opsional)</label>
+                <input type="file" name="video_produk" class="form-input" accept="video/*" onchange="previewVideo(this)">
+                <div class="video-preview-container" id="video-preview-box" style="{{ $produk->video_produk ? '' : 'display: none;' }}">
+                    <video id="video-preview" controls src="{{ $produk->video_produk ? asset('storage/' . $produk->video_produk) : '' }}"></video>
+                    <div class="remove-image" onclick="clearVideo()" title="Hapus Video">
+                        <i class="fas fa-times"></i>
                     </div>
                 </div>
             </div>
 
             <div class="form-group" style="margin-top: 40px;">
                 <label>Deskripsi</label>
-                <textarea name="deskripsi" class="form-input" rows="10">{{ $produk->deskripsi }}</textarea>
+                <textarea name="deskripsi" class="form-input" rows="10" required>{{ $produk->deskripsi }}</textarea>
             </div>
         </div>
     </div>
@@ -276,24 +339,108 @@
         });
     });
 
-    function previewGallery(input) {
+    let selectedFiles = [];
+
+    function handleFileSelect(input) {
+        if (!input.files) return;
+        
+        const files = Array.from(input.files);
+        selectedFiles = [...selectedFiles, ...files];
+        
+        updatePreviews();
+        updateInputFiles();
+    }
+
+    function updatePreviews() {
         const container = document.getElementById('gallery-preview');
-        const addButton = container.querySelector('.gallery-item:last-child');
+        const addButton = document.getElementById('add-photo-btn');
         
-        const oldPreviews = container.querySelectorAll('.gallery-item:not(:last-child)');
-        
-        if (input.files.length > 0) {
-            oldPreviews.forEach(el => el.remove());
-            Array.from(input.files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const div = document.createElement('div');
-                    div.className = 'gallery-item';
-                    div.innerHTML = `<img src="${e.target.result}">`;
-                    container.insertBefore(div, addButton);
+        // Remove only new previews (ones that don't have an ID starting with photo-)
+        const oldNewPreviews = container.querySelectorAll('.gallery-item.new-preview');
+        oldNewPreviews.forEach(el => el.remove());
+
+        selectedFiles.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const div = document.createElement('div');
+                div.className = 'gallery-item new-preview';
+                div.innerHTML = `
+                    <img src="${e.target.result}">
+                    <div class="remove-image" onclick="removeFile(${index})">
+                        <i class="fas fa-times"></i>
+                    </div>
+                `;
+                container.insertBefore(div, addButton);
+            }
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function removeFile(index) {
+        selectedFiles.splice(index, 1);
+        updatePreviews();
+        updateInputFiles();
+    }
+
+    function updateInputFiles() {
+        const input = document.getElementById('foto_input');
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach(file => dataTransfer.items.add(file));
+        input.files = dataTransfer.files;
+    }
+
+    function deleteExistingPhoto(id) {
+        if (confirm('Hapus foto ini secara permanen?')) {
+            $.ajax({
+                url: `{{ url('admin/foto-produk/destroy') }}/${id}`,
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    _method: 'DELETE'
+                },
+                success: function(result) {
+                    $(`#photo-${id}`).remove();
+                },
+                error: function(xhr) {
+                    alert('Gagal menghapus foto.');
                 }
-                reader.readAsDataURL(file);
             });
+        }
+    }
+
+    function previewVideo(input) {
+        const box = document.getElementById('video-preview-box');
+        const video = document.getElementById('video-preview');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                video.src = e.target.result;
+                box.style.display = 'block';
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function clearVideo() {
+        const input = document.querySelector('input[name="video_produk"]');
+        const box = document.getElementById('video-preview-box');
+        const video = document.getElementById('video-preview');
+        
+        input.value = '';
+        video.src = '';
+        box.style.display = 'none';
+        
+        // If there was an existing video, we might want to tell the server to delete it.
+        // For simplicity, we'll let the controller handle it if a new file is uploaded, 
+        // but if we just want to DELETE without uploading new one, we need a hidden input.
+        if (!document.getElementById('delete_video_flag')) {
+            const hidden = document.createElement('input');
+            hidden.type = 'hidden';
+            hidden.name = 'delete_video';
+            hidden.value = '1';
+            hidden.id = 'delete_video_flag';
+            input.parentNode.appendChild(hidden);
         }
     }
 </script>

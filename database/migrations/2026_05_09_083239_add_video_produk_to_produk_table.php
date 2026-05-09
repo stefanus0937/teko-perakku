@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('chats', function (Blueprint $table) {
-            $table->boolean('is_delivered')->default(false)->after('is_read');
+        Schema::table('produk', function (Blueprint $table) {
+            $table->string('video_produk')->nullable()->after('slug');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('chats', function (Blueprint $table) {
-            $table->dropColumn('is_delivered');
+        Schema::table('produk', function (Blueprint $table) {
+            $table->dropColumn('video_produk');
         });
     }
 };

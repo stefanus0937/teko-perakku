@@ -29,164 +29,7 @@
             color: var(--text-main);
         }
 
-        /* Header Styles */
-        .main-header {
-            border-bottom: 1px solid var(--border-color);
-            padding: 20px 80px;
-            background: #fff;
-        }
-
-        .header-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 25px;
-        }
-
-        .logo {
-            font-size: 26px;
-            font-weight: 700;
-            color: #000;
-            text-decoration: none;
-            letter-spacing: -0.5px;
-        }
-
-        .search-container {
-            flex: 1;
-            max-width: 500px;
-            margin: 0 40px;
-            position: relative;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 12px 20px 12px 45px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            font-size: 14px;
-            outline: none;
-            background: #fff;
-            color: #666;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #a1a1aa;
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 25px;
-        }
-
-        .action-link {
-            color: #3f3f46;
-            text-decoration: none;
-            font-size: 20px;
-            transition: color 0.2s;
-        }
-
-        .user-profile-trigger {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            text-decoration: none;
-            color: var(--text-main);
-        }
-
-        .avatar-circle {
-            width: 32px;
-            height: 32px;
-            background: #e4e4e7;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-
-        .avatar-circle img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .user-name {
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        /* Nav Menu */
-        .nav-menu {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-        }
-
-        .nav-link {
-            text-decoration: none;
-            color: #18181b;
-            font-size: 13px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .nav-link i {
-            margin-left: 5px;
-            font-size: 10px;
-        }
-
-        /* Category Dropdown */
-        .category-dropdown-wrapper {
-            position: relative;
-        }
-        .category-dropdown {
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #fff;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            width: 220px;
-            display: none;
-            z-index: 1000;
-            margin-top: 15px;
-            padding: 8px;
-            animation: slideDown 0.2s ease-out;
-        }
-        .category-dropdown-wrapper:hover .category-dropdown {
-            display: block;
-        }
-        .category-dropdown::before {
-            content: '';
-            position: absolute;
-            top: -20px;
-            left: 0;
-            right: 0;
-            height: 20px;
-        }
-        .category-item {
-            display: flex;
-            align-items: center;
-            padding: 10px 15px;
-            text-decoration: none;
-            color: var(--text-main);
-            font-size: 13px;
-            font-weight: 600;
-            border-radius: 8px;
-            transition: background 0.2s;
-        }
-        .category-item:hover {
-            background: #f4f4f5;
-        }
+        /* Header styles dipindah ke partials/header.blade.php */
 
         /* Main Content Layout */
         .main-container {
@@ -250,10 +93,8 @@
         }
 
         @media (max-width: 1024px) {
-            .main-header { padding: 20px 40px; }
             .main-container { padding: 0 40px; flex-direction: column; }
             .sidebar { width: 100%; }
-            .nav-menu { gap: 20px; }
         }
 
         /* Global Settings Classes */
@@ -294,60 +135,7 @@
             color: #fff !important;
         }
 
-        /* Profile Dropdown Styles */
-        .user-profile-trigger {
-            position: relative;
-        }
-        .profile-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: #fff;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            width: 180px;
-            display: none;
-            z-index: 1000;
-            margin-top: 15px;
-            padding: 8px;
-            animation: slideDown 0.2s ease-out;
-        }
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .profile-dropdown.show {
-            display: block;
-        }
-        .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 15px;
-            text-decoration: none !important;
-            color: var(--text-main) !important;
-            font-size: 14px;
-            font-weight: 500;
-            border-radius: 8px;
-            transition: background 0.2s;
-        }
-        .dropdown-item:hover {
-            background: #f4f4f5;
-        }
-        .dropdown-item i {
-            font-size: 16px;
-            width: 20px;
-            text-align: center;
-        }
-        
-        body.dark-mode .profile-dropdown {
-            background: #1e1e1e;
-            border-color: #333;
-        }
-        body.dark-mode .dropdown-item:hover {
-            background: #2a2a2a;
-        }
+        /* Profile dropdown styles dipindah ke partials/header.blade.php */
 
         /* DataTables Overrides */
         .dataTables_wrapper .dataTables_paginate {
@@ -619,61 +407,8 @@
     @yield('css')
 </head>
 <body>
-    <header class="main-header">
-        <div class="header-top">
-            <a href="{{ route('profile') }}" class="logo">TekoPerakku</a>
-            
-            <div class="search-container">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" class="search-input" placeholder="Cari Produk">
-            </div>
-
-            <div class="header-actions">
-                <a href="{{ route('chats.index') }}" class="action-link"><i class="far fa-comment-dots"></i></a>
-                
-                <div class="user-profile-trigger" id="profileTrigger">
-                    <div class="avatar-circle">
-                        <img src="{{ Auth::user()->foto ? asset('storage/'.Auth::user()->foto) : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->nama ?? Auth::user()->username).'&background=e4e4e7&color=71717a' }}" alt="">
-                    </div>
-                    <span class="user-name">{{ Auth::user()->nama ?? Auth::user()->username }}</span>
-                    <i class="fas fa-chevron-down" style="font-size: 10px; color: #a1a1aa;"></i>
-
-                    <div class="profile-dropdown" id="profileDropdown">
-                        <a href="{{ route('profile') }}" class="dropdown-item">
-                            <i class="far fa-user"></i> Profil Saya
-                        </a>
-                        <a href="{{ route('pengaturan') }}" class="dropdown-item">
-                            <i class="fas fa-cog"></i> Pengaturan
-                        </a>
-                        <hr style="margin: 8px 0; border: 0; border-top: 1px solid var(--border-color);">
-                        <form action="{{ route('logout') }}" method="POST" id="logout-form-header">
-                            @csrf
-                            <button type="submit" class="dropdown-item w-100 border-0 bg-transparent text-left" style="color: #ef4444 !important; cursor: pointer;">
-                                <i class="fas fa-sign-out-alt"></i> Logout
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <nav class="nav-menu">
-            <a href="{{ route('guest-index') }}" class="nav-link">Beranda</a>
-            <a href="{{ route('guest-katalog') }}" class="nav-link">Katalog</a>
-            <div class="category-dropdown-wrapper">
-                <a href="#" class="nav-link">Kategori <i class="fas fa-chevron-down"></i></a>
-                <div class="category-dropdown">
-                    @foreach($kategoris as $kategori)
-                        <a href="{{ route('guest-katalog', ['kategori' => $kategori->slug]) }}" class="category-item">
-                            {{ $kategori->nama_kategori_produk }}
-                        </a>
-                    @endforeach
-                </div>
-            </div>
-            <a href="{{ route('guest-about') }}" class="nav-link">Tentang Kami</a>
-            <a href="{{ route('guest-contact') }}" class="nav-link">Kontak</a>
-        </nav>
-    </header>
+    {{-- Unified shared header --}}
+    @include('partials.header')
 
     <main class="main-container">
         <aside class="sidebar">

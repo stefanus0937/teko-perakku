@@ -13,13 +13,17 @@ class PageController extends Controller
 {
     public function index()
     {
-        $kategoris = KategoriProduk::all();
+        $kategoris = KategoriProduk::ordered()->get();
+        $categoryGroups = $kategoris->where('sort_order', '>', 0)->groupBy('category_type');
         $randomProduks = Produk::with(['fotoProduk', 'reviews'])->latest()->take(8)->get();
         $pengerajins = \App\Models\Pengerajin::inRandomOrder()->take(8)->get();
         $usahas = \App\Models\Usaha::inRandomOrder()->take(6)->get();
 
         return view('guest.pages.index', [
             'kategoris' => $kategoris,
+            'categoryGroups' => $categoryGroups,
+            'categoryTypeLabels' => KategoriProduk::TYPE_LABELS,
+            'categoryTypeDescriptions' => KategoriProduk::TYPE_DESCRIPTIONS,
             'randomProduks' => $randomProduks,
             'pengerajins' => $pengerajins,
             'usahas' => $usahas,
@@ -57,10 +61,26 @@ class PageController extends Controller
         }
 
         // -- LOGIKA FILTER KATEGORI --
-        if ($request->filled('kategori')) {
-            $query->whereHas('kategoriProduk', function ($q) use ($request) {
-                $q->where('slug', $request->kategori);
-            });
+        $selectedKategoriSlugs = collect($request->input('kategori', []))
+            ->when(is_string($request->input('kategori')), fn ($collection) => collect([$request->input('kategori')]))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        if (!empty($selectedKategoriSlugs)) {
+            $selectedKategoriGroups = KategoriProduk::query()
+                ->whereIn('slug', $selectedKategoriSlugs)
+                ->get(['slug', 'category_type'])
+                ->groupBy('category_type');
+
+            foreach ($selectedKategoriGroups as $groupedCategories) {
+                $groupSlugs = $groupedCategories->pluck('slug')->all();
+
+                $query->whereHas('kategoriProduk', function ($q) use ($groupSlugs) {
+                    $q->whereIn('slug', $groupSlugs);
+                });
+            }
         }
 
         // -- LOGIKA FILTER HARGA --
@@ -91,11 +111,12 @@ class PageController extends Controller
 
         $produks = $query->paginate(12)->withQueryString();
 
-        $kategoris = KategoriProduk::all();
+        $kategoris = KategoriProduk::ordered()->get();
 
         return view('guest.pages.katalog', [
             'produks' => $produks,
             'kategoris' => $kategoris,
+            'selectedKategoriSlugs' => $selectedKategoriSlugs,
         ]);
     }
 
