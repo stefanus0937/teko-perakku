@@ -246,7 +246,7 @@
         <a href="{{ route('admin.usaha-create') }}" class="btn-add">Tambah Usaha</a>
         <div class="search-container">
             <i class="fas fa-search search-icon"></i>
-            <input type="text" id="custom-search" class="search-input" placeholder="Search products">
+            <input type="text" id="custom-search" class="search-input" placeholder="Cari Usaha">
         </div>
     </div>
 </div>

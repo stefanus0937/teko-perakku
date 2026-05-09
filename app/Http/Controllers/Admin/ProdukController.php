@@ -88,7 +88,8 @@ class ProdukController extends Controller
         $user = auth()->user();
         $request->validate([
             'kode_produk' => 'required|string|unique:produk',
-            'kategori_produk_id' => 'required|exists:kategori_produk,id',
+            'kategori_produk_id' => 'required|array',
+            'kategori_produk_id.*' => 'exists:kategori_produk,id',
             'nama_produk' => 'required|string',
             'deskripsi' => 'required|string',
             'harga' => 'required|numeric',
@@ -111,9 +112,16 @@ class ProdukController extends Controller
             }
         }
 
-        $produk = Produk::create($request->only([
-            'kode_produk', 'kategori_produk_id', 'nama_produk', 'deskripsi', 'harga', 'stok'
-        ]));
+        $produkData = $request->only([
+            'kode_produk', 'nama_produk', 'deskripsi', 'harga', 'stok'
+        ]);
+        // Set the first category as the main one for the produk table column (compatibility)
+        $produkData['kategori_produk_id'] = $request->kategori_produk_id[0];
+
+        $produk = Produk::create($produkData);
+
+        // Sync with Categories
+        $produk->kategoriProduk()->sync($request->kategori_produk_id);
 
         // Sync with Usaha
         $produk->usaha()->sync($request->usaha_id);
@@ -121,8 +129,7 @@ class ProdukController extends Controller
         // Handle Gallery Photos
         if ($request->hasFile('foto_produk')) {
             foreach ($request->file('foto_produk') as $file) {
-                $name = time() . '_' . $file->getClientOriginalName();
-                $path = $file->storeAs('foto_produk', $name, 'public');
+                $path = $file->store('foto_produk', 'public');
                 
                 FotoProduk::create([
                     'produk_id' => $produk->id,
@@ -150,7 +157,8 @@ class ProdukController extends Controller
 
         $request->validate([
             'kode_produk' => 'required|string|unique:produk,kode_produk,' . $id,
-            'kategori_produk_id' => 'required|exists:kategori_produk,id',
+            'kategori_produk_id' => 'required|array',
+            'kategori_produk_id.*' => 'exists:kategori_produk,id',
             'nama_produk' => 'required|string',
             'deskripsi' => 'required|string',
             'harga' => 'required|numeric',
@@ -173,9 +181,16 @@ class ProdukController extends Controller
             }
         }
 
-        $produk->update($request->only([
-            'kode_produk', 'kategori_produk_id', 'nama_produk', 'deskripsi', 'harga', 'stok'
-        ]));
+        $produkData = $request->only([
+            'kode_produk', 'nama_produk', 'deskripsi', 'harga', 'stok'
+        ]);
+        // Update the main category for the produk table column (compatibility)
+        $produkData['kategori_produk_id'] = $request->kategori_produk_id[0];
+
+        $produk->update($produkData);
+
+        // Sync with Categories
+        $produk->kategoriProduk()->sync($request->kategori_produk_id);
 
         // Sync with Usaha
         $produk->usaha()->sync($request->usaha_id);
@@ -183,8 +198,7 @@ class ProdukController extends Controller
         // Handle Gallery Photos
         if ($request->hasFile('foto_produk')) {
             foreach ($request->file('foto_produk') as $file) {
-                $name = time() . '_' . $file->getClientOriginalName();
-                $path = $file->storeAs('foto_produk', $name, 'public');
+                $path = $file->store('foto_produk', 'public');
                 
                 FotoProduk::create([
                     'produk_id' => $produk->id,

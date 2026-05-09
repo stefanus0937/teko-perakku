@@ -221,9 +221,20 @@
                 <!-- Status Admin -->
                 <div class="form-group">
                     <label>Status Admin</label>
-                    <select name="role" class="form-control" required>
+                    <select name="role" id="role-select" class="form-control" required onchange="toggleWilayah()">
                         <option value="admin_utama" {{ $admin->role == 'admin_utama' ? 'selected' : '' }}>Admin Utama</option>
                         <option value="admin_wilayah" {{ $admin->role == 'admin_wilayah' ? 'selected' : '' }}>Admin Wilayah</option>
+                    </select>
+                </div>
+
+                <!-- Wilayah -->
+                <div class="form-group" id="wilayah-group" style="{{ $admin->role == 'admin_wilayah' ? '' : 'display: none;' }}">
+                    <label>Wilayah</label>
+                    <select name="wilayah_id" class="form-control">
+                        <option value="" disabled selected>Pilih Wilayah</option>
+                        @foreach($wilayahs as $wilayah)
+                            <option value="{{ $wilayah->id }}" {{ $admin->wilayah_id == $wilayah->id ? 'selected' : '' }}>{{ $wilayah->nama_wilayah }}</option>
+                        @endforeach
                     </select>
                 </div>
             </div>
@@ -268,5 +279,15 @@
             reader.readAsDataURL(e.target.files[0]);
         }
     });
+
+    function toggleWilayah() {
+        const role = document.getElementById('role-select').value;
+        const wilayahGroup = document.getElementById('wilayah-group');
+        if (role === 'admin_wilayah') {
+            wilayahGroup.style.display = 'flex';
+        } else {
+            wilayahGroup.style.display = 'none';
+        }
+    }
 </script>
 @stop

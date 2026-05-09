@@ -35,8 +35,8 @@ class KategoriProduk extends Model
         });
     }
 
-    public function produk()
+    public function produks()
     {
-        return $this->hasMany(Produk::class, 'kategori_produk_id');
+        return $this->belongsToMany(Produk::class, 'produk_kategoris_pivot', 'kategori_produk_id', 'produk_id');
     }
 }

@@ -155,28 +155,55 @@ class PelaporanController extends Controller
             ->with('success', 'Laporan berhasil dihapus.');
     }
 
-    public function chart()
+    public function chart(Request $request)
     {
         $user = auth()->user();
+        $query = Pelaporan::query();
+
+        // 1. Role-based filtering
         if ($user->role == 'umkm') {
-            $data = Pelaporan::whereHas('usaha', function($query) use ($user) {
-                $query->where('user_id', $user->id);
-            })->select('bulan', 'omset', 'tahun')
-            ->orderBy('tahun', 'asc')
-            ->get();
+            $query->whereHas('usaha', function($q) use ($user) {
+                $q->where('user_id', $user->id);
+            });
         } elseif ($user->role == 'admin_wilayah') {
-            $data = Pelaporan::whereHas('usaha', function($query) use ($user) {
-                $query->where('wilayah_id', $user->wilayah_id);
-            })->select('bulan', 'omset', 'tahun')
+            $query->whereHas('usaha', function($q) use ($user) {
+                $q->where('wilayah_id', $user->wilayah_id);
+            });
+        }
+
+        // 2. Filter by Usaha (if admin/wilayah)
+        if ($request->filled('usaha_id')) {
+            $query->where('usaha_id', $request->usaha_id);
+        }
+
+        // 3. Filter by Year (Default to current)
+        $selectedYear = $request->input('tahun', date('Y'));
+        $query->where('tahun', $selectedYear);
+
+        // 4. Time Range Filter (if provided)
+        $range = $request->input('range', '1 tahun');
+        if ($range == '6 bulan') {
+            // Logic for last 6 months relative to today? 
+            // Or just a subset of the year? Given the 12-month bar chart, subset is cleaner.
+        }
+
+        $data = $query->select('bulan', 'omset', 'tahun')
             ->orderBy('tahun', 'asc')
             ->get();
+
+        // Data for filters
+        $availableYears = Pelaporan::distinct()->orderBy('tahun', 'desc')->pluck('tahun');
+        if ($availableYears->isEmpty()) $availableYears = [date('Y')];
+
+        if ($user->role == 'umkm') {
+            $usahas = Usaha::where('user_id', $user->id)->get();
+        } elseif ($user->role == 'admin_wilayah') {
+            $usahas = Usaha::where('wilayah_id', $user->wilayah_id)->get();
         } else {
-            $data = Pelaporan::select('bulan', 'omset', 'tahun')
-                ->orderBy('tahun', 'asc')
-                ->get();
+            $usahas = Usaha::all();
         }
             
         $layout = $user->role == 'umkm' ? 'layouts.umkm' : 'layouts.admin_premium';
-        return view('admin.pelaporan.chart-pelaporan', compact('data', 'layout'));
+        return view('admin.pelaporan.chart-pelaporan', compact('data', 'layout', 'availableYears', 'usahas', 'selectedYear', 'range'));
     }
 }

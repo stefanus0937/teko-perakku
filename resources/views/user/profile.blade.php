@@ -17,19 +17,20 @@
         padding: 40px;
         display: flex;
         align-items: center;
-        gap: 30px;
+        gap: 40px;
         margin-bottom: 40px;
         position: relative;
     }
 
     .profile-img-container {
-        width: 140px;
-        height: 140px;
+        width: 180px;
+        height: 180px;
         border-radius: 50%;
-        border: 2px solid #fff;
+        border: 4px solid #fff;
         overflow: hidden;
         background: #fff;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        flex-shrink: 0;
     }
 
     .profile-img-container img {
@@ -38,31 +39,59 @@
         object-fit: cover;
     }
 
-    .welcome-text h2 {
-        font-size: 28px;
-        font-weight: 700;
-        color: #18181b;
-        line-height: 1.2;
+    .welcome-text {
+        flex: 1;
     }
 
-    .ubah-btn {
+    .welcome-text h2 {
+        font-size: 32px;
+        font-weight: 700;
+        color: #18181b;
+        margin-bottom: 5px;
+    }
+
+    .welcome-text .username {
+        font-size: 16px;
+        color: #71717a;
+        margin-bottom: 20px;
+        display: block;
+    }
+
+    .welcome-text .description {
+        font-size: 14px;
+        color: #4b5563;
+        line-height: 1.6;
+        max-width: 800px;
+    }
+
+    .banner-actions {
         position: absolute;
         top: 30px;
         right: 30px;
+        display: flex;
+        gap: 12px;
+    }
+
+    .ubah-btn {
         background: #fff;
-        border: 1px solid #e4e8eb;
-        padding: 6px 20px;
-        border-radius: 6px;
-        font-size: 12px;
+        border: 1px solid #e2e8f0;
+        padding: 10px 24px;
+        border-radius: 10px;
+        font-size: 14px;
         font-weight: 600;
-        color: #666;
+        color: #1f2937;
         text-decoration: none;
         transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
 
     .ubah-btn:hover {
         background: #f8fafc;
         border-color: #cbd5e1;
+        transform: translateY(-1px);
     }
 
     .info-grid {
@@ -96,19 +125,10 @@
         transition: border-color 0.2s;
     }
 
-    .form-control:focus {
-        border-color: #d4d4d8;
-    }
-
-    .form-control[readonly] {
-        cursor: default;
-    }
-
-    @media (max-width: 768px) {
-        .info-grid { grid-template-columns: 1fr; }
-        .welcome-banner { flex-direction: column; text-align: center; padding: 30px 20px; }
-        .profile-img-container { width: 100px; height: 100px; }
-        .welcome-text h2 { font-size: 22px; }
+    @media (max-width: 1024px) {
+        .welcome-banner { flex-direction: column; text-align: center; padding: 40px 20px; }
+        .banner-actions { position: static; justify-content: center; margin-top: 20px; }
+        .welcome-text .description { margin: 0 auto; }
     }
 </style>
 @endsection
@@ -118,38 +138,71 @@
 
 <div class="welcome-banner">
     <div class="profile-img-container">
-        <img src="{{ Auth::user()->foto ? asset('storage/'.Auth::user()->foto) : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->username).'&background=f4f4f5&color=71717a&size=200' }}" alt="">
+        <img src="{{ $user->foto ? asset('storage/'.$user->foto) : 'https://ui-avatars.com/api/?name='.urlencode($user->username).'&background=f4f4f5&color=71717a&size=200' }}" alt="">
     </div>
     <div class="welcome-text">
-        <h2>Selamat Datang,<br>{{ Auth::user()->nama ?? Auth::user()->username }}</h2>
+        <h2>{{ $user->nama ?? $user->username }}</h2>
+        <span class="username">@<span>{{ $user->username }}</span></span>
+        
+        @if($user->role == 'umkm' && $user->usaha)
+            <p class="description">{{ $user->usaha->deskripsi_usaha ?? 'Belum ada deskripsi usaha.' }}</p>
+        @endif
     </div>
-    <a href="{{ route('user.profile.edit') }}" class="ubah-btn">Ubah</a>
+
+    <div class="banner-actions">
+        @if($user->role == 'umkm' && $user->usaha)
+            <a href="{{ route('guest-detail-usaha', $user->usaha->id) }}" class="ubah-btn">
+                Lihat Toko
+            </a>
+        @endif
+        <a href="{{ route('profile.edit') }}" class="ubah-btn">
+            Ubah
+        </a>
+    </div>
 </div>
 
 <div class="info-grid">
     <div class="form-group">
-        <label>Nama Depan</label>
-        <input type="text" class="form-control" value="{{ explode(' ', Auth::user()->nama ?? '')[0] }}" readonly>
+        <label>Nama Lengkap / Usaha</label>
+        <input type="text" class="form-control" value="{{ $user->nama ?? '-' }}" readonly>
     </div>
     <div class="form-group">
         <label>Email</label>
-        <input type="text" class="form-control" value="{{ Auth::user()->email }}" readonly>
+        <input type="text" class="form-control" value="{{ $user->email }}" readonly>
+    </div>
+    
+    @if($user->role !== 'umkm')
+    <div class="form-group">
+        <label>Nomor HP</label>
+        <input type="text" class="form-control" value="{{ $user->no_hp ?? '-' }}" readonly>
     </div>
     <div class="form-group">
-        <label>Nama Belakang</label>
-        <input type="text" class="form-control" value="{{ count(explode(' ', Auth::user()->nama ?? '')) > 1 ? implode(' ', array_slice(explode(' ', Auth::user()->nama ?? ''), 1)) : '-' }}" readonly>
+        <label>Jenis Kelamin</label>
+        <input type="text" class="form-control" value="{{ $user->gender ?? '-' }}" readonly>
     </div>
     <div class="form-group">
-        <label>Nomor</label>
-        <input type="text" class="form-control" value="{{ Auth::user()->no_hp ?? '-' }}" readonly>
+        <label>Usia</label>
+        <input type="text" class="form-control" value="{{ $user->usia ? $user->usia . ' Tahun' : '-' }}" readonly>
     </div>
+    @else
+    <div class="form-group">
+        <label>Spesialisasi</label>
+        <input type="text" class="form-control" value="{{ $user->usaha->spesialisasi_usaha ?? '-' }}" readonly>
+    </div>
+    <div class="form-group">
+        <label>Wilayah</label>
+        <input type="text" class="form-control" value="{{ $user->wilayah->nama_wilayah ?? '-' }}" readonly>
+    </div>
+    @endif
+
     <div class="form-group">
         <label>Username</label>
-        <input type="text" class="form-control" value="{{ Auth::user()->username }}" readonly>
+        <input type="text" class="form-control" value="{{ $user->username }}" readonly>
     </div>
-    <div class="form-group">
-        <label>Password</label>
-        <input type="password" class="form-control" value="************" readonly>
-    </div>
+</div>
+
+<div class="form-group mt-4">
+    <label>Alamat</label>
+    <textarea class="form-control" rows="3" readonly style="resize: none;">{{ $user->alamat ?? '-' }}</textarea>
 </div>
 @endsection

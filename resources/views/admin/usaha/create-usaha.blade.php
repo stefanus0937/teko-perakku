@@ -181,11 +181,41 @@
 
     .btn-submit:hover { opacity: 0.9; }
     .btn-cancel:hover { background: #f9fafb; }
+
+    .remove-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(239, 68, 68, 0.9);
+        color: white;
+        border: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        font-size: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+    }
+
+    .remove-btn:hover { background: #dc2626; }
 </style>
 @stop
 
 @section('content')
 <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 30px;">Tambah Usaha</h2>
+
+@if($errors->any())
+    <div style="background: #fee2e2; color: #dc2626; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+        <ul style="margin: 0; padding-left: 20px;">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 
 <form action="{{ route('admin.usaha-store') }}" method="POST" enctype="multipart/form-data">
     @csrf
@@ -201,6 +231,10 @@
                 <input type="text" name="nama_usaha" class="form-input" placeholder="Masukkan nama usaha" required>
             </div>
             <div class="form-group">
+                <label>No Telepon</label>
+                <input type="text" name="telp_usaha" class="form-input" placeholder="Masukkan nomor telepon" required>
+            </div>
+            <div class="form-group">
                 <label>Username</label>
                 <input type="text" name="username" class="form-input" placeholder="Masukkan username" required>
             </div>
@@ -213,8 +247,8 @@
                 <input type="password" name="password" class="form-input" placeholder="Masukkan password" required>
             </div>
             <div class="form-group">
-                <label>Pemilik</label>
-                <select name="user_id" class="form-input">
+                <label>Pemilik (Pengrajin)</label>
+                <select name="pengerajin_id" class="form-input">
                     <option value="">Pilih Pemilik (Opsional)</option>
                     @foreach($pengerajins as $p)
                         <option value="{{ $p->id }}">{{ $p->nama_pengerajin }}</option>
@@ -292,14 +326,16 @@
             </div>
 
             <div class="form-group">
-                <label>Foto Tempat</label>
-                <div class="gallery-container" id="gallery-preview">
-                    <div class="gallery-item">
-                        <label class="btn-add-gallery">
-                            <i class="fas fa-plus"></i>
-                            <input type="file" name="foto_tempat[]" multiple style="display: none;" onchange="previewGallery(this)">
-                        </label>
-                    </div>
+                <label>Foto Tempat (Max 3)</label>
+                <div class="gallery-container">
+                    @for($i = 0; $i < 3; $i++)
+                        <div class="gallery-item" id="gallery-preview-{{ $i }}">
+                            <label class="btn-add-gallery" for="gallery-input-{{ $i }}">
+                                <i class="fas fa-plus"></i>
+                            </label>
+                        </div>
+                        <input type="file" name="foto_tempat[]" id="gallery-input-{{ $i }}" style="display: none;" accept="image/*" onchange="previewGallery(this, {{ $i }})">
+                    @endfor
                 </div>
             </div>
         </div>
@@ -323,28 +359,22 @@
         }
     };
 
-    // Multiple gallery preview
-    function previewGallery(input) {
-        const container = document.getElementById('gallery-preview');
-        // Keep the add button
-        const addButton = container.querySelector('.gallery-item:last-child');
-        
-        // Remove old previews except the add button
-        const oldPreviews = container.querySelectorAll('.gallery-item:not(:last-child)');
-        oldPreviews.forEach(el => el.remove());
-
-        if (input.files) {
-            Array.from(input.files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const div = document.createElement('div');
-                    div.className = 'gallery-item';
-                    div.innerHTML = `<img src="${e.target.result}">`;
-                    container.insertBefore(div, addButton);
-                }
-                reader.readAsDataURL(file);
-            });
+    // Multiple gallery preview logic for 3 slots
+    function previewGallery(input, slotIndex) {
+        const previewId = `gallery-preview-${slotIndex}`;
+        const preview = document.getElementById(previewId);
+        const [file] = input.files;
+        if (file) {
+            preview.innerHTML = `<img src="${URL.createObjectURL(file)}" style="width:100%; height:100%; object-fit:cover;">
+                                 <button type="button" class="remove-btn" onclick="clearSlot(${slotIndex})"><i class="fas fa-times"></i></button>`;
         }
+    }
+
+    function clearSlot(slotIndex) {
+        const input = document.getElementById(`gallery-input-${slotIndex}`);
+        const preview = document.getElementById(`gallery-preview-${slotIndex}`);
+        input.value = "";
+        preview.innerHTML = `<label class="btn-add-gallery" for="gallery-input-${slotIndex}"><i class="fas fa-plus"></i></label>`;
     }
 </script>
 @stop

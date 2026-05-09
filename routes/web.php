@@ -24,6 +24,8 @@ use App\Http\Controllers\ReviewController;
 // Authentication Routes
 Route::get('login', [AuthController::class, 'showLoginForm'])->name('loginForm');
 Route::post('login', [AuthController::class, 'login'])->name('login');
+Route::get('register', [AuthController::class, 'showRegisterForm'])->name('registerForm');
+Route::post('register', [AuthController::class, 'register'])->name('register');
 
 //Guest
 Route::get('', [PageController::class, 'index'])->name('guest-index');
@@ -121,6 +123,8 @@ Route::middleware(['role:admin_utama,admin_wilayah,umkm'])->group(function () {
     Route::put('admin/pelaporan/update/{id}', [PelaporanController::class, 'update'])->name('admin.pelaporan-update');
     Route::delete('admin/pelaporan/destroy/{id}', [PelaporanController::class, 'destroy'])->name('admin.pelaporan-destroy');
     Route::get('admin/pelaporan/chart', [PelaporanController::class, 'chart'])->name('admin.pelaporan-chart');
+    Route::get('admin/usaha/edit/{id}', [UsahaController::class, 'edit'])->name('admin.usaha-edit');
+    Route::put('admin/usaha/update/{id}', [UsahaController::class, 'update'])->name('admin.usaha-update');
 });
 
 // Admin only routes
@@ -137,8 +141,6 @@ Route::middleware(['role:admin_utama,admin_wilayah'])->group(function () {
     Route::get('admin/usaha', [UsahaController::class, 'index'])->name('admin.usaha-index');
     Route::get('admin/usaha/create', [UsahaController::class, 'create'])->name('admin.usaha-create');
     Route::post('admin/usaha/store', [UsahaController::class, 'store'])->name('admin.usaha-store');
-    Route::get('admin/usaha/edit/{id}', [UsahaController::class, 'edit'])->name('admin.usaha-edit');
-    Route::put('admin/usaha/update/{id}', [UsahaController::class, 'update'])->name('admin.usaha-update');
     Route::delete('admin/usaha/destroy/{id}', [UsahaController::class, 'destroy'])->name('admin.usaha-destroy');
 
     // Jenis Usaha

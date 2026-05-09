@@ -37,19 +37,6 @@
     </script>
     
     <link rel="stylesheet" href="{{ asset('assets/css/index-css.css') }}">
-
-    {{-- Header lama fixed-top dimatikan: header baru tidak fixed, padding-top tidak diperlukan --}}
-    <style>
-        body { padding-top: 0 !important; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-    </style>
-
-    {{-- Font yang dipakai header unified --}}
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-    {{-- Font Awesome 6 (header pakai ikon FA6 — assets lokal masih FA4) --}}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     @stack('styles')
 
 </head>
@@ -65,8 +52,108 @@
     </div>
     <!-- ***** Preloader End ***** -->
 
-    {{-- Unified Header — shared dengan layouts/user.blade.php & layouts/umkm.blade.php --}}
-    @include('partials.header')
+    <!-- ***** Header Area Start ***** -->
+    <header class="shadow-sm fixed-top">
+        <nav class="navbar navbar-expand-lg bg-white">
+            <div class="container d-flex align-items-center">
+                
+                <!-- Logo -->
+                <a class="navbar-brand fw-bold fs-4 me-3" href="{{ route('guest-index') }}">
+                    TekoPerakku
+                </a>
+
+                <!-- Search -->
+                <form action="{{ route('guest-katalog') }}" method="GET" class="d-flex flex-grow-1">
+                    <input class="form-control" type="search" name="search" placeholder="Cari produk atau kategori..." value="{{ request('search') }}">
+                </form>
+
+                <!-- User Account Section -->
+                <div class="d-flex align-items-center gap-3">
+                    @auth
+                        <div class="dropdown">
+                            <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="avatar-circle me-2">
+                                    {{ strtoupper(substr(Auth::user()->username, 0, 1)) }}
+                                </div>
+                                <span class="text-dark fw-semibold d-none d-sm-inline">{{ Auth::user()->username }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 user-dropdown-menu" aria-labelledby="userDropdown">
+                                <li>
+                                    @php
+                                        $dashboardRoute = 'admin.dashboard';
+                                        if(auth()->user()->role == 'umkm') $dashboardRoute = 'umkm.profile';
+                                        elseif(auth()->user()->role == 'user') $dashboardRoute = 'user.profile';
+                                    @endphp
+                                    <a class="dropdown-item user-dropdown-item" href="{{ route($dashboardRoute) }}">
+                                        <i class="fa fa-th-large me-2"></i> Panel Akun
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item user-dropdown-item" href="{{ route('chats.index') }}">
+                                        <i class="fa fa-comments me-2"></i> Pesan
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="{{ route('logout') }}" method="POST" class="m-0">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item user-dropdown-item text-danger">
+                                            <i class="fa fa-sign-out me-2"></i> Logout
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    @else
+                        <a href="{{ route('loginForm') }}" class="btn btn-danger btn-sm rounded-pill px-4 fw-semibold shadow-sm">
+                            <i class="fa fa-user me-2"></i> Login
+                        </a>
+                    @endauth
+                </div>
+            </div>
+        </nav>
+
+        <!-- Navbar Menu -->
+        <div class="bg-white">
+            <div class="container">
+                <ul class="nav justify-content-center py-2">
+                    <li class="nav-item">
+                        <a class="nav-link {{ Route::is('guest-index') ? 'active' : '' }}" href="{{ route('guest-index') }}">BERANDA</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Route::is('guest-katalog') ? 'active' : '' }}" href="{{ route('guest-katalog') }}">KATALOG</a>
+                    </li>
+                    <!-- <li class="nav-item">
+                        <a class="nav-link" href="#">PENGRAJIN</a>
+                    </li> -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="kategoriDropdown" role="button" data-bs-toggle="dropdown">
+                            KATEGORI
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="kategoriDropdown">
+                            @foreach ($kategoris as $kategori)
+                            <li>
+                                {{-- 1. Link diubah ke route 'guest-katalog' dengan parameter query --}}
+                                <a class="dropdown-item {{ request('kategori') == $kategori->slug ? 'active' : '' }}"
+                                href="{{ route('guest-katalog', ['kategori' => $kategori->slug]) }}">
+                                    {{ $kategori->nama_kategori_produk }}
+                                </a>
+                            </li>
+                            @endforeach
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Route::is('guest-about') ? 'active' : '' }}" href="{{ route('guest-about') }}">TENTANG KAMI</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Route::is('guest-contact') ? 'active' : '' }}" href="{{ route('guest-contact') }}">KONTAK</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <!-- ***** Header Area End ***** -->
 
     <!-- ***** Content Start ***** -->
     <div class="content">

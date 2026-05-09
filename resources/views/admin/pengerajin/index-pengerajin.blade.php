@@ -105,8 +105,15 @@
         color: #9ca3af;
         cursor: pointer;
         font-size: 20px;
-        padding: 0;
+        padding: 8px 12px;
         letter-spacing: 1px;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+    }
+
+    .action-btn:hover {
+        background-color: #f3f4f6;
+        color: #1a1a1a;
     }
 
     .dropdown {
@@ -231,6 +238,7 @@
 <table id="pengerajin-table" class="admin-table">
     <thead>
         <tr>
+            <th style="width: 80px;"></th>
             <th>Kode</th>
             <th>Nama</th>
             <th>Gender</th>
@@ -243,10 +251,27 @@
     <tbody>
         @foreach ($pengerajins as $pengerajin)
             <tr>
-                <td>{{ $pengerajin->kode_pengerajin }}</td>
-                <td>{{ $pengerajin->nama_pengerajin }}</td>
                 <td>
-                    {{ $pengerajin->jk_pengerajin == 'P' ? 'Pria' : ($pengerajin->jk_pengerajin == 'W' ? 'Wanita' : '-') }}
+                    <div style="width: 48px; height: 48px; border-radius: 8px; overflow: hidden; background: #f3f4f6;">
+                        @if ($pengerajin->foto_pengerajin)
+                            <img src="{{ asset('storage/' . $pengerajin->foto_pengerajin) }}" alt="Foto" style="width: 100%; height: 100%; object-fit: cover;">
+                        @else
+                            <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #9ca3af;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        @endif
+                    </div>
+                </td>
+                <td>{{ $pengerajin->kode_pengerajin }}</td>
+                <td style="font-weight: 600; color: #1a1a1a;">{{ $pengerajin->nama_pengerajin }}</td>
+                <td>
+                    @if($pengerajin->jk_pengerajin == 'P')
+                        <span class="badge bg-info">Pria</span>
+                    @elseif($pengerajin->jk_pengerajin == 'W')
+                        <span class="badge bg-warning" style="background-color: #fce7f3; color: #be185d;">Wanita</span>
+                    @else
+                        -
+                    @endif
                 </td>
                 <td>{{ $pengerajin->usia_pengerajin }}</td>
                 <td>{{ $pengerajin->telp_pengerajin }}</td>

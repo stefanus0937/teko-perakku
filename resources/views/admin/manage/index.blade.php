@@ -242,10 +242,10 @@
 <div class="manage-header">
     <h2 class="manage-title">Kelola Admin</h2>
     <div class="manage-actions">
-        <a href="{{ route('admin.manage.create') }}" class="btn-add">Add product</a>
+        <a href="{{ route('admin.manage.create') }}" class="btn-add">Add Admin</a>
         <form action="{{ route('admin.manage.index') }}" method="GET" class="search-container">
             <i class="fas fa-search search-icon"></i>
-            <input type="text" name="search" class="search-input" placeholder="Search products" value="{{ request('search') }}">
+            <input type="text" name="search" class="search-input" placeholder="Search admins" value="{{ request('search') }}">
         </form>
     </div>
 </div>
@@ -253,36 +253,38 @@
 <table class="admin-table">
     <thead>
         <tr>
-            <th>username</th>
+            <th>Username</th>
             <th>Nama</th>
-            <th>Status Admin</th>
-            <th>No Telepon</th>
             <th>Email</th>
+            <th>Role</th>
+            <th>Wilayah</th>
+            <th>No HP</th>
             <th>Action</th>
         </tr>
     </thead>
     <tbody>
-        @foreach($admins as $admin)
-        <tr>
-            <td>{{ $admin->username }}</td>
-            <td>{{ $admin->nama ?? '-' }}</td>
-            <td>{{ $admin->role == 'admin_utama' ? 'Admin Utama' : 'Admin Wilayah' }}</td>
-            <td>{{ $admin->no_hp ?? '-' }}</td>
-            <td>{{ $admin->email }}</td>
-            <td>
-                <div class="dropdown">
-                    <button class="action-btn">•••</button>
-                    <div class="dropdown-content">
-                        <a href="{{ route('admin.manage.edit', $admin->id) }}"><i class="fas fa-edit"></i> Edit</a>
-                        <form action="{{ route('admin.manage.destroy', $admin->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus admin ini?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" style="color: #dc2626;"><i class="fas fa-trash"></i> Hapus</button>
-                        </form>
+        @foreach ($admins as $admin)
+            <tr>
+                <td>{{ $admin->username }}</td>
+                <td style="font-weight: 600; color: #1a1a1a;">{{ $admin->nama ?? '-' }}</td>
+                <td>{{ $admin->email }}</td>
+                <td>{{ ucwords(str_replace('_', ' ', $admin->role)) }}</td>
+                <td>{{ $admin->wilayah->nama_wilayah ?? '-' }}</td>
+                <td>{{ $admin->no_hp ?? '-' }}</td>
+                <td>
+                    <div class="dropdown">
+                        <button class="action-btn">•••</button>
+                        <div class="dropdown-content">
+                            <a href="{{ route('admin.manage.edit', $admin->id) }}"><i class="fas fa-edit"></i> Edit</a>
+                            <form action="{{ route('admin.manage.destroy', $admin->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus admin ini?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" style="color: #dc2626;"><i class="fas fa-trash"></i> Hapus</button>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            </td>
-        </tr>
+                </td>
+            </tr>
         @endforeach
     </tbody>
 </table>

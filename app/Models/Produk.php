@@ -39,7 +39,7 @@ class Produk extends Model
 
     public function kategoriProduk()
     {
-        return $this->belongsTo(KategoriProduk::class, 'kategori_produk_id');
+        return $this->belongsToMany(KategoriProduk::class, 'produk_kategoris_pivot', 'produk_id', 'kategori_produk_id');
     }
 
     public function fotoProduk()

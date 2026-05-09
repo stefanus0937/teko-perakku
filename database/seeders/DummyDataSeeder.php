@@ -101,6 +101,9 @@ class DummyDataSeeder extends Seeder
             ]);
             // Note: slug is handled by boot() in Produk model
             $produk->usaha()->sync($faker->randomElement($usahaIds));
+            $produk->kategoriProduk()->sync([
+                $faker->randomElement($catIds)
+            ]);
 
             // 6b. Foto Produk (1-3 photos per product)
             $fotoDummy = ['men-01.jpg', 'women-01.jpg', 'kid-01.jpg', 'filigeri.jpg', 'souvenir.jpg', 'aksesoris-manten.jpg'];

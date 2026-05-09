@@ -45,7 +45,7 @@
                     <div class="profile-dropdown" id="profileDropdown" role="menu">
                         @php
                             $panelRoute = 'user.profile';
-                            if ($userRole === 'umkm')      $panelRoute = 'umkm.dashboard';
+                            if ($userRole === 'umkm')      $panelRoute = 'umkm.profile';
                             elseif (in_array($userRole, ['admin_utama','admin_wilayah'])) $panelRoute = 'admin.dashboard';
                         @endphp
                         <a href="{{ Route::has($panelRoute) ? route($panelRoute) : '#' }}" class="dropdown-item-link">

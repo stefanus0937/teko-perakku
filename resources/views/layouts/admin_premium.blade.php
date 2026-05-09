@@ -430,9 +430,7 @@
                 </div>
             </div>
             <nav class="sidebar-menu">
-                <a href="{{ route('admin.dashboard') }}" class="menu-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                    <i class="fas fa-th-large"></i> Dashboard
-                </a>
+
                 <a href="{{ route('profile') }}" class="menu-item {{ request()->routeIs('profile*') ? 'active' : '' }}">
                     <i class="far fa-user"></i> Profil
                 </a>

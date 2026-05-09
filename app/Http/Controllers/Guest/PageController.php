@@ -29,7 +29,9 @@ class PageController extends Controller
     public function productsByCategory($slug)
     {
         $kategori = KategoriProduk::where('slug', $slug)->firstOrFail();
-        $produks = Produk::where('kategori_produk_id', $kategori->id)->get();
+        $produks = Produk::whereHas('kategoriProduk', function ($q) use ($kategori) {
+            $q->where('kategori_produk_id', $kategori->id);
+        })->get();
 
         return view('guest.pages.products', [
             'kategori' => $kategori,

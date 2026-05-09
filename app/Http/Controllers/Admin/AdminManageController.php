@@ -5,16 +5,24 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class AdminManageController extends Controller
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+
+class AdminManageController extends Controller implements HasMiddleware
 {
-    public function __construct()
+    /**
+     * Get the middleware that should be assigned to the controller.
+     */
+    public static function middleware(): array
     {
-        $this->middleware(function ($request, $next) {
-            if (auth()->user()->role !== 'admin_utama') {
-                abort(403, 'Akses terbatas hanya untuk Admin Utama.');
-            }
-            return $next($request);
-        });
+        return [
+            new Middleware(function ($request, $next) {
+                if (auth()->user()->role !== 'admin_utama') {
+                    abort(403, 'Akses terbatas hanya untuk Admin Utama.');
+                }
+                return $next($request);
+            }),
+        ];
     }
 
     /**
@@ -42,7 +50,8 @@ class AdminManageController extends Controller
      */
     public function create()
     {
-        return view('admin.manage.create');
+        $wilayahs = \App\Models\Wilayah::all();
+        return view('admin.manage.create', compact('wilayahs'));
     }
 
     /**
@@ -55,6 +64,7 @@ class AdminManageController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8',
             'role' => 'required|in:admin_utama,admin_wilayah',
+            'wilayah_id' => 'required_if:role,admin_wilayah|nullable|exists:wilayahs,id',
             'nama' => 'nullable|string|max:255',
             'no_hp' => 'nullable|string|max:20',
             'gender' => 'nullable|in:Pria,Wanita',
@@ -82,7 +92,8 @@ class AdminManageController extends Controller
     public function edit(string $id)
     {
         $admin = \App\Models\User::findOrFail($id);
-        return view('admin.manage.edit', compact('admin'));
+        $wilayahs = \App\Models\Wilayah::all();
+        return view('admin.manage.edit', compact('admin', 'wilayahs'));
     }
 
     /**
@@ -97,6 +108,7 @@ class AdminManageController extends Controller
             'email' => 'required|email|unique:users,email,' . $admin->id,
             'password' => 'nullable|min:8',
             'role' => 'required|in:admin_utama,admin_wilayah',
+            'wilayah_id' => 'required_if:role,admin_wilayah|nullable|exists:wilayahs,id',
             'nama' => 'nullable|string|max:255',
             'no_hp' => 'nullable|string|max:20',
             'gender' => 'nullable|in:Pria,Wanita',

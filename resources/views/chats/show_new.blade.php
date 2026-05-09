@@ -558,11 +558,14 @@
                             <div class="message-actions" onclick="toggleActionMenu({{ $message->id }})">
                                 <i class="fas fa-chevron-down" style="font-size: 10px;"></i>
                                 <div class="action-dropdown" id="dropdown-{{ $message->id }}">
+                                    @php
+                                        $isBotMsg = strpos($message->message, 'ketik **/pertanyaan**') !== false || strpos($message->message, 'Silahkan Pilih topik yang kamu tanyakan:') !== false;
+                                    @endphp
                                     <div onclick="handleReply({{ $message->id }}, '{{ $message->sender_id == Auth::id() ? 'Anda' : $user->display_name }}', '{{ str_replace(["'", "\n"], ["\\'", ' '], $message->message ?: 'Berkas') }}')"><i class="fas fa-reply"></i> Balas</div>
-                                    @if($message->sender_id == Auth::id() && $message->type === 'text')
+                                    @if($message->sender_id == Auth::id() && $message->type === 'text' && !$message->product_id && strpos($message->message, 'Halo, saya tertarik dengan produk') === false && !$isBotMsg)
                                         <div onclick="handleEdit({{ $message->id }}, '{{ str_replace(["'", "\n"], ["\\'", ' '], $message->message ?: '') }}')"><i class="fas fa-edit"></i> Edit</div>
                                     @endif
-                                    @if($message->sender_id == Auth::id())
+                                    @if($message->sender_id == Auth::id() && !$message->product_id && strpos($message->message, 'Halo, saya tertarik dengan produk') === false && !$isBotMsg)
                                         <div onclick="handleDelete({{ $message->id }}, 'everyone')"><i class="fas fa-trash-alt"></i> Hapus untuk semua</div>
                                     @endif
                                 </div>
@@ -614,7 +617,15 @@
                                     <i class="fas fa-download" style="font-size: 14px; opacity: 0.5;"></i>
                                 </a>
                             @else
-                                {!! nl2br(preg_replace('/(https?:\/\/[^\s]+)/', '<a href="$1" target="_blank" style="text-decoration: underline; color: inherit;">$1</a>', e($message->message))) !!}
+                                @php
+                                    $escapedMsg = e($message->message);
+                                    if (Auth::user()->role === 'user') {
+                                        $escapedMsg = preg_replace('/\{\{BOT_BTN:(.*?)\}\}/', '<a href="javascript:void(0)" onclick="sendBotQuery(\'$1\')" style="color: var(--chat-accent); font-weight: 600; text-decoration: none; display: block; margin-top: 8px;">$1</a>', $escapedMsg);
+                                    } else {
+                                        $escapedMsg = preg_replace('/\{\{BOT_BTN:(.*?)\}\}/', '<span style="color: var(--chat-accent); font-weight: 600; display: block; margin-top: 8px; cursor: default;">$1</span>', $escapedMsg);
+                                    }
+                                @endphp
+                                {!! nl2br(preg_replace('/(https?:\/\/[^\s]+)/', '<a href="$1" target="_blank" style="text-decoration: underline; color: inherit;">$1</a>', $escapedMsg)) !!}
                             @endif
 
                             @if($message->is_edited)
@@ -694,6 +705,18 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 @vite(['resources/js/app.js'])
 <script>
+    window.sendBotQuery = function(queryText) {
+        const input = document.getElementById('message-input');
+        if (input) {
+            input.value = queryText;
+            const form = document.getElementById('chat-form');
+            if (form) {
+                // Manually trigger the submit handler
+                form.dispatchEvent(new Event('submit', { cancelable: true }));
+            }
+        }
+    };
+
     document.addEventListener('DOMContentLoaded', function() {
         // Axios CSRF configuration
         axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
@@ -769,10 +792,20 @@
                     cancelFile();
                     if (isEdit) {
                         document.getElementById('edit-id-input').value = '';
-                        updateMessageInUI(data);
+                        updateMessageInUI(data.chat || data);
                     } else {
-                        appendMessage(data, true);
-                        updateSidebar(data);
+                        const chatObj = data.chat || data;
+                        appendMessage(chatObj, true);
+                        updateSidebar(chatObj);
+                        
+                        if (data.bot_chat) {
+                            setTimeout(() => {
+                                appendMessage(data.bot_chat, false);
+                                updateSidebar(data.bot_chat);
+                                const container = document.getElementById('message-container');
+                                if (container) container.scrollTop = container.scrollHeight;
+                            }, 100);
+                        }
                         
                         // Clear product_id from URL to prevent re-fill on refresh
                         const urlParams = new URLSearchParams(window.location.search);
@@ -934,10 +967,14 @@
                 // Update last message preview
                 const lastMsgText = contactItem.querySelector('.last-msg-text');
                 if (lastMsgText) {
+                    let previewText = msg.message || (msg.type === 'image' ? 'Gambar' : 'Berkas');
+                    // Clean up bot buttons from sidebar preview
+                    previewText = previewText.replace(/\{\{BOT_BTN:(.*?)\}\}/g, '$1');
+                    
                     if ({{ Auth::id() }} != msg.sender_id) {
-                        lastMsgText.innerHTML = `<strong>${msg.message || (msg.type === 'image' ? 'Gambar' : 'Berkas')}</strong>`;
+                        lastMsgText.innerHTML = `<strong>${previewText}</strong>`;
                     } else {
-                        lastMsgText.innerText = msg.message || (msg.type === 'image' ? 'Gambar' : 'Berkas');
+                        lastMsgText.innerText = previewText;
                     }
                 }
 
@@ -1116,20 +1153,29 @@
                                     <i class="fas fa-download" style="font-size: 14px; opacity: 0.5;"></i>
                                 </a>`;
             } else {
-                contentHtml = linkify(msg.message);
+                let textContent = msg.message || '';
+                const isUserRole = {{ Auth::user()->role === 'user' ? 'true' : 'false' }};
+                if (isUserRole) {
+                    textContent = textContent.replace(/\{\{BOT_BTN:(.*?)\}\}/g, '<a href="javascript:void(0)" onclick="sendBotQuery(\'$1\')" style="color: var(--chat-accent); font-weight: 600; text-decoration: none; display: block; margin-top: 8px;">$1</a>');
+                } else {
+                    textContent = textContent.replace(/\{\{BOT_BTN:(.*?)\}\}/g, '<span style="color: var(--chat-accent); font-weight: 600; display: block; margin-top: 8px; cursor: default;">$1</span>');
+                }
+                contentHtml = linkify(textContent);
             }
 
             if (msg.is_edited) {
                 contentHtml += ' <span class="edited-label">(diedit)</span>';
             }
 
+            const isProductInquiry = msg.product_id || (msg.message && msg.message.indexOf('Halo, saya tertarik dengan produk') !== -1);
+            const isBotBtnMessage = msg.message && (msg.message.indexOf('ketik **/pertanyaan**') !== -1 || msg.message.indexOf('Silahkan Pilih topik yang kamu tanyakan:') !== -1);
             const actionsHtml = `
                 <div class="message-actions" onclick="toggleActionMenu(${msg.id})">
                     <i class="fas fa-chevron-down" style="font-size: 10px;"></i>
                     <div class="action-dropdown" id="dropdown-${msg.id}">
                         <div onclick="handleReply(${msg.id}, '${isSelf ? 'Anda' : '{{ $user->display_name }}'}', '${(msg.message || 'Berkas').replace(/'/g, "\\'").replace(/\n/g, ' ')}')"><i class="fas fa-reply"></i> Balas</div>
-                        ${isSelf && msg.type === 'text' ? `<div onclick="handleEdit(${msg.id}, '${(msg.message || '').replace(/'/g, "\\'").replace(/\n/g, ' ')}')"><i class="fas fa-edit"></i> Edit</div>` : ''}
-                        ${isSelf ? `<div onclick="handleDelete(${msg.id}, 'everyone')"><i class="fas fa-trash-alt"></i> Hapus untuk semua</div>` : ''}
+                        ${isSelf && msg.type === 'text' && !isProductInquiry && !isBotBtnMessage ? `<div onclick="handleEdit(${msg.id}, '${(msg.message || '').replace(/'/g, "\\'").replace(/\n/g, ' ')}')"><i class="fas fa-edit"></i> Edit</div>` : ''}
+                        ${isSelf && !isProductInquiry && !isBotBtnMessage ? `<div onclick="handleDelete(${msg.id}, 'everyone')"><i class="fas fa-trash-alt"></i> Hapus untuk semua</div>` : ''}
                     </div>
                 </div>
             `;

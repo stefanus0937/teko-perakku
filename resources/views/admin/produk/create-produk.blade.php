@@ -136,7 +136,30 @@
         margin-right: 8px;
         margin-bottom: 8px;
     }
+
+    /* Select2 Overrides */
+    .select2-container--default .select2-selection--multiple {
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 4px 8px;
+        background: #fcfcfc;
+    }
+    .select2-container--default.select2-container--focus .select2-selection--multiple {
+        border-color: #991b1b;
+    }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background-color: #991b1b;
+        border: none;
+        color: #fff;
+        border-radius: 4px;
+        padding: 2px 8px;
+    }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+        color: #fff;
+        margin-right: 5px;
+    }
 </style>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 @stop
 
 @section('content')
@@ -161,8 +184,7 @@
             </div>
             <div class="form-group">
                 <label>Kategori Produk</label>
-                <select name="kategori_produk_id" class="form-input" required>
-                    <option value="">Pilih Kategori</option>
+                <select name="kategori_produk_id[]" class="form-input select2" multiple required>
                     @foreach($kategoriProduks as $kat)
                         <option value="{{ $kat->id }}">{{ $kat->nama_kategori_produk }}</option>
                     @endforeach
@@ -214,7 +236,16 @@
 @stop
 
 @section('js')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
+    $(document).ready(function() {
+        $('.select2').select2({
+            placeholder: "Pilih Kategori",
+            allowClear: true
+        });
+    });
+
     function previewGallery(input) {
         const container = document.getElementById('gallery-preview');
         const addButton = container.querySelector('.gallery-item:last-child');

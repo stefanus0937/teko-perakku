@@ -339,6 +339,14 @@
                             <span class="stock-status">IN STOCK</span>
                         </div>
                         <span class="price">Rp {{ number_format($produk->harga, 0, ',', '.') }}</span>
+                        
+                        <div class="product-categories mb-3">
+                            @foreach($produk->kategoriProduk as $kat)
+                                <a href="{{ route('guest-katalog', ['kategori' => $kat->slug]) }}" class="badge bg-light text-dark text-decoration-none me-1" style="font-weight: 500; padding: 6px 12px; border-radius: 20px; border: 1px solid #eee;">
+                                    {{ $kat->nama_kategori_produk }}
+                                </a>
+                            @endforeach
+                        </div>
                         @php
                             $usaha = $produk->usaha->first();
                         @endphp

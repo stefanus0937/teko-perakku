@@ -11,7 +11,32 @@ class AuthController extends Controller
 {
     public function showLoginForm()
     {
-        return view('auth.login'); // arahkan ke view login
+        return view('auth.login');
+    }
+
+    public function showRegisterForm()
+    {
+        return view('auth.register');
+    }
+
+    public function register(Request $request)
+    {
+        $request->validate([
+            'username' => 'required|string|max:255|unique:users',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = User::create([
+            'username' => $request->username,
+            'email' => $request->email,
+            'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+            'role' => 'user', // Default role for new registrations
+        ]);
+
+        Auth::login($user);
+
+        return redirect()->route('guest-index')->with('success', 'Pendaftaran berhasil!');
     }
 
     public function login(Request $request)
@@ -47,6 +72,11 @@ class AuthController extends Controller
             return redirect()->route('login');
         }
         
+        // Eager load usaha if role is umkm
+        if ($user->role == 'umkm') {
+            $user->load('usaha');
+        }
+
         $layout = 'layouts.admin_premium';
         if ($user->role == 'umkm') {
             $layout = 'layouts.umkm';

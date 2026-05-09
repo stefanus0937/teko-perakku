@@ -153,6 +153,16 @@
 <div class="form-container">
     <h2 class="form-title">Edit Pengrajin</h2>
 
+    @if($errors->any())
+        <div style="background: #fee2e2; color: #dc2626; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+            <ul style="margin: 0; padding-left: 20px;">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <form action="{{ route('admin.pengerajin-update', $pengerajin->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
@@ -264,4 +274,3 @@
     });
 </script>
 @stop
-

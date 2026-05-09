@@ -131,8 +131,24 @@
         </div>
         <div class="welcome-text">
             <h2>Halo,<br>{{ $user->nama ?? $user->username }}</h2>
+            @if($user->role == 'umkm' && $user->usaha)
+                <div style="margin-top: 15px; display: flex; gap: 10px;">
+                    <a href="{{ route('guest-detail-usaha', $user->usaha->id) }}" class="text-decoration-none" 
+                       style="background: #fff; color: #0f172a; padding: 10px 24px; font-size: 13px; font-weight: 600; border-radius: 12px; border: 1px solid #e2e8f0; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                        <i class="fas fa-external-link-alt"></i> Kunjungi Toko
+                    </a>
+                </div>
+            @endif
         </div>
-        <a href="{{ route('profile.edit') }}" class="edit-btn">Edit Profil</a>
+        
+        <div style="position: absolute; top: 40px; right: 40px; display: flex; gap: 12px;">
+            @if($user->role == 'umkm' && $user->usaha)
+                <a href="{{ route('admin.usaha-edit', $user->usaha->id) }}" class="edit-btn" style="background: #991b1b;">
+                    <i class="fas fa-store me-1"></i> Ubah Usaha
+                </a>
+            @endif
+            <a href="{{ route('profile.edit') }}" class="edit-btn">Edit Profil</a>
+        </div>
     </div>
 
     <div class="profile-form">

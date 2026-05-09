@@ -76,8 +76,7 @@ class PengerajinController extends Controller
         $data = $request->all();
 
         if ($request->hasFile('foto_pengerajin')) {
-            $originalName = $request->file('foto_pengerajin')->getClientOriginalName();
-            $path = $request->file('foto_pengerajin')->storeAs('foto_pengerajin', $originalName, 'public');
+            $path = $request->file('foto_pengerajin')->store('foto_pengerajin', 'public');
             $data['foto_pengerajin'] = $path;
         }
 
@@ -113,14 +112,13 @@ class PengerajinController extends Controller
             'usaha_ids.*' => 'exists:usaha,id',
         ]);
 
-        $data = $request->all();
-
+        $data = $request->except(['foto_pengerajin', 'usaha_ids']);
+        
         if ($request->hasFile('foto_pengerajin')) {
             if ($pengerajin->foto_pengerajin) {
                 Storage::disk('public')->delete($pengerajin->foto_pengerajin);
             }
-            $originalName = $request->file('foto_pengerajin')->getClientOriginalName();
-            $path = $request->file('foto_pengerajin')->storeAs('foto_pengerajin', $originalName, 'public');
+            $path = $request->file('foto_pengerajin')->store('foto_pengerajin', 'public');
             $data['foto_pengerajin'] = $path;
         }
 

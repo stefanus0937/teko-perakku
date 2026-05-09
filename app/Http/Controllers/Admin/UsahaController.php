@@ -54,7 +54,12 @@ class UsahaController extends Controller
         $user = Auth::user();
         $usaha = Usaha::with('user')->findOrFail($id);
         
-        if ($user->role === 'admin_wilayah') {
+        if ($user->role === 'umkm') {
+            if ($usaha->user_id != $user->id) {
+                abort(403, 'Unauthorized action.');
+            }
+            $wilayahs = Wilayah::where('id', $usaha->wilayah_id)->get();
+        } elseif ($user->role === 'admin_wilayah') {
             if ($usaha->wilayah_id != $user->wilayah_id) {
                 abort(403, 'Unauthorized action.');
             }
@@ -79,11 +84,18 @@ class UsahaController extends Controller
             'telp_usaha' => 'nullable|string|max:15',
             'deskripsi_usaha' => 'nullable|string',
             'spesialisasi_usaha' => 'nullable|string',
-            'foto_usaha' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'foto_tempat.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto_usaha' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'foto_tempat' => 'nullable|array|max:3',
+            'foto_tempat.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
 
-        // 1. Create User
+        // 1. Authorization check for admin_wilayah
+        $authUser = Auth::user();
+        if ($authUser->role === 'admin_wilayah' && $request->wilayah_id != $authUser->wilayah_id) {
+            return redirect()->back()->with('error', 'Anda hanya dapat menambahkan usaha di wilayah Anda sendiri.');
+        }
+
+        // 2. Create User
         $user = User::create([
             'username' => $request->username,
             'email' => $request->email,
@@ -91,16 +103,17 @@ class UsahaController extends Controller
             'role' => 'umkm',
             'wilayah_id' => $request->wilayah_id,
             'nama' => $request->nama_usaha,
+            'alamat' => $request->alamat,
         ]);
 
-        $data = $request->except(['password', 'username', 'email']);
+        $data = $request->except(['password', 'username', 'email', 'pengerajin_id', 'foto_tempat']);
         $data['user_id'] = $user->id;
+        $data['email_usaha'] = $request->email;
         $data['status_usaha'] = 'aktif';
 
         // 2. Handle Profile Photo
         if ($request->hasFile('foto_usaha')) {
-            $originalName = $request->file('foto_usaha')->getClientOriginalName();
-            $path = $request->file('foto_usaha')->storeAs('foto_usaha', $originalName, 'public');
+            $path = $request->file('foto_usaha')->store('foto_usaha', 'public');
             $data['foto_usaha'] = $path;
         }
 
@@ -108,14 +121,20 @@ class UsahaController extends Controller
         if ($request->hasFile('foto_tempat')) {
             $gallery = [];
             foreach ($request->file('foto_tempat') as $file) {
-                $name = time() . '_' . $file->getClientOriginalName();
-                $path = $file->storeAs('foto_tempat', $name, 'public');
-                $gallery[] = $path;
+                if ($file) { // Check if slot has a file
+                    $path = $file->store('foto_tempat', 'public');
+                    $gallery[] = $path;
+                }
             }
-            $data['foto_tempat'] = json_encode($gallery);
+            $data['foto_tempat'] = $gallery;
         }
 
-        Usaha::create($data);
+        $usaha = Usaha::create($data);
+
+        // 4. Link Pengerajin if selected
+        if ($request->filled('pengerajin_id')) {
+            $usaha->pengerajins()->attach($request->pengerajin_id);
+        }
 
         return redirect()->route('admin.usaha-index')
             ->with('success', 'Usaha berhasil disimpan.');
@@ -136,8 +155,9 @@ class UsahaController extends Controller
             'telp_usaha' => 'nullable|string|max:15',
             'deskripsi_usaha' => 'nullable|string',
             'spesialisasi_usaha' => 'nullable|string',
-            'foto_usaha' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'foto_tempat.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto_usaha' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'foto_tempat' => 'nullable|array|max:3',
+            'foto_tempat.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
 
         // 1. Update User
@@ -147,6 +167,7 @@ class UsahaController extends Controller
                 'email' => $request->email,
                 'wilayah_id' => $request->wilayah_id,
                 'nama' => $request->nama_usaha,
+                'alamat' => $request->alamat,
             ];
             if ($request->filled('password')) {
                 $userData['password'] = Hash::make($request->password);
@@ -154,35 +175,55 @@ class UsahaController extends Controller
             $user->update($userData);
         }
 
-        $data = $request->except(['password', 'username', 'email']);
+        $data = $request->except(['password', 'username', 'email', 'pengerajin_id', 'foto_tempat']);
+        $data['email_usaha'] = $request->email;
 
         // 2. Handle Profile Photo
         if ($request->hasFile('foto_usaha')) {
             if ($usaha->foto_usaha) {
                 Storage::disk('public')->delete($usaha->foto_usaha);
             }
-            $originalName = $request->file('foto_usaha')->getClientOriginalName();
-            $path = $request->file('foto_usaha')->storeAs('foto_usaha', $originalName, 'public');
+            $path = $request->file('foto_usaha')->store('foto_usaha', 'public');
             $data['foto_usaha'] = $path;
         }
 
-        // 3. Handle Gallery Photos (foto_tempat)
-        if ($request->hasFile('foto_tempat')) {
-            $oldGallery = json_decode($usaha->foto_tempat, true) ?? [];
-            foreach ($oldGallery as $oldPath) {
-                Storage::disk('public')->delete($oldPath);
+        // 3. Handle Gallery Photos (Max 3 slots)
+        $existingGallery = $request->input('existing_foto_tempat', []);
+        $newGallery = [];
+        
+        // Fill slots
+        for ($i = 0; $i < 3; $i++) {
+            if ($request->hasFile("foto_tempat.$i")) {
+                // If a new file is uploaded for this slot, store it
+                $path = $request->file("foto_tempat.$i")->store('foto_tempat', 'public');
+                $newGallery[] = $path;
+            } elseif (isset($existingGallery[$i])) {
+                // If no new file, but an existing photo is kept for this slot
+                $newGallery[] = $existingGallery[$i];
             }
-
-            $gallery = [];
-            foreach ($request->file('foto_tempat') as $file) {
-                $name = time() . '_' . $file->getClientOriginalName();
-                $path = $file->storeAs('foto_tempat', $name, 'public');
-                $gallery[] = $path;
-            }
-            $data['foto_tempat'] = json_encode($gallery);
         }
 
+        // Cleanup: find photos that were in the old gallery but are NOT in the new gallery
+        $oldGallery = $usaha->foto_tempat ?? [];
+        foreach ($oldGallery as $oldPath) {
+            if (!in_array($oldPath, $newGallery)) {
+                Storage::disk('public')->delete($oldPath);
+            }
+        }
+        
+        $data['foto_tempat'] = $newGallery;
+
         $usaha->update($data);
+
+        // 4. Update Pengerajin relationship
+        if ($request->has('pengerajin_id')) {
+            $usaha->pengerajins()->sync($request->pengerajin_id);
+        }
+
+        if (Auth::user()->role === 'umkm') {
+            return redirect()->route('umkm.profile')
+                ->with('success', 'Informasi Usaha berhasil diperbarui.');
+        }
 
         return redirect()->route('admin.usaha-index')
             ->with('success', 'Usaha berhasil diperbarui.');
@@ -194,7 +235,7 @@ class UsahaController extends Controller
         if ($usaha->foto_usaha) {
             Storage::disk('public')->delete($usaha->foto_usaha);
         }
-        $gallery = json_decode($usaha->foto_tempat, true) ?? [];
+        $gallery = $usaha->foto_tempat ?? [];
         foreach ($gallery as $path) {
             Storage::disk('public')->delete($path);
         }

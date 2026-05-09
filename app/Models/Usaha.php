@@ -32,6 +32,10 @@ class Usaha extends Model
         'foto_tempat',
     ];
 
+    protected $casts = [
+        'foto_tempat' => 'array',
+    ];
+
     // public function usahaJenis()
     // {
     //     return $this->hasMany(UsahaJenis::class, 'usaha_id');

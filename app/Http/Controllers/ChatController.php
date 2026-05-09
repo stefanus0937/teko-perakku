@@ -28,6 +28,33 @@ class ChatController extends Controller
     public function show(User $user)
     {
         $usahaId = request('usaha_id');
+        $currentUser = Auth::user();
+
+        // If usaha_id is missing, try to resolve it from the context
+        if (!$usahaId) {
+            if ($user->role === 'umkm' && $user->usaha) {
+                $usahaId = $user->usaha->id;
+            } elseif ($currentUser->role === 'umkm' && $currentUser->usaha) {
+                $usahaId = $currentUser->usaha->id;
+            } else {
+                // Try to find the last chat between these users to get the usaha_id context
+                $lastChat = Chat::where(function($q) use ($currentUser, $user) {
+                    $q->where('sender_id', $currentUser->id)->where('receiver_id', $user->id);
+                })->orWhere(function($q) use ($currentUser, $user) {
+                    $q->where('sender_id', $user->id)->where('receiver_id', $currentUser->id);
+                })->latest()->first();
+
+                if ($lastChat) {
+                    $usahaId = $lastChat->usaha_id;
+                }
+            }
+            
+            // If we resolved an usahaId, redirect to the canonical URL to avoid split-view issues
+            if ($usahaId && !request()->ajax()) {
+                return redirect()->route('chats.show', ['user' => $user->id, 'usaha_id' => $usahaId]);
+            }
+        }
+
         $productId = request('product_id');
         $prefillMessage = '';
         $product = null;
@@ -67,6 +94,30 @@ class ChatController extends Controller
               ->where('receiver_id', $currentUser->id)
               ->where('usaha_id', $usahaId);
         })->orderBy('created_at', 'asc')->with('product.fotoProduk')->get();
+
+        // Auto-generate welcome message if this is the first time the user enters this specific chat room
+        if ($messages->isEmpty() && $currentUser->role !== 'umkm' && $user->role === 'umkm' && $usahaId) {
+            $usaha = \App\Models\Usaha::find($usahaId);
+            if ($usaha) {
+                $namaToko = $usaha->nama_usaha ?? 'Kerajinan Perak Jaya';
+                $welcomeMsg = "Selamat Datang di {$namaToko}!\nSilahkan Pilih topik yang kamu tanyakan:\n{{BOT_BTN:Bagaimana Cara memesan Produk?}}\n\n{{BOT_BTN:Dimana Alamat Toko?}}\n\n{{BOT_BTN:Kapan Toko Buka?}}\n\nketik **/pertanyaan** jika ingin menggunakan fitur pesan instan lagi!";
+                
+                $botChat = Chat::create([
+                    'sender_id' => $user->id, // Sent by UMKM
+                    'receiver_id' => $currentUser->id,
+                    'usaha_id' => $usahaId,
+                    'message' => $welcomeMsg,
+                    'type' => 'text',
+                    'is_read' => true, // Mark as read since user is looking at it
+                    'is_delivered' => true,
+                ]);
+                
+                $messages->push($botChat);
+                
+                // Broadcast for sidebar update in other tabs if needed
+                broadcast(new \App\Events\MessageSent($botChat))->toOthers();
+            }
+        }
 
         // Note: Read status is now handled via AJAX in the frontend to avoid pre-fetching issues.
 
@@ -130,22 +181,17 @@ class ChatController extends Controller
             $attachmentPath = $file->store('chat_attachments', 'public');
         }
 
-        // Security Check: If sender is UMKM, ensure usaha_id belongs to them.
-        // If sender is User, ensure usaha_id belongs to the receiver.
+        // Security Check & Consistency: 
+        // 1. If sender is UMKM, message belongs to THEIR usaha.
+        // 2. If receiver is UMKM, message belongs to THEIR usaha.
         $currentUser = Auth::user();
         $receiver = User::find($request->receiver_id);
         $finalUsahaId = $request->usaha_id;
 
-        if ($currentUser->role === 'umkm') {
-            // UMKM is sending. usaha_id must be their own usaha.
-            if ($currentUser->usaha) {
-                $finalUsahaId = $currentUser->usaha->id;
-            }
-        } else {
-            // User is sending. usaha_id must be the receiver's usaha.
-            if ($receiver->role === 'umkm' && $receiver->usaha) {
-                $finalUsahaId = $receiver->usaha->id;
-            }
+        if ($currentUser->role === 'umkm' && $currentUser->usaha) {
+            $finalUsahaId = $currentUser->usaha->id;
+        } elseif ($receiver->role === 'umkm' && $receiver->usaha) {
+            $finalUsahaId = $receiver->usaha->id;
         }
 
         $chat = Chat::create([
@@ -165,7 +211,53 @@ class ChatController extends Controller
 
         broadcast(new \App\Events\MessageSent($chat))->toOthers();
 
+        // Bot Auto Reply Logic
+        $botReply = null;
+        $botChat = null;
+        if ($currentUser->role !== 'umkm' && $receiver->role === 'umkm' && $finalUsahaId) {
+            $msgLower = trim(strtolower((string)$messageContent));
+            $usaha = \App\Models\Usaha::find($finalUsahaId);
+
+            $messageCount = Chat::where(function($q) use ($currentUser, $receiver, $finalUsahaId) {
+                $q->where('sender_id', $currentUser->id)->where('receiver_id', $receiver->id)->where('usaha_id', $finalUsahaId);
+            })->orWhere(function($q) use ($currentUser, $receiver, $finalUsahaId) {
+                $q->where('sender_id', $receiver->id)->where('receiver_id', $currentUser->id)->where('usaha_id', $finalUsahaId);
+            })->count();
+
+            if ($msgLower === 'bagaimana cara memesan produk?') {
+                $botReply = "Anda dapat memesan produk kami secara langsung melalui chat ini.\n\nketik **/pertanyaan** jika ingin menggunakan fitur pesan instan lagi!";
+            } elseif ($msgLower === 'dimana alamat toko?') {
+                $linkUrl = $usaha->link_gmap_usaha ?: url('/');
+                $botReply = "Anda dapat melihat alamat toko pada profil usaha kami atau kunjungi {$linkUrl}\n\nketik **/pertanyaan** jika ingin menggunakan fitur pesan instan lagi!";
+            } elseif ($msgLower === 'kapan toko buka?') {
+                $botReply = "Toko kami buka setiap hari kerja. Silahkan tinggalkan pesan Anda dan kami akan membalas secepatnya.\n\nketik **/pertanyaan** jika ingin menggunakan fitur pesan instan lagi!";
+            } elseif ($msgLower === '/pertanyaan') {
+                $botReply = "Silahkan Pilih topik yang kamu tanyakan:\n{{BOT_BTN:Bagaimana Cara memesan Produk?}}\n\n{{BOT_BTN:Dimana Alamat Toko?}}\n\n{{BOT_BTN:Kapan Toko Buka?}}";
+            }
+            // Note: The welcome message (messageCount <= 1) is now handled in the show() method
+            // so it appears before the user even sends their first message.
+        }
+
+        if ($botReply) {
+            $botChat = Chat::create([
+                'sender_id' => $receiver->id, // Sent by UMKM
+                'receiver_id' => $currentUser->id,
+                'usaha_id' => $finalUsahaId,
+                'product_id' => null,
+                'message' => $botReply,
+                'type' => 'text',
+                'attachment' => null,
+                'reply_to_id' => null,
+            ]);
+            $botChat->load(['replyTo', 'usaha', 'product.fotoProduk']);
+            // Use toOthers() so the current user doesn't receive it via WebSocket, avoiding race condition with AJAX response
+            broadcast(new \App\Events\MessageSent($botChat))->toOthers();
+        }
+
         if ($request->ajax()) {
+            if ($botChat) {
+                return response()->json(['chat' => $chat, 'bot_chat' => $botChat]);
+            }
             return response()->json($chat);
         }
 
@@ -210,7 +302,7 @@ class ChatController extends Controller
                     })->orWhere(function($q1) use ($user, $combo) {
                         $q1->where('sender_id', $combo->partner_id)->where('receiver_id', $user->id);
                     });
-                })->latest()->first();
+                })->latest('id')->first();
 
             // Set nama tampilan secara dinamis
             $usaha = $combo->usaha_id ? \App\Models\Usaha::find($combo->usaha_id) : null;
@@ -231,7 +323,11 @@ class ChatController extends Controller
                 }
             }
 
-            $contact->last_message = $lastChat ? $lastChat->message : '';
+            $lastMessageText = $lastChat ? $lastChat->message : '';
+            // Clean up bot buttons from sidebar preview
+            $lastMessageText = preg_replace('/\{\{BOT_BTN:(.*?)\}\}/', '$1', $lastMessageText);
+            
+            $contact->last_message = $lastMessageText;
             $contact->last_message_sender_id = $lastChat ? $lastChat->sender_id : null;
             $contact->last_message_is_read = $lastChat ? $lastChat->is_read : false;
             $contact->last_chat_time_raw = $lastChat ? $lastChat->created_at : null;

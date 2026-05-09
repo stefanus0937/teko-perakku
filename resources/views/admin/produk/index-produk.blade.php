@@ -235,6 +235,7 @@
             <th>Nama Produk</th>
             <th>Kode</th>
             <th>Usaha</th>
+            <th>Kategori</th>
             <th>Harga</th>
             <th>Action</th>
         </tr>
@@ -256,6 +257,13 @@
                 <td style="font-weight: 600; color: #1a1a1a;">{{ $produk->nama_produk }}</td>
                 <td>{{ $produk->kode_produk }}</td>
                 <td>{{ $produk->usaha->first()->nama_usaha ?? '-' }}</td>
+                <td>
+                    @foreach($produk->kategoriProduk as $kat)
+                        <span style="display: inline-block; background: #f3f4f6; color: #4b5563; font-size: 11px; padding: 2px 8px; border-radius: 10px; margin-right: 4px; margin-bottom: 4px;">
+                            {{ $kat->nama_kategori_produk }}
+                        </span>
+                    @endforeach
+                </td>
                 <td>Rp {{ number_format($produk->harga, 0, ',', '.') }}</td>
                 <td>
                     <div class="dropdown">

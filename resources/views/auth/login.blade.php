@@ -48,6 +48,11 @@
                     <a href="#" class="link-primary">Ubah kata sandi</a>
                 </span>
             </div>
+            <div class="text-center mt-2">
+                <span class="text-muted">Belum punya akun? 
+                    <a href="{{ route('registerForm') }}" class="link-primary">Daftar sekarang</a>
+                </span>
+            </div>
         </form>
     </div>
 </div>
