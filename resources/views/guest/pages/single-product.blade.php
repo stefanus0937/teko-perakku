@@ -356,7 +356,6 @@
                                 </div>
                                 <span class="ms-2 text-muted" style="font-size: 13px;">({{ $actualReviewsCount }} Ulasan)</span>
                             </div>
-                            <span class="stock-status">IN STOCK</span>
                         </div>
                         <span class="price">Rp {{ number_format($produk->harga, 0, ',', '.') }}</span>
                         
@@ -373,86 +372,54 @@
 
                         <div class="usaha-info">
                             @if ($usaha)
-                                <a href="{{ route('guest-detail-usaha', ['usaha' => $usaha, 'from_product' => $produk->slug]) }}" class="usaha-link">
-                                    <img src="{{ asset('assets/images/kategori-default.jpg') }}" alt="Logo Usaha" class="usaha-avatar">
-                                    <div class="usaha-details">
-                                        <span class="usaha-name">{{ $usaha->nama_usaha }}</span>
-                                        <span class="usaha-spesialisasi">{{ $usaha->deskripsi_usaha ?? 'Kerajinan Perak Kotagede' }}</span>
+                                {{-- Shop card baris atas: avatar | nama+@username | chat | kunjungi toko --}}
+                                <div class="shop-card">
+                                    <img
+                                        src="{{ $usaha->foto_usaha ? asset('storage/'.$usaha->foto_usaha) : asset('assets/images/kategori-default.jpg') }}"
+                                        alt="Logo {{ $usaha->nama_usaha }}"
+                                        class="shop-card__avatar"
+                                        onerror="this.onerror=null;this.src='{{ asset('assets/images/kategori-default.jpg') }}';"
+                                    >
+
+                                    <div class="shop-card__info">
+                                        <div class="shop-card__name">{{ $usaha->nama_usaha }}</div>
+                                        <div class="shop-card__handle">
+                                            &#64;{{ \Illuminate\Support\Str::slug($usaha-> user-> username, '') }}
+                                        </div>
                                     </div>
-                                </a>
-                                <div class="usaha-actions-wrapper" style="border-top: 1px solid #dee2e6; padding-top: 15px; margin-top: 10px;">
-                                    <div class="chat-action mb-3">
+
+                                    <div class="shop-card__actions">
                                         @auth
                                             @if(Auth::user()->role === 'user' && Auth::id() !== $usaha->user_id)
-                                                <a href="{{ route('chats.show', ['user' => $usaha->user_id, 'usaha_id' => $usaha->id, 'product_id' => $produk->id]) }}" class="btn btn-sm btn-primary shadow-sm">
-                                                    <i class="fa fa-comments"></i> Chat Penjual
+                                                <a
+                                                    href="{{ route('chats.show', ['user' => $usaha->user_id, 'usaha_id' => $usaha->id, 'product_id' => $produk->id]) }}"
+                                                    class="shop-btn shop-btn--icon"
+                                                    title="Chat Penjual"
+                                                    aria-label="Chat Penjual"
+                                                >
+                                                    <i class="fa-regular fa-comment-dots"></i>
                                                 </a>
                                             @endif
                                         @else
-                                            <a href="{{ route('loginForm') }}" class="btn btn-sm btn-outline-primary">
-                                                <i class="fa fa-sign-in"></i> Login untuk Chat
+                                            <a
+                                                href="{{ route('loginForm') }}"
+                                                class="shop-btn shop-btn--icon"
+                                                title="Login untuk Chat"
+                                                aria-label="Login untuk Chat"
+                                            >
+                                                <i class="fa-regular fa-comment-dots"></i>
                                             </a>
                                         @endauth
-                                    </div>
-                                    
-                                    <div class="social-icons-row d-flex gap-2 flex-wrap">
-                                        {{-- WhatsApp --}}
-                                        @if($usaha->link_wa_usaha || $usaha->telp_usaha)
-                                            @php
-                                                $waNumber = $usaha->link_wa_usaha ?: $usaha->telp_usaha;
-                                                $waNumber = preg_replace('/[^0-9]/', '', $waNumber);
-                                                if (str_starts_with($waNumber, '0')) {
-                                                    $waNumber = '62' . substr($waNumber, 1);
-                                                }
-                                            @endphp
-                                            <a href="https://wa.me/{{ $waNumber }}" target="_blank" class="social-icon whatsapp" title="WhatsApp"><i class="fa fa-phone"></i></a>
-                                        @endif
 
-                                        {{-- Instagram --}}
-                                        @if($usaha->link_instagram_usaha)
-                                            <a href="{{ $usaha->link_instagram_usaha }}" target="_blank" class="social-icon instagram" title="Instagram"><i class="fa fa-instagram"></i></a>
-                                        @endif
-
-                                        {{-- Facebook --}}
-                                        @if($usaha->link_facebook_usaha)
-                                            <a href="{{ $usaha->link_facebook_usaha }}" target="_blank" class="social-icon facebook" title="Facebook"><i class="fa fa-facebook"></i></a>
-                                        @endif
-
-                                        {{-- TikTok --}}
-                                        @if($usaha->link_tiktok_usaha)
-                                            <a href="{{ $usaha->link_tiktok_usaha }}" target="_blank" class="social-icon tiktok" title="TikTok"><i class="fa fa-music"></i></a>
-                                        @endif
-
-                                        {{-- Shopee --}}
-                                        @if($usaha->link_shopee_usaha)
-                                            <a href="{{ $usaha->link_shopee_usaha }}" target="_blank" class="social-icon shopee" title="Shopee">
-                                                <img src="{{ asset('assets/images/shopee-icon.png') }}" alt="Shopee">
-                                            </a>
-                                        @endif
-
-                                        {{-- Tokopedia --}}
-                                        @if($usaha->link_tokopedia_usaha)
-                                            <a href="{{ $usaha->link_tokopedia_usaha }}" target="_blank" class="social-icon tokped" title="Tokopedia">
-                                                <img src="{{ asset('assets/images/tokopedia-icon.png') }}" alt="Tokopedia">
-                                            </a>
-                                        @endif
-
-                                        {{-- Website --}}
-                                        @if($usaha->link_website_usaha)
-                                            <a href="{{ $usaha->link_website_usaha }}" target="_blank" class="social-icon website" title="Website"><i class="fa fa-globe"></i></a>
-                                        @endif
-
-                                        {{-- Google Maps --}}
-                                        @if($usaha->link_gmap_usaha)
-                                            <a href="{{ $usaha->link_gmap_usaha }}" target="_blank" class="social-icon maps" title="Google Maps"><i class="fa fa-map-marker"></i></a>
-                                        @endif
-
-                                        {{-- Email --}}
-                                        @if($usaha->email_usaha)
-                                            <a href="mailto:{{ $usaha->email_usaha }}" class="social-icon email" title="Email"><i class="fa fa-envelope"></i></a>
-                                        @endif
+                                        <a
+                                            href="{{ route('guest-detail-usaha', ['usaha' => $usaha, 'from_product' => $produk->slug]) }}"
+                                            class="shop-btn see-all-button btn"
+                                        >
+                                            Kunjungi Toko
+                                        </a>
                                     </div>
                                 </div>
+
                             @else
                                 <p class="text-muted">Informasi usaha tidak tersedia.</p>
                             @endif
@@ -462,6 +429,28 @@
                         <div class="product-details">
                             <h5>Detail</h5>
                             <p>{{ $produk->deskripsi }}</p>
+
+                            @php
+                                $teknikDescriptions = [
+                                    'Ukir' => 'proses membentuk motif/pola dengan cara menggores dan memahat permukaan logam secara detail.',
+                                    
+                                    'Filigri' => 'teknik kerajinan dengan menyusun benang-benang logam halus.',
+                                    
+                                    'Tatahan' => 'membentuk permukaan logam sehingga menghasilkan motif timbul maupun cekung.',
+                                    
+                                    'Cor' => 'proses pembuatan dengan menuangkan logam cair ke dalam cetakan.',
+                                ];
+                            @endphp
+
+                            @foreach($produk->kategoriProduk as $kategori)
+                                @if(isset($teknikDescriptions[$kategori->nama_kategori_produk]))
+                                    <div class=teknik-box">
+                                        <p style="font-size: 12px; font-style: italic;font-weight: normal; color: #906f6f; margin: 0;">
+                                            - {{ $kategori->nama_kategori_produk }} : {{ $teknikDescriptions[$kategori->nama_kategori_produk] }}
+                                        </p>
+                                    </div>
+                                @endif
+                            @endforeach
                         </div>
 
                     </div>

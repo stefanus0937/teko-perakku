@@ -191,24 +191,7 @@
         justify-content: center;
     }
 
-    body.dark-mode select,
-    body.dark-mode .slider {
-        background-color: #2a2a2a !important;
-        border-color: #444 !important;
-        color: #fff !important;
-    }
-    body.dark-mode .main-header {
-        background: #1e1e1e !important;
-        border-color: #333 !important;
-    }
-    body.dark-mode .logo { color: #fff !important; }
-    body.dark-mode .nav-link { color: #e4e4e7 !important; }
-    body.dark-mode .sidebar-link { color: #a1a1aa !important; }
-    body.dark-mode .sidebar-link:hover, 
-    body.dark-mode .sidebar-link.active {
-        background: #2a2a2a !important;
-        color: #fff !important;
-    }
+    /* Dark mode styles dipindah ke public/assets/css/theme-dark.css (centralized) */
 </style>
 @endsection
 

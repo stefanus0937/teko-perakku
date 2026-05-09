@@ -4,7 +4,12 @@
       "Bash(Get-ChildItem -Path \"d:\\\\TUGAS\\\\KP\\\\githubKu\\\\Teko-perakku\\\\app\\\\Http\\\\Controllers\" -Filter \"*.php\")",
       "Bash(Select-Object -ExpandProperty Name)",
       "Bash(php artisan *)",
-      "Bash(grep -nE \"z-index:\\\\s*\\([1-9][0-9]{2,}|10[1-9]|[2-9][0-9]{2,}\\)\" resources/views/guest/pages/single-product.blade.php resources/views/guest/pages/detail-usaha.blade.php public/assets/css/index-css.css)"
+      "Bash(grep -nE \"z-index:\\\\s*\\([1-9][0-9]{2,}|10[1-9]|[2-9][0-9]{2,}\\)\" resources/views/guest/pages/single-product.blade.php resources/views/guest/pages/detail-usaha.blade.php public/assets/css/index-css.css)",
+      "Bash(grep -cn \"background-color:\\\\s*#fff\\\\|background:\\\\s*#fff\\\\|background:\\\\s*white\\\\|background-color:\\\\s*white\" public/assets/css/templatemo-hexashop.css public/assets/css/index-css.css public/assets/css/detail-product.css public/assets/css/detail-usaha.css)",
+      "Bash(grep -cn \"color:\\\\s*#333\\\\|color:\\\\s*#000\\\\|color:\\\\s*#111\" public/assets/css/templatemo-hexashop.css public/assets/css/index-css.css public/assets/css/detail-product.css public/assets/css/detail-usaha.css)",
+      "Bash(rm -f public/assets/css/tp-bootstrap-shim.css public/assets/css/tp-components.css public/assets/js/tp-dropdown.js)",
+      "Bash(ls public/assets/css/tp-*)",
+      "Bash(ls public/assets/js/tp-*)"
     ]
   }
 }

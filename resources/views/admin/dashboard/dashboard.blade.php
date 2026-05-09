@@ -63,8 +63,7 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
 
-        body.dark-mode .stat-card, body.dark-mode .welcome-card { background: #1e1e1e; border-color: #333; }
-        body.dark-mode .page-title, body.dark-mode .stat-info p, body.dark-mode .welcome-card h3 { color: #fff !important; }
+        /* Dark mode styles untuk stat-card & welcome-card dipindah ke theme-dark.css */
     </style>
 @stop
 

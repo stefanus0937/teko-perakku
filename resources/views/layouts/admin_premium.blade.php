@@ -537,6 +537,10 @@
         });
         @endif
     </script>
+
+    {{-- Global settings (dark mode + font + language) — single source of truth --}}
+    @include('partials._settings')
+
     @yield('js')
 </body>
 </html>

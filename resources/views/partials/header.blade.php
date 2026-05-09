@@ -708,26 +708,7 @@ body {
     .main-header .login-btn-text  { display: none; }
 }
 
-/* =========================================================
-   DARK MODE (kompat dengan body.dark-mode dari layouts user/umkm)
-   ========================================================= */
-body.dark-mode .main-header                 { background: #1e1e1e; border-color: #333; }
-body.dark-mode .main-header .logo,
-body.dark-mode .main-header .user-name      { color: #fff; }
-body.dark-mode .main-header .nav-link       { color: #e4e4e7; }
-body.dark-mode .main-header .nav-link:hover,
-body.dark-mode .main-header .nav-link.is-active { color: #f87171; }
-body.dark-mode .main-header .nav-link::after { background: #f87171; }
-body.dark-mode .main-header .search-input   { background: #2a2a2a; border-color: #444; color: #fff; }
-body.dark-mode .main-header .profile-dropdown,
-body.dark-mode .main-header .category-dropdown { background: #1e1e1e; border-color: #333; }
-body.dark-mode .main-header .category-dropdown-column { border-color: #333; }
-body.dark-mode .main-header .category-dropdown-column h4 { color: #fff; }
-body.dark-mode .main-header .dropdown-item-link,
-body.dark-mode .main-header .category-item  { color: #e4e4e7; }
-body.dark-mode .main-header .dropdown-item-link:hover,
-body.dark-mode .main-header .category-item:hover { background: #2a2a2a; }
-body.dark-mode .main-header .hamburger-btn span  { background: #e4e4e7; }
+/* Dark mode styles dipindah ke public/assets/css/theme-dark.css (centralized) */
 </style>
 
 <script>

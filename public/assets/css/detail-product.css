@@ -295,13 +295,180 @@
     margin-bottom: 24px;
 }
 
-/* ----- Info Usaha ----- */
+/* ----- Info Usaha (wrapper) ----- */
 .usaha-info {
     border-radius: 12px;
-    padding: 20px;
+    padding: 16px 18px;
     margin-bottom: 25px;
     border: 1px solid #e9ecef;
-    background-color: #f8f9fa;
+    background-color: #ffffff;
+}
+
+/* ============================================================
+   Shop Card — single-row horizontal (matches Figma design)
+   avatar | nama + @handle | chat icon | "Kunjungi Toko" button
+   ============================================================ */
+.shop-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.shop-card__avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #d9d9d9;
+    flex-shrink: 0;
+}
+
+.shop-card__info {
+    flex: 1;
+    min-width: 0;            /* allow ellipsis */
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    line-height: 1.25;
+}
+
+.shop-card__name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #18181b;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.shop-card__handle {
+    font-size: 12.5px;
+    color: #71717a;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.shop-card__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+/* Shared button base */
+.shop-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 13.5px;
+    line-height: 1;
+    text-decoration: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
+    white-space: nowrap;
+}
+
+/* Icon-only button (chat) — kotak putih border abu */
+.shop-btn--icon {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    background: #ffffff;
+    color: #18181b;
+    border: 1px solid #e4e4e7;
+    font-size: 16px;
+}
+
+.shop-btn--icon:hover {
+    background: #f4f4f5;
+    color: #980808;
+    border-color: #d4d4d8;
+    transform: translateY(-1px);
+}
+
+/* Primary button (Kunjungi Toko) — solid red */
+.shop-btn--primary {
+    padding: 9px 16px;
+    background: #980808;
+    color: #ffffff;
+    border: 1px solid #980808;
+    height: 38px;
+}
+
+.shop-btn--primary:hover {
+    background: #7f0606;
+    border-color: #7f0606;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(152, 8, 8, 0.25);
+}
+
+.shop-btn:focus-visible {
+    outline: 2px solid #980808;
+    outline-offset: 2px;
+}
+
+/* Wrapper for social icons row — give breathing space below the shop card */
+.usaha-actions-wrapper {
+    border-top: 1px solid #e4e4e7;
+    padding-top: 14px;
+    margin-top: 14px;
+}
+
+/* Responsive: pada layar sangat sempit, biarkan card wrap dan tombol full-width */
+@media (max-width: 480px) {
+    .shop-card {
+        flex-wrap: wrap;
+    }
+    .shop-card__info {
+        flex-basis: calc(100% - 58px);  /* avatar + gap */
+    }
+    .shop-card__actions {
+        width: 100%;
+        justify-content: flex-end;
+        margin-top: 4px;
+    }
+    .shop-btn--primary {
+        flex: 1;
+    }
+}
+
+/* ─── Dark mode ─── */
+body.dark-mode .usaha-info {
+    background-color: var(--tp-bg-surface);
+    border-color: var(--tp-border);
+}
+body.dark-mode .shop-card__name {
+    color: var(--tp-text-strong);
+}
+body.dark-mode .shop-card__handle {
+    color: var(--tp-text-muted);
+}
+body.dark-mode .shop-btn--icon {
+    background: var(--tp-bg-subtle);
+    color: var(--tp-text-base);
+    border-color: var(--tp-border);
+}
+body.dark-mode .shop-btn--icon:hover {
+    background: var(--tp-bg-muted);
+    color: #f87171;
+    border-color: var(--tp-border);
+}
+body.dark-mode .shop-btn--primary {
+    background: #b91c1c;
+    border-color: #b91c1c;
+}
+body.dark-mode .shop-btn--primary:hover {
+    background: #991b1b;
+    border-color: #991b1b;
+}
+body.dark-mode .usaha-actions-wrapper {
+    border-top-color: var(--tp-border);
 }
 
 .usaha-link {
@@ -423,6 +590,12 @@
     color: #2a2a2a;
 }
 
+.product-details p {
+        font-size: 12px;
+        font-weight:lighter;
+        margin-bottom: 12px;
+    }
+
 /* ========== PRODUK TERKAIT SECTION ========== */
 .section {
     padding: 60px 0;
@@ -543,12 +716,13 @@
     }
 
     .product-details p {
-        font-size: 13px;
+        font-size: 12px;
+        font-weight:lighter;
         margin-bottom: 12px;
     }
 
     .product-details ul li {
-        font-size: 13px;
+        font-size: 12px;
         margin-bottom: 8px;
     }
 }

@@ -178,6 +178,9 @@
         });
     </script>
 
+    {{-- Global settings (dark mode, font size, language) — applied di semua halaman --}}
+    @include('partials._settings')
+
 </body>
 
 </html>

@@ -108,32 +108,7 @@
         body.font-small .logo { font-size: 20px !important; }
         body.font-large .logo { font-size: 32px !important; }
 
-        body.dark-mode {
-            background-color: #121212 !important;
-            color: #e4e4e7 !important;
-        }
-        body.dark-mode .main-header,
-        body.dark-mode .sidebar {
-            background: #1e1e1e !important;
-            border-color: #333 !important;
-        }
-        body.dark-mode .logo,
-        body.dark-mode .user-name {
-            color: #fff !important;
-        }
-        body.dark-mode .nav-link { color: #e4e4e7 !important; }
-        body.dark-mode .sidebar-link { color: #a1a1aa !important; }
-        body.dark-mode .sidebar-link:hover, 
-        body.dark-mode .sidebar-link.active {
-            background: #2a2a2a !important;
-            color: #fff !important;
-        }
-        body.dark-mode .search-input {
-            background: #2a2a2a !important;
-            border-color: #444 !important;
-            color: #fff !important;
-        }
-
+        /* Dark mode styles dipindah ke public/assets/css/theme-dark.css */
         /* Profile dropdown styles dipindah ke partials/header.blade.php */
     </style>
     @yield('css')
@@ -173,78 +148,24 @@
         </section>
     </main>
 
+    {{-- Global settings (dark mode + font + language) — single source of truth --}}
+    @include('partials._settings')
+
     <script>
-        // Apply settings immediately to prevent flicker
-        (function() {
-            const isDarkMode = localStorage.getItem('darkMode') === 'true';
-            if (isDarkMode) document.body.classList.add('dark-mode');
-            
-            const savedFont = localStorage.getItem('fontSize') || 'medium';
-            document.body.classList.add('font-' + savedFont);
-
-            // Translation Dictionary
-            const translations = {
-                en: {
-                    "Beranda": "Home",
-                    "Katalog": "Catalog",
-                    "Kategori": "Categories",
-                    "Tentang Kami": "About Us",
-                    "Kontak": "Contact",
-                    "Profil": "Profile",
-                    "Chat": "Chat",
-                    "Favorit": "Favorites",
-                    "Pengaturan": "Settings",
-                    "Cari Produk": "Search Products",
-                    "Ukuran Font": "Font Size",
-                    "Mode Gelap": "Dark Mode",
-                    "Notifikasi Email": "Email Notifications",
-                    "Bahasa": "Language",
-                    "Hapus Akun": "Delete Account",
-                    "Kecil": "Small",
-                    "Sedang": "Medium",
-                    "Besar": "Large",
-                    "Apakah anda yakin untuk menghapus akun?": "Are you sure you want to delete your account?",
-                    "Tidak": "No",
-                    "Iya": "Yes"
-                }
-            };
-
-            const savedLang = localStorage.getItem('language') || 'id';
-            if (savedLang === 'en') {
-                document.addEventListener('DOMContentLoaded', () => {
-                    const dict = translations.en;
-                    const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
-                    let node;
-                    while (node = walk.nextNode()) {
-                        const trimmed = node.nodeValue.trim();
-                        if (dict[trimmed]) {
-                            node.nodeValue = node.nodeValue.replace(trimmed, dict[trimmed]);
-                        }
-                    }
-                    // Special case for placeholders
-                    document.querySelectorAll('[placeholder]').forEach(el => {
-                        if (dict[el.placeholder]) el.placeholder = dict[el.placeholder];
-                    });
+        // Profile Dropdown Toggle (logic header — bukan setting)
+        document.addEventListener('DOMContentLoaded', () => {
+            const trigger = document.getElementById('profileTrigger');
+            const dropdown = document.getElementById('profileDropdown');
+            if (trigger && dropdown) {
+                trigger.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    dropdown.classList.toggle('show');
+                });
+                document.addEventListener('click', () => {
+                    dropdown.classList.remove('show');
                 });
             }
-
-            // Profile Dropdown Toggle
-            document.addEventListener('DOMContentLoaded', () => {
-                const trigger = document.getElementById('profileTrigger');
-                const dropdown = document.getElementById('profileDropdown');
-
-                if (trigger && dropdown) {
-                    trigger.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        dropdown.classList.toggle('show');
-                    });
-
-                    document.addEventListener('click', () => {
-                        dropdown.classList.remove('show');
-                    });
-                }
-            });
-        })();
+        });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     @vite(['resources/js/app.js'])
