@@ -151,17 +151,64 @@ class PageController extends Controller
 
     public function detailUsaha(Request $request, Usaha $usaha)
     {
-        $usaha->load('pengerajins', 'produks.fotoProduk', 'produks.reviews');
-        $previousProduct = null;
+        $usaha->load('pengerajins');
 
+        $previousProduct = null;
         if ($request->has('from_product')) {
             $previousProduct = Produk::where('slug', $request->from_product)->first();
         }
-            
+
+        // Build query produk milik usaha ini, dengan filter (kategori/harga/urutkan)
+        $query = $usaha->produks()->with(['kategoriProduk', 'fotoProduk', 'reviews']);
+
+        // Filter kategori (multi-select, sama seperti katalog)
+        $selectedKategoriSlugs = collect($request->input('kategori', []))
+            ->when(is_string($request->input('kategori')), fn ($c) => collect([$request->input('kategori')]))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        if (!empty($selectedKategoriSlugs)) {
+            $selectedKategoriGroups = KategoriProduk::query()
+                ->whereIn('slug', $selectedKategoriSlugs)
+                ->get(['slug', 'category_type'])
+                ->groupBy('category_type');
+
+            foreach ($selectedKategoriGroups as $groupedCategories) {
+                $groupSlugs = $groupedCategories->pluck('slug')->all();
+                $query->whereHas('kategoriProduk', function ($q) use ($groupSlugs) {
+                    $q->whereIn('slug', $groupSlugs);
+                });
+            }
+        }
+
+        // Filter harga
+        if ($request->filled('min_harga')) $query->where('harga', '>=', $request->min_harga);
+        if ($request->filled('max_harga')) $query->where('harga', '<=', $request->max_harga);
+
+        // Sort
+        switch ($request->input('urutkan', 'terbaru')) {
+            case 'harga-rendah': $query->orderBy('harga', 'asc'); break;
+            case 'harga-tinggi': $query->orderBy('harga', 'desc'); break;
+            case 'populer':
+                $query->withAvg('reviews', 'rating')->orderBy('reviews_avg_rating', 'desc');
+                break;
+            default: $query->latest(); break;
+        }
+
+        $produks   = $query->paginate(8)->withQueryString();
+        $kategoris = KategoriProduk::ordered()->get();
+        $categoryGroups = $kategoris->where('sort_order', '>', 0)->groupBy('category_type');
+
         return view('guest.pages.detail-usaha', [
-            'usaha' => $usaha,
-            'produks' => $usaha->produks,
-            'previousProduct' => $previousProduct, 
+            'usaha'                 => $usaha,
+            'produks'               => $produks,
+            'previousProduct'       => $previousProduct,
+            'kategoris'             => $kategoris,
+            'selectedKategoriSlugs' => $selectedKategoriSlugs,
+            'categoryGroups'        => $categoryGroups,
+            'categoryTypeLabels'    => KategoriProduk::TYPE_LABELS,
         ]);
     }
 

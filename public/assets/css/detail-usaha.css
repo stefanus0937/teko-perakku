@@ -196,6 +196,362 @@
     word-break: break-all;
 }
 
+/* ==========================================================
+   FIGMA-MATCHING DETAIL USAHA PAGE COMPONENTS
+   ========================================================== */
+
+.detail-usaha-section {
+    padding: 20px 0 60px;
+}
+
+/* ──────────────── Profile card ──────────────── */
+.usaha-profile-card {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 14px;
+    padding: 28px 24px;
+    margin-bottom: 18px;
+    text-align: center;
+}
+
+.usaha-profile-card__header {
+    margin-bottom: 18px;
+}
+
+.usaha-profile-card__name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #18181b;
+    margin: 0 0 4px;
+    line-height: 1.25;
+}
+
+.usaha-profile-card__handle {
+    color: #71717a;
+    font-size: 14px;
+    margin: 0;
+}
+
+.usaha-profile-card__photo {
+    margin: 0 auto 22px;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #e5e7eb;
+}
+
+.usaha-profile-card__photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* ──────────────── Social icons ──────────────── */
+.usaha-socials {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+}
+
+.usaha-social {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #980808;
+    color: #ffffff;
+    font-size: 16px;
+    text-decoration: none;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.usaha-social:hover {
+    background: #7f0606;
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+/* ──────────────── Chat seller button ──────────────── */
+.usaha-chat-wrapper {
+    margin-bottom: 22px;
+}
+
+.usaha-chat-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    width: auto;
+    min-width: 220px;
+    padding: 10px 18px;
+    background: #ffffff;
+    border: 1px solid #d4d4d8;
+    border-radius: 8px;
+    color: #18181b;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.usaha-chat-btn span { flex: 1; text-align: left; }
+.usaha-chat-btn i { font-size: 16px; color: #18181b; }
+
+.usaha-chat-btn:not(:disabled):hover {
+    border-color: #980808;
+    color: #980808;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(152, 8, 8, 0.10);
+}
+.usaha-chat-btn:not(:disabled):hover i { color: #980808; }
+
+.usaha-chat-btn:disabled,
+.usaha-chat-btn[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f4f4f5;
+    color: #71717a;
+}
+.usaha-chat-btn:disabled i { color: #a1a1aa; }
+
+.usaha-chat-hint {
+    font-size: 12px;
+    color: #a1a1aa;
+    margin: 6px 0 0;
+    font-style: italic;
+}
+
+/* ──────────────── Description & spec ──────────────── */
+.usaha-description {
+    color: #52525b;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0 0 16px;
+    text-align: left;
+}
+
+.usaha-spec {
+    text-align: left;
+    color: #52525b;
+    font-size: 14px;
+    line-height: 1.5;
+}
+.usaha-spec strong {
+    display: block;
+    color: #18181b;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+/* ──────────────── Contact card ──────────────── */
+.usaha-contact-card {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 14px;
+    padding: 8px 12px;
+    margin-bottom: 18px;
+}
+
+.usaha-contact-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 8px;
+    text-decoration: none;
+    color: inherit;
+    border-bottom: 1px solid #f4f4f5;
+    transition: background-color 0.15s;
+}
+.usaha-contact-item:last-child { border-bottom: none; }
+.usaha-contact-item:hover { background-color: #fafafa; }
+
+.usaha-contact-item__icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fdecec;
+    color: #980808;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.usaha-contact-item__body {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.usaha-contact-item__body strong {
+    font-size: 14px;
+    font-weight: 600;
+    color: #18181b;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.usaha-contact-item__body small {
+    font-size: 12px;
+    color: #71717a;
+}
+
+/* ──────────────── Map placeholder ──────────────── */
+.usaha-map-card {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 18px;
+}
+
+.usaha-map-card__link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
+.usaha-map-placeholder {
+    aspect-ratio: 16 / 10;
+    background: #f4f4f5
+        repeating-linear-gradient(
+            45deg,
+            transparent 0,
+            transparent 18px,
+            rgba(0, 0, 0, 0.03) 18px,
+            rgba(0, 0, 0, 0.03) 36px
+        );
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #71717a;
+    font-size: 13px;
+    transition: background-color 0.2s;
+}
+.usaha-map-card__link:hover .usaha-map-placeholder {
+    background-color: #ececef;
+    color: #980808;
+}
+.usaha-map-placeholder i {
+    font-size: 38px;
+    color: #980808;
+}
+.usaha-map-placeholder--empty i { color: #a1a1aa; }
+
+/* ──────────────── Gallery ──────────────── */
+.usaha-gallery {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.usaha-gallery__item {
+    position: relative;
+    display: block;
+    aspect-ratio: 1 / 1;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #f4f4f5;
+}
+
+.usaha-gallery__item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s;
+}
+.usaha-gallery__item:hover img { transform: scale(1.05); }
+
+.usaha-gallery__more {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+    pointer-events: none;
+}
+
+/* ──────────────── Right column filter bar ──────────────── */
+.usaha-filter-bar {
+    margin-bottom: 22px;
+}
+
+/* ────────────────  RESPONSIVE  ──────────────── */
+@media (max-width: 991px) {
+    .usaha-profile-card__photo { width: 160px; height: 160px; }
+}
+
+@media (max-width: 575px) {
+    .usaha-profile-card { padding: 22px 16px; }
+    .usaha-profile-card__photo { width: 130px; height: 130px; }
+    .usaha-chat-btn { width: 100%; min-width: 0; }
+    .usaha-gallery { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ──────────────── Dark mode ──────────────── */
+body.dark-mode .usaha-profile-card,
+body.dark-mode .usaha-contact-card,
+body.dark-mode .usaha-map-card {
+    background: var(--tp-bg-surface);
+    border-color: var(--tp-border);
+}
+body.dark-mode .usaha-profile-card__name { color: var(--tp-text-strong); }
+body.dark-mode .usaha-profile-card__handle,
+body.dark-mode .usaha-description,
+body.dark-mode .usaha-spec { color: var(--tp-text-muted); }
+body.dark-mode .usaha-spec strong { color: var(--tp-text-strong); }
+
+body.dark-mode .usaha-chat-btn {
+    background: var(--tp-bg-subtle);
+    border-color: var(--tp-border);
+    color: var(--tp-text-base);
+}
+body.dark-mode .usaha-chat-btn:not(:disabled):hover {
+    border-color: #f87171;
+    color: #f87171;
+}
+body.dark-mode .usaha-chat-btn:not(:disabled):hover i { color: #f87171; }
+body.dark-mode .usaha-chat-btn:disabled {
+    background: var(--tp-bg-muted);
+    color: var(--tp-text-soft);
+}
+
+body.dark-mode .usaha-contact-item:hover { background-color: var(--tp-bg-subtle); }
+body.dark-mode .usaha-contact-item { border-bottom-color: var(--tp-border); }
+body.dark-mode .usaha-contact-item__body strong { color: var(--tp-text-strong); }
+body.dark-mode .usaha-contact-item__body small { color: var(--tp-text-muted); }
+body.dark-mode .usaha-contact-item__icon {
+    background: rgba(248, 113, 113, 0.12);
+    color: #f87171;
+}
+
+body.dark-mode .usaha-map-placeholder {
+    background-color: var(--tp-bg-muted);
+    color: var(--tp-text-muted);
+}
+body.dark-mode .usaha-map-placeholder i { color: #f87171; }
+
+body.dark-mode .usaha-social { background: #b91c1c; }
+body.dark-mode .usaha-social:hover { background: #dc2626; }
+
+/* End Figma additions */
+
 .alamat-info a:hover {
     text-decoration: underline;
 }

@@ -10,21 +10,58 @@
 
 @include('partials._rating-styles')
 
-{{-- Breadcrumb Navigation --}}
+@php
+    // Auth checks untuk Chat button
+    $isOwnerLoggedIn = auth()->check() && auth()->id() === $usaha->user_id;
+    $canChat = auth()->check() && !$isOwnerLoggedIn;
+
+    // Handle (@username) auto-generated dari nama
+    $usahaHandle = '@' . \Illuminate\Support\Str::slug($usaha->nama_usaha, '');
+
+    // Daftar social link yang ada saja
+    $socials = collect([
+        ['key' => 'whatsapp',  'url' => $usaha->link_wa_usaha ?? $usaha->telp_usaha, 'icon' => 'fab fa-whatsapp', 'label' => 'WhatsApp', 'is_phone' => true],
+        ['key' => 'instagram', 'url' => $usaha->link_instagram_usaha, 'icon' => 'fab fa-instagram', 'label' => 'Instagram'],
+        ['key' => 'facebook',  'url' => $usaha->link_facebook_usaha,  'icon' => 'fab fa-facebook-f','label' => 'Facebook'],
+        ['key' => 'tiktok',    'url' => $usaha->link_tiktok_usaha,    'icon' => 'fab fa-tiktok',   'label' => 'TikTok'],
+        ['key' => 'shopee',    'url' => $usaha->link_shopee_usaha,    'icon' => 'fas fa-shopping-bag', 'label' => 'Shopee'],
+        ['key' => 'tokopedia', 'url' => $usaha->link_tokopedia_usaha, 'icon' => 'fas fa-store',    'label' => 'Tokopedia'],
+    ])->filter(fn ($s) => !empty($s['url']))->values();
+
+    // Format WhatsApp number
+    $waNumber = null;
+    if ($usaha->link_wa_usaha || $usaha->telp_usaha) {
+        $raw = $usaha->link_wa_usaha ?: $usaha->telp_usaha;
+        $waNumber = preg_replace('/[^0-9]/', '', $raw);
+        if (str_starts_with($waNumber, '0')) {
+            $waNumber = '62' . substr($waNumber, 1);
+        }
+    }
+
+    // Gallery photos: foto_tempat berisi JSON / comma-separated paths (per migrasi awal)
+    $gallery = [];
+    if (!empty($usaha->foto_tempat)) {
+        $decoded = json_decode($usaha->foto_tempat, true);
+        if (is_array($decoded)) {
+            $gallery = $decoded;
+        } else {
+            $gallery = array_filter(array_map('trim', explode(',', $usaha->foto_tempat)));
+        }
+    }
+@endphp
+
+{{-- ── Breadcrumb ── --}}
 <div class="container">
     <div class="row">
         <div class="col-lg-12">
             <nav aria-label="breadcrumb" class="product-breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('guest-katalog') }}">Katalog</a></li>
-                    
-                    {{-- Cek apakah ada data produk sebelumnya --}}
-                    @if (isset($previousProduct))
+                    @if (isset($previousProduct) && $previousProduct)
                         <li class="breadcrumb-item">
                             <a href="{{ route('guest-singleProduct', $previousProduct->slug) }}">{{ $previousProduct->nama_produk }}</a>
                         </li>
                     @endif
-
                     <li class="breadcrumb-item active" aria-current="page">{{ $usaha->nama_usaha }}</li>
                 </ol>
             </nav>
@@ -32,127 +69,179 @@
     </div>
 </div>
 
-<section class="detail-pengrajin-section" style="padding-top: 20px;">
+<section class="detail-usaha-section">
     <div class="container">
         <div class="row">
 
-            {{-- Kolom Kiri: Sidebar Profil Usaha & Daftar Pengrajin --}}
-            <div class="col-lg-5 col-md-5">
-                <aside class="pengrajin-sidebar">
-                    <div class="profil-foto-wrapper">
-                        <img src="{{ asset('storage/' . $usaha->foto_usaha) }}" 
-                             alt="Logo {{ $usaha->nama_usaha }}" 
-                             class="profil-foto"
-                             onerror="this.onerror=null;this.src='{{ asset('assets/images/kategori-default.jpg') }}';">
-                    </div>
-                    <div class="profil-info">
-                        <h3 class="nama-pengrajin">{{ $usaha->nama_usaha }}</h3>
-                        <p class="spesialisasi">{{ $usaha->deskripsi_usaha ?? 'Kerajinan Perak Kotagede' }}</p>
-                    </div>
-                    <ul class="kontak-list">
-                        <li><i class="fa fa-envelope"></i>{{ $usaha->email_usaha ?? '' }}</li>
-                        <li><i class="fa fa-phone"></i>{{ $usaha->telp_usaha ?? '' }}</li>
-                    </ul>
-                    <div class="alamat-info mb-3">
-                        <i class="fa fa-map-marker"></i>
-                        <a href="{{ $usaha->link_gmap_usaha }}" target="_blank">{{ $usaha->link_gmap_usaha ?? 'Alamat tidak tersedia.' }}</a>
+            {{-- ────────────── Sidebar Kiri: Profil Usaha ────────────── --}}
+            <div class="col-lg-4 col-md-12">
+                <aside class="usaha-profile-card">
+
+                    {{-- Header: nama + handle --}}
+                    <header class="usaha-profile-card__header">
+                        <h2 class="usaha-profile-card__name">{{ $usaha->nama_usaha }}</h2>
+                        <p class="usaha-profile-card__handle">{{ $usahaHandle }}</p>
+                    </header>
+
+                    {{-- Foto bulat --}}
+                    <div class="usaha-profile-card__photo">
+                        <img
+                            src="{{ $usaha->foto_usaha ? asset('storage/'.$usaha->foto_usaha) : asset('assets/images/kategori-default.jpg') }}"
+                            alt="Foto {{ $usaha->nama_usaha }}"
+                            onerror="this.onerror=null;this.src='{{ asset('assets/images/kategori-default.jpg') }}';"
+                        >
                     </div>
 
-                    <div class="usaha-social-wrapper mb-4 pt-3" style="border-top: 1px solid #eee;">
-                        <div class="social-icons-row d-flex gap-2 flex-wrap">
-                            {{-- WhatsApp --}}
-                            @if($usaha->link_wa_usaha || $usaha->telp_usaha)
+                    {{-- Social media icons (hanya yang ada) --}}
+                    @if ($socials->isNotEmpty())
+                        <div class="usaha-socials">
+                            @foreach ($socials as $s)
                                 @php
-                                    $waNumber = $usaha->link_wa_usaha ?: $usaha->telp_usaha;
-                                    $waNumber = preg_replace('/[^0-9]/', '', $waNumber);
-                                    if (str_starts_with($waNumber, '0')) {
-                                        $waNumber = '62' . substr($waNumber, 1);
-                                    }
+                                    $href = $s['key'] === 'whatsapp' && $waNumber
+                                        ? 'https://wa.me/' . $waNumber
+                                        : $s['url'];
                                 @endphp
-                                <a href="https://wa.me/{{ $waNumber }}" target="_blank" class="social-icon whatsapp" title="WhatsApp"><i class="fa fa-phone"></i></a>
-                            @endif
-
-                            {{-- Instagram --}}
-                            @if($usaha->link_instagram_usaha)
-                                <a href="{{ $usaha->link_instagram_usaha }}" target="_blank" class="social-icon instagram" title="Instagram"><i class="fa fa-instagram"></i></a>
-                            @endif
-
-                            {{-- Facebook --}}
-                            @if($usaha->link_facebook_usaha)
-                                <a href="{{ $usaha->link_facebook_usaha }}" target="_blank" class="social-icon facebook" title="Facebook"><i class="fa fa-facebook"></i></a>
-                            @endif
-
-                            {{-- TikTok --}}
-                            @if($usaha->link_tiktok_usaha)
-                                <a href="{{ $usaha->link_tiktok_usaha }}" target="_blank" class="social-icon tiktok" title="TikTok"><i class="fa fa-music"></i></a>
-                            @endif
-
-                            {{-- Shopee --}}
-                            @if($usaha->link_shopee_usaha)
-                                <a href="{{ $usaha->link_shopee_usaha }}" target="_blank" class="social-icon shopee" title="Shopee">
-                                    <img src="{{ asset('assets/images/shopee-icon.png') }}" alt="Shopee">
+                                <a href="{{ $href }}"
+                                   target="_blank"
+                                   rel="noopener"
+                                   class="usaha-social usaha-social--{{ $s['key'] }}"
+                                   title="{{ $s['label'] }}"
+                                   aria-label="{{ $s['label'] }}">
+                                    <i class="{{ $s['icon'] }}"></i>
                                 </a>
-                            @endif
-
-                            {{-- Tokopedia --}}
-                            @if($usaha->link_tokopedia_usaha)
-                                <a href="{{ $usaha->link_tokopedia_usaha }}" target="_blank" class="social-icon tokped" title="Tokopedia">
-                                    <img src="{{ asset('assets/images/tokopedia-icon.png') }}" alt="Tokopedia">
-                                </a>
-                            @endif
-
-                            {{-- Website --}}
-                            @if($usaha->link_website_usaha)
-                                <a href="{{ $usaha->link_website_usaha }}" target="_blank" class="social-icon website" title="Website"><i class="fa fa-globe"></i></a>
-                            @endif
-
-                            {{-- Google Maps --}}
-                            @if($usaha->link_gmap_usaha)
-                                <a href="{{ $usaha->link_gmap_usaha }}" target="_blank" class="social-icon maps" title="Google Maps"><i class="fa fa-map-marker"></i></a>
-                            @endif
-
-                            {{-- Email --}}
-                            @if($usaha->email_usaha)
-                                <a href="mailto:{{ $usaha->email_usaha }}" class="social-icon email" title="Email"><i class="fa fa-envelope"></i></a>
-                            @endif
+                            @endforeach
                         </div>
+                    @endif
+
+                    {{-- Chat Seller button (disabled jika owner) --}}
+                    <div class="usaha-chat-wrapper">
+                        @if ($isOwnerLoggedIn)
+                            <button class="usaha-chat-btn" disabled
+                                    title="Anda adalah pemilik toko ini">
+                                <span>Hubungi Penjual</span>
+                                <i class="fa-regular fa-comment-dots"></i>
+                            </button>
+                            <p class="usaha-chat-hint">Anda pemilik toko ini.</p>
+                        @elseif ($canChat)
+                            <a href="{{ route('chats.show', ['user' => $usaha->user_id, 'usaha_id' => $usaha->id]) }}"
+                               class="usaha-chat-btn">
+                                <span>Hubungi Penjual</span>
+                                <i class="fa-regular fa-comment-dots"></i>
+                            </a>
+                        @else
+                            <a href="{{ route('loginForm') }}" class="usaha-chat-btn">
+                                <span>Login untuk Chat</span>
+                                <i class="fa-regular fa-comment-dots"></i>
+                            </a>
+                        @endif
                     </div>
 
-                    <div class="pengrajin-list-wrapper">
-                        <h5 class="list-title">Pengrajin:</h5>
-                        @forelse ($usaha->pengerajins as $pengrajin)
-                            <div class="pengrajin-list-item">
-                                <img src="{{ asset('storage/' . $pengrajin->foto_pengrajin) }}" 
-                                     alt="{{ $pengrajin->nama_pengrajin }}" 
-                                     class="pengrajin-avatar"
-                                     onerror="this.onerror=null;this.src='{{ asset('assets/images/instagram-05.jpg') }}';">
-                                <div class="pengrajin-contact">
-                                    <span class="nama">{{ $pengrajin->nama_pengerajin }}</span>
-                                    <span class="email">{{ $pengrajin->email_pengerajin }}</span>
-                                </div>
-                                <a href="https://wa.me/{{ preg_replace('/^0/', '62', $pengrajin->telp_pengerajin) }}" target="_blank" class="wa-button">
-                                    <i class="fa fa-whatsapp"></i>
-                                </a>
-                            </div>
-                        @empty
-                            <p class="text-muted">Belum ada data pengrajin untuk usaha ini.</p>
-                        @endforelse
-                    </div>
+                    {{-- Deskripsi --}}
+                    @if ($usaha->deskripsi_usaha)
+                        <p class="usaha-description">{{ $usaha->deskripsi_usaha }}</p>
+                    @endif
+
+                    {{-- Spesialisasi (jika ada di data) --}}
+                    @if ($usaha->spesialisasi_usaha)
+                        <div class="usaha-spec">
+                            <p>Spesialis:</p>
+                            <span>{{ $usaha->spesialisasi_usaha }}</span>
+                        </div>
+                    @endif
                 </aside>
+
+                {{-- Contact info card --}}
+                @if ($usaha->email_usaha || $usaha->telp_usaha || $usaha->link_website_usaha)
+                    <aside class="usaha-contact-card">
+                        @if ($usaha->email_usaha)
+                            <a href="mailto:{{ $usaha->email_usaha }}" class="usaha-contact-item">
+                                <span class="usaha-contact-item__icon"><i class="fa-regular fa-envelope"></i></span>
+                                <span class="usaha-contact-item__body">
+                                    <strong>{{ $usaha->email_usaha }}</strong>
+                                    <small>Email</small>
+                                </span>
+                            </a>
+                        @endif
+                        @if ($usaha->telp_usaha)
+                            <a href="tel:{{ $usaha->telp_usaha }}" class="usaha-contact-item">
+                                <span class="usaha-contact-item__icon"><i class="fa-solid fa-phone"></i></span>
+                                <span class="usaha-contact-item__body">
+                                    <strong>{{ $usaha->telp_usaha }}</strong>
+                                    <small>Telepon</small>
+                                </span>
+                            </a>
+                        @endif
+                        @if ($usaha->link_website_usaha)
+                            <a href="{{ $usaha->link_website_usaha }}" target="_blank" rel="noopener" class="usaha-contact-item">
+                                <span class="usaha-contact-item__icon"><i class="fa-solid fa-globe"></i></span>
+                                <span class="usaha-contact-item__body">
+                                    <strong>{{ \Illuminate\Support\Str::limit(preg_replace('#^https?://#','', $usaha->link_website_usaha), 30) }}</strong>
+                                    <small>Website</small>
+                                </span>
+                            </a>
+                        @endif
+                    </aside>
+                @endif
+
+                {{-- Map placeholder --}}
+                <aside class="usaha-map-card">
+                    @if ($usaha->link_gmap_usaha)
+                        <a href="{{ $usaha->link_gmap_usaha }}" target="_blank" rel="noopener" class="usaha-map-card__link">
+                            <div class="usaha-map-placeholder">
+                                <i class="fa-solid fa-map-location-dot"></i>
+                                <span>Buka di Google Maps</span>
+                            </div>
+                        </a>
+                    @else
+                        <div class="usaha-map-placeholder usaha-map-placeholder--empty">
+                            <i class="fa-solid fa-map-location-dot"></i>
+                            <span>Lokasi belum tersedia</span>
+                        </div>
+                    @endif
+                </aside>
+
+                {{-- Gallery thumbnails (foto_tempat) --}}
+                @if (!empty($gallery))
+                    <div class="usaha-gallery">
+                        @php $shown = array_slice($gallery, 0, 4); $more = max(count($gallery) - 4, 0); @endphp
+                        @foreach ($shown as $i => $photo)
+                            <a href="{{ asset('storage/'.$photo) }}" class="usaha-gallery__item" data-lightbox="usaha-gallery">
+                                <img src="{{ asset('storage/'.$photo) }}"
+                                     alt="Galeri {{ $usaha->nama_usaha }} {{ $i+1 }}"
+                                     onerror="this.onerror=null;this.src='{{ asset('assets/images/kategori-default.jpg') }}';">
+                                @if ($i === count($shown) - 1 && $more > 0)
+                                    <span class="usaha-gallery__more">+{{ $more }}</span>
+                                @endif
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
             </div>
 
-            {{-- Kolom Kanan: Galeri Produk dari Usaha Ini --}}
-            <div class="col-lg-7 col-md-7">
+            {{-- ────────────── Kolom Kanan: Filter + Product Grid ────────────── --}}
+            <div class="col-lg-8 col-md-12">
+                {{-- Filter (reuse partial dari katalog) --}}
+                <div class="usaha-filter-bar">
+                    @include('partials._catalog-filters', [
+                        'formAction'            => route('guest-detail-usaha', $usaha),
+                        'kategoris'             => $kategoris,
+                        'selectedKategoriSlugs' => $selectedKategoriSlugs,
+                        'categoryGroups'        => $categoryGroups,
+                        'categoryTypeLabels'    => $categoryTypeLabels,
+                    ])
+                </div>
+
+                {{-- Product grid --}}
                 <div class="produk-grid">
                     <div class="row">
                         @forelse ($produks as $produk)
-                            <div class="col-lg-6 col-md-12 col-sm-6 mb-4">
+                            <div class="col-lg-6 col-md-6 col-sm-6 mb-4">
                                 <div class="product-item">
                                     <a href="{{ route('guest-singleProduct', $produk->slug) }}">
                                         <div class="thumb">
-                                             <img src="{{ asset('storage/' . optional($produk->fotoProduk->first())->file_foto_produk) }}" 
-                                                  alt="{{ $produk->nama_produk }}"
-                                                  onerror="this.onerror=null;this.src='{{ asset('assets/images/produk-default.jpg') }}';">
+                                            <img src="{{ asset('storage/' . optional($produk->fotoProduk->first())->file_foto_produk) }}"
+                                                 alt="{{ $produk->nama_produk }}"
+                                                 onerror="this.onerror=null;this.src='{{ asset('assets/images/produk-default.jpg') }}';">
                                         </div>
                                         <div class="down-content">
                                             <h4>{{ $produk->nama_produk }}</h4>
@@ -165,22 +254,30 @@
                                                 'size'      => 'sm',
                                             ])
 
-                                            {{-- Nama toko (sudah jelas konteks halaman ini, tapi konsisten dgn card lain) --}}
-                                            @if(isset($usaha) && $usaha)
-                                                <span class="product-shop" title="{{ $usaha->nama_usaha }}">
-                                                    <i class="fa-regular fa-building"></i>{{ $usaha->nama_usaha }}
-                                                </span>
-                                            @endif
+                                            <span class="product-shop" title="{{ $usaha->nama_usaha }}">
+                                                <i class="fa-regular fa-building"></i>{{ $usaha->nama_usaha }}
+                                            </span>
                                         </div>
                                     </a>
                                 </div>
                             </div>
                         @empty
                             <div class="col-12">
-                                <p class="text-center">Belum ada produk dari usaha ini.</p>
+                                <p class="text-center text-muted py-5">Belum ada produk yang sesuai filter dari usaha ini.</p>
                             </div>
                         @endforelse
                     </div>
+
+                    {{-- Pagination --}}
+                    @if ($produks->hasPages())
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="pagination">
+                                    {{ $produks->links() }}
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
 
