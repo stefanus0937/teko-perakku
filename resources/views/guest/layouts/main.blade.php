@@ -89,9 +89,9 @@
             <div class="col-lg-4 col-md-6 mb-4">
                 <h3 class="footer-logo">TekoPerakku</h3>
                 <ul class="footer-list">
-                    <li>59GX+957, JL. Watu Gateng,<br>Prenggan, Kec. Kotagede, Kota Yogyakarta</li>
-                    <li>kotagedhe@gmail.com</li>
-                    <li>088-098-202</li>
+                    <li>Jl. Nyi Wiji Adisara 39, Kel. Prenggan, Kem. Kotagede, Kota Yogyakarta</li>
+                    <li><a href="mailto:kg@jogjakota.go.id">kg@jogjakota.go.id</a></li>
+                    <li>(0274) 375.790</li>
                 </ul>
             </div>
 
@@ -122,10 +122,27 @@
             {{-- Kolom 4: Sosial Media --}}
             <div class="col-lg-3 col-md-6 mb-4">
                 <h5 class="footer-title">Sosial Media</h5>
-                <div class="footer-social">
-                    <a href="#"><i class="fa fa-facebook"></i></a>
-                    <a href="#"><i class="fa fa-twitter"></i></a>
-                    <a href="#"><i class="fa fa-instagram"></i></a>
+
+                <div class="footer-social" style="display: flex; gap: 14px; align-items: center;">
+                    
+                    <a href="https://web.facebook.com/people/Kemantren-Kotagede/pfbid0vbSxN13HcQ5xwfYhn4Qm3wfbFVcGr6QPzh6mYxuRzJwdkZXy41TRf8AqbXVKo4Ttl/" 
+                    target="_blank"
+                    style="color: white; font-size: 22px;">
+                        <i class="fa-brands fa-facebook-f"></i>
+                    </a>
+
+                    <a href="https://kotagedekec.jogjakota.go.id/" 
+                    target="_blank"
+                    style="color: white; font-size: 22px;">
+                        <i class="fa-solid fa-globe"></i>
+                    </a>
+
+                    <a href="https://www.instagram.com/kemantrenkg/" 
+                    target="_blank"
+                    style="color: white; font-size: 22px;">
+                        <i class="fa-brands fa-instagram"></i>
+                    </a>
+
                 </div>
             </div>
 
@@ -134,7 +151,7 @@
         {{-- Copyright --}}
         <div class="row mt-4">
             <div class="col-12 text-center">
-                <p class="footer-copy">Copyright © 2025 | All Rights Reserved.</p>
+                <p class="footer-copy">Copyright © 2026 | All Rights Reserved.</p>
             </div>
         </div>
     </div>

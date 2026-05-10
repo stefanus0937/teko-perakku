@@ -226,7 +226,7 @@
         {{-- Tombol Lihat Semua --}}
         <div class="col-lg-12">
             <div class="text-center mt-5">
-                <a href="{{ route('guest-katalog') }}" class="see-all-button btn">Lihat Semua</a>
+                <a href="{{ route('guest-katalog') }}#related-stores" class="see-all-button btn">Lihat Semua</a>
             </div>
         </div>
     </div>

@@ -113,11 +113,78 @@ class PageController extends Controller
 
         $kategoris = KategoriProduk::ordered()->get();
 
+        // Related stores (toko) berdasarkan keyword pencarian
+        $relatedUsahas = collect();
+        if ($request->filled('search')) {
+            $relatedUsahas = $this->buildUsahaSearchQuery($request->search)
+                ->take(2)
+                ->get();
+        } else {
+            $relatedUsahas = Usaha::inRandomOrder()
+                ->take(2)
+                ->get();
+        }
+
         return view('guest.pages.katalog', [
             'produks' => $produks,
             'kategoris' => $kategoris,
             'selectedKategoriSlugs' => $selectedKategoriSlugs,
+            'relatedUsahas' => $relatedUsahas,
+            'searchTerm' => $request->search,
         ]);
+    }
+
+    /**
+     * Halaman hasil pencarian toko/usaha lengkap.
+     */
+    public function tokoSearch(Request $request)
+    {
+        $searchTerm = $request->input('search', '');
+
+        $query = $searchTerm !== ''
+            ? $this->buildUsahaSearchQuery($searchTerm)
+            : Usaha::query()->where('status_usaha', 'aktif')->latest();
+
+        $usahas = $query->paginate(10)->withQueryString();
+
+        return view('guest.pages.toko-search', [
+            'usahas'     => $usahas,
+            'searchTerm' => $searchTerm,
+        ]);
+    }
+
+    /**
+     * Reusable query builder untuk pencarian toko berdasarkan keyword.
+     * Mencocokkan: nama_usaha, deskripsi, spesialisasi, username pemilik,
+     * jenis usaha, nama produk yang dijual, dan kategori produk.
+     */
+    protected function buildUsahaSearchQuery(string $term)
+    {
+        $like = '%' . $term . '%';
+
+        return Usaha::query()
+            ->where('status_usaha', 'aktif')
+            ->where(function ($q) use ($like) {
+                $q->where('nama_usaha', 'like', $like)
+                  ->orWhere('deskripsi_usaha', 'like', $like)
+                  ->orWhere('spesialisasi_usaha', 'like', $like)
+                  ->orWhereHas('user', function ($u) use ($like) {
+                      $u->where('username', 'like', $like)
+                        ->orWhere('nama', 'like', $like);
+                  })
+                  ->orWhereHas('jenisUsahas', function ($j) use ($like) {
+                      $j->where('nama_jenis_usaha', 'like', $like);
+                  })
+                  ->orWhereHas('produks', function ($p) use ($like) {
+                      $p->where('nama_produk', 'like', $like)
+                        ->orWhere('deskripsi', 'like', $like)
+                        ->orWhereHas('kategoriProduk', function ($k) use ($like) {
+                            $k->where('nama_kategori_produk', 'like', $like);
+                        });
+                  });
+            })
+            ->with(['user', 'wilayah', 'jenisUsahas'])
+            ->latest();
     }
 
     public function singleProduct($slug)
