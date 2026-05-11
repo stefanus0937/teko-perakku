@@ -19,7 +19,7 @@
     display: inline-flex;
     align-items: center;
     gap: 1px;
-    color: #f5b301;          /* warna bintang amber */
+    color: #f5b301;
 }
 
 .rating__stars i {

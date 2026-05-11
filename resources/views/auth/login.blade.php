@@ -43,11 +43,6 @@
 
             <button type="submit" class="btn-login w-100">Masuk</button>
 
-            <div class="text-center mt-3">
-                <span class="text-muted">Lupa kata sandi? 
-                    <a href="#" class="link-primary">Ubah kata sandi</a>
-                </span>
-            </div>
             <div class="text-center mt-2">
                 <span class="text-muted">Belum punya akun? 
                     <a href="{{ route('registerForm') }}" class="link-primary">Daftar sekarang</a>
