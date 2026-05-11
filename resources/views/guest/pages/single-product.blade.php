@@ -311,9 +311,8 @@
 
                 {{-- Kolom Kanan: Informasi Produk --}}
                 <div class="col-lg-6">
-                    {{-- GANTI SELURUH ISI DARI <div class="right-content"> DENGAN KODE INI --}}
                     <div class="right-content">
-
+                    <div class="right-content">
                         {{-- BARIS 1: JUDUL PRODUK DAN IKON AKSI --}}
                         <div class="product-header">
                             <h2 class="product-title">{{ $produk->nama_produk }}</h2>
@@ -374,19 +373,22 @@
                             @if ($usaha)
                                 {{-- Shop card baris atas: avatar | nama+@username | chat | kunjungi toko --}}
                                 <div class="shop-card">
+                                    <a href="{{ route('guest-detail-usaha', ['usaha' => $usaha, 'from_product' => $produk->slug]) }}">
                                     <img
                                         src="{{ $usaha->foto_usaha ? asset('storage/'.$usaha->foto_usaha) : asset('assets/images/kategori-default.jpg') }}"
                                         alt="Logo {{ $usaha->nama_usaha }}"
                                         class="shop-card__avatar"
                                         onerror="this.onerror=null;this.src='{{ asset('assets/images/kategori-default.jpg') }}';"
                                     >
-
+                                    </a>
+                                    <a href="{{ route('guest-detail-usaha', ['usaha' => $usaha, 'from_product' => $produk->slug]) }}">
                                     <div class="shop-card__info">
                                         <div class="shop-card__name">{{ $usaha->nama_usaha }}</div>
                                         <div class="shop-card__handle">
                                             &#64;{{ \Illuminate\Support\Str::slug($usaha-> user-> username, '') }}
                                         </div>
                                     </div>
+                                    </a>
 
                                     <div class="shop-card__actions">
                                         @auth
@@ -418,6 +420,7 @@
                                             Kunjungi Toko
                                         </a>
                                     </div>
+                                    
                                 </div>
 
                             @else

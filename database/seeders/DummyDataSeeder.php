@@ -60,28 +60,11 @@ class DummyDataSeeder extends Seeder
             ]);
         }
 
-        // 5. Usaha (Optional: already handled by UsahaSeeder for the 2 main UMKM users)
-        /*
-        $jenisIds = JenisUsaha::pluck('id')->toArray();
-        for ($i = 1; $i <= 10; $i++) {
-            $usaha = Usaha::create([
-                'kode_usaha' => 'USH-' . strtoupper(Str::random(6)),
-                'nama_usaha' => $faker->company . ' Silver',
-                'user_id' => $faker->randomElement($userUmkmIds),
-                'wilayah_id' => $faker->randomElement($wilayahIds),
-                'telp_usaha' => $faker->phoneNumber,
-                'email_usaha' => $faker->companyEmail,
-                'deskripsi_usaha' => $faker->sentence(10),
-                'status_usaha' => 'aktif',
-            ]);
-            $usaha->jenisUsahas()->sync($faker->randomElements($jenisIds, rand(1, 2)));
-        }
-        */
 
         // 6. Produk (20 items)
         $usahaIds = Usaha::pluck('id')->toArray();
         $catIds = KategoriProduk::pluck('id')->toArray();
-        for ($i = 1; $i <= 20; $i++) {
+        for ($i = 1; $i <= 5; $i++) {
             $produk = Produk::create([
                 'kode_produk' => 'PRD-' . strtoupper(Str::random(6)),
                 'kategori_produk_id' => $faker->randomElement($catIds),
@@ -107,12 +90,12 @@ class DummyDataSeeder extends Seeder
 
         // 7. Pelaporan (20 items)
         $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-        for ($i = 1; $i <= 20; $i++) {
+        for ($i = 1; $i <= 5; $i++) {
             Pelaporan::create([
                 'kode_laporan' => 'LAP-' . strtoupper(Str::random(6)),
                 'usaha_id' => $faker->randomElement($usahaIds),
                 'bulan' => $faker->randomElement($months),
-                'tahun' => 2024,
+                'tahun' => 2025,
                 'omset' => $faker->numberBetween(5000000, 50000000),
                 'deskripsi' => 'Laporan penjualan rutin bulan ini.',
             ]);

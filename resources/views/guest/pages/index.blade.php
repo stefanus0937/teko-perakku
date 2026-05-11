@@ -7,7 +7,7 @@
 <div class="main-banner" id="top">
     <!-- Background dengan gambar asli Anda -->
     <div class="banner-background">
-        <img src="{{ asset('assets/images/malioboro2.jpg') }}" alt="Keraton Yogyakarta"
+        <img src="{{ asset('assets/images/Kota_Gede_Jogjakarta.jpg') }}" alt="Keraton Yogyakarta"
              style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; z-index: -1;">
     </div>
 
@@ -44,17 +44,17 @@
                 'anting' => 'bentuk_anting.jpg',
                 'bros' => 'bentuk_bros.jpg',
                 'keris' => 'bentuk_keris.jpg',
-                'souvenir' => 'souvenir.jpg',
-                'tas' => 'kid-02.jpg',
+                'souvenir' => 'bentuk_souvenir.jpg',
+                'tas' => 'bentuk_tas.jpg',
                 'ukir' => 'teknik_ukir.jpeg',
                 'filigree' => 'teknik_filigree.jpg',
                 'tatahan' => 'teknik_tatah.jpg',
                 'cor' => 'teknik_cor.jpg',
-                'perak' => 'single-product-01.jpg',
-                'emas' => 'cincin-akik.jpg',
-                'tembaga' => 'explore-image-01.jpg',
-                'kuningan' => 'explore-image-02.jpg',
-                'perunggu' => 'kategori-default.jpg',
+                'perak' => 'bahan_perak.jpeg',
+                'emas' => 'bahan_emas.png',
+                'tembaga' => 'bahan_tembaga.jpg',
+                'kuningan' => 'bahan_kuningan.jpg',
+                'perunggu' => 'bahan_perunggu.jpg',
             ];
             $categoryCarouselItems = collect($categoryTypeLabels ?? [])
                 ->flatMap(fn ($label, $type) => ($categoryGroups[$type] ?? collect())->map(function ($kategori) use ($label, $type, $categoryTypeDescriptions, $categoryImageMap) {
