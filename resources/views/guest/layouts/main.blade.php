@@ -43,17 +43,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     @stack('styles')
-    <style>
-        .guest-content-start {
-            padding-top: 56px;
-        }
-
-        @media (max-width: 768px) {
-            .guest-content-start {
-                padding-top: 36px;
-            }
-        }
-    </style>
 
 </head>
 
@@ -123,26 +112,16 @@
             <div class="col-lg-3 col-md-6 mb-4">
                 <h5 class="footer-title">Sosial Media</h5>
 
-                <div class="footer-social" style="display: flex; gap: 14px; align-items: center;">
-                    
-                    <a href="https://web.facebook.com/people/Kemantren-Kotagede/pfbid0vbSxN13HcQ5xwfYhn4Qm3wfbFVcGr6QPzh6mYxuRzJwdkZXy41TRf8AqbXVKo4Ttl/" 
-                    target="_blank"
-                    style="color: white; font-size: 22px;">
+                <div class="footer-social">
+                    <a href="https://web.facebook.com/people/Kemantren-Kotagede/pfbid0vbSxN13HcQ5xwfYhn4Qm3wfbFVcGr6QPzh6mYxuRzJwdkZXy41TRf8AqbXVKo4Ttl/" target="_blank">
                         <i class="fa-brands fa-facebook-f"></i>
                     </a>
-
-                    <a href="https://kotagedekec.jogjakota.go.id/" 
-                    target="_blank"
-                    style="color: white; font-size: 22px;">
+                    <a href="https://kotagedekec.jogjakota.go.id/" target="_blank">
                         <i class="fa-solid fa-globe"></i>
                     </a>
-
-                    <a href="https://www.instagram.com/kemantrenkg/" 
-                    target="_blank"
-                    style="color: white; font-size: 22px;">
+                    <a href="https://www.instagram.com/kemantrenkg/" target="_blank">
                         <i class="fa-brands fa-instagram"></i>
                     </a>
-
                 </div>
             </div>
 

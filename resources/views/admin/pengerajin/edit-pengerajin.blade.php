@@ -3,6 +3,7 @@
 @section('title', 'Edit Pengrajin')
 
 @section('css')
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
 <style>
     .form-container {
         background: #fff;
@@ -188,6 +189,17 @@
                     <label class="form-label">Email</label>
                     <input type="email" name="email_pengerajin" class="form-input" value="{{ $pengerajin->email_pengerajin }}" required>
                 </div>
+                <div class="form-group">
+                    <label class="form-label">Wilayah</label>
+                    <select name="wilayah_id" class="form-input" required>
+                    @foreach($wilayahs as $w)
+                        <option value="{{ $w->id }}"
+                            {{ $pengerajin->wilayah_id == $w->id ? 'selected' : '' }}>
+                            {{ $w->nama_wilayah }}
+                        </option>
+                    @endforeach
+                </select>
+                </div>
             </div>
 
             <!-- Middle Column -->
@@ -212,14 +224,13 @@
 
                 <div class="form-group">
                     <label class="form-label">Tempat Usaha</label>
-                    <select name="usaha_ids[]" class="form-input" multiple style="height: 100px;">
+                    <select name="usaha_ids[]" id="usahaSelect" multiple>
                         @foreach($usahas as $usaha)
                             <option value="{{ $usaha->id }}" {{ in_array($usaha->id, $selectedUsaha) ? 'selected' : '' }}>
                                 {{ $usaha->nama_usaha }}
                             </option>
                         @endforeach
                     </select>
-                    <p style="font-size: 11px; color: #888; margin-top: 5px;">* Tahan Ctrl untuk memilih lebih dari satu</p>
                 </div>
             </div>
 
@@ -260,6 +271,7 @@
 @stop
 
 @section('js')
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 <script>
     document.getElementById('photoInput').addEventListener('change', function(e) {
         const preview = document.getElementById('photoPreview');
@@ -269,6 +281,27 @@
             reader.onload = function(event) {
                 preview.innerHTML = `<img src="${event.target.result}" alt="Preview">`;
             };
+            reader.readAsDataURL(file);
+        }
+    });
+        new TomSelect("#usahaSelect", {
+        plugins: ['remove_button'],
+        placeholder: 'Pilih usaha...',
+        create: false,
+        maxOptions: 100,
+    });
+
+    document.getElementById('photoInput').addEventListener('change', function(e) {
+        const preview = document.getElementById('photoPreview');
+        const file = e.target.files[0];
+
+        if (file) {
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+                preview.innerHTML = `<img src="${event.target.result}" alt="Preview">`;
+            };
+
             reader.readAsDataURL(file);
         }
     });

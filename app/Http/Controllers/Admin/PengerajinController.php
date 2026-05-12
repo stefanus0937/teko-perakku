@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 use App\Models\Pengerajin;
 use App\Models\Usaha;
+use App\Models\Wilayah;
 use App\Models\UsahaPengerajin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -40,13 +41,20 @@ class PengerajinController extends Controller
         $nextId = $lastPengerajin ? $lastPengerajin->id + 1 : 1;
         $autoKode = 'PRJ' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
         
-        return view('admin.pengerajin.create-pengerajin', compact('usahas', 'autoKode'));
+        $wilayahs = Wilayah::all();
+
+        return view('admin.pengerajin.create-pengerajin', compact(
+            'usahas',
+            'autoKode',
+            'wilayahs'
+        ));
     }
 
     public function edit($id)
     {
         $user = auth()->user();
         $pengerajin = Pengerajin::findOrFail($id);
+        $wilayahs = Wilayah::all();
         
         if ($user->role === 'admin_wilayah') {
             $usahas = Usaha::where('wilayah_id', $user->wilayah_id)->get();
@@ -55,7 +63,12 @@ class PengerajinController extends Controller
         }
 
         $selectedUsaha = UsahaPengerajin::where('pengerajin_id', $id)->pluck('usaha_id')->toArray();
-        return view('admin.pengerajin.edit-pengerajin', compact('pengerajin', 'usahas', 'selectedUsaha'));
+        return view('admin.pengerajin.edit-pengerajin', compact(
+            'pengerajin',
+            'usahas',
+            'selectedUsaha',
+            'wilayahs'
+        ));
     }
 
     public function store(Request $request)
@@ -71,6 +84,7 @@ class PengerajinController extends Controller
             'foto_pengerajin' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'usaha_ids' => 'nullable|array',
             'usaha_ids.*' => 'exists:usaha,id',
+            'wilayah_id' => 'required|exists:wilayahs,id',
         ]);
 
         $data = $request->all();
@@ -110,6 +124,7 @@ class PengerajinController extends Controller
             'foto_pengerajin' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'usaha_ids' => 'nullable|array',
             'usaha_ids.*' => 'exists:usaha,id',
+            'wilayah_id' => 'required|exists:wilayahs,id',
         ]);
 
         $data = $request->except(['foto_pengerajin', 'usaha_ids']);

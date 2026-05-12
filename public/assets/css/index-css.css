@@ -2060,3 +2060,15 @@ div > .dropdown-menu {
         min-width: 100%; /* Pastikan dropdown harga memenuhi layar */
     }
 }
+
+/* =========================================================================
+   Guest layout helpers (moved from guest/layouts/main.blade.php inline)
+   ========================================================================= */
+.guest-content-start { padding-top: 56px; }
+@media (max-width: 768px) {
+    .guest-content-start { padding-top: 36px; }
+}
+
+/* Footer social icons — replaces repeated inline color/font-size */
+.footer-social { display: flex; gap: 14px; align-items: center; }
+.footer-social a { color: #ffffff; font-size: 22px; }

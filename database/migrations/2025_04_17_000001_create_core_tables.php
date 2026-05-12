@@ -53,11 +53,7 @@ return new class extends Migration
             $table->string('email_pengerajin')->nullable();
             $table->text('alamat_pengerajin')->nullable();
             $table->string('foto_pengerajin')->nullable();
-            $table->string('link_tokopedia_pengerajin')->nullable();
-            $table->string('link_shopee_pengerajin')->nullable();
-            $table->string('link_instagram_pengerajin')->nullable();
-            $table->string('link_tiktok_pengerajin')->nullable();
-            $table->string('link_facebook_pengerajin')->nullable();
+            $table->foreignId('wilayah_id')->nullable()->constrained('wilayahs')->onDelete('set null');
             $table->timestamps();
         });
 

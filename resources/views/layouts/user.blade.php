@@ -7,113 +7,13 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #333;
-            --text-main: #1a1a1a;
-            --text-muted: #71717a;
-            --border-color: #e4e4e7;
-            --bg-light: #fafafa;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        body {
-            background-color: #fff;
-            color: var(--text-main);
-        }
-
-        /* Header styles dipindah ke partials/header.blade.php (scoped ke .main-header) */
-
-        /* Main Content Layout */
-        .main-container {
-            width: 100%;
-            margin: 40px 0;
-            padding: 0 80px;
-            display: flex !important;
-            align-items: flex-start;
-            gap: 40px;
-            min-height: 600px;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 260px;
-            flex-shrink: 0;
-            background: #fff;
-            border-right: 1px solid transparent;
-        }
-
-        .sidebar-menu {
-            list-style: none;
-        }
-
-        .sidebar-item {
-            margin-bottom: 10px;
-        }
-
-        .sidebar-link {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 14px 20px;
-            text-decoration: none;
-            color: #71717a;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: 10px;
-            transition: all 0.2s;
-        }
-
-        .sidebar-link i {
-            font-size: 18px;
-            width: 24px;
-            text-align: center;
-        }
-
-        .sidebar-link:hover {
-            background: #f4f4f5;
-            color: #18181b;
-        }
-
-        .sidebar-link.active {
-            background: #f4f4f5;
-            color: #18181b;
-        }
-
-        /* Content Area */
-        .content-area {
-            flex: 1;
-        }
-
-        @media (max-width: 1024px) {
-            .main-container { padding: 0 40px; flex-direction: column; }
-            .sidebar { width: 100%; }
-        }
-
-        /* Global Settings Classes */
-        body.font-small { --base-font-size: 12px; }
-        body.font-medium { --base-font-size: 15px; }
-        body.font-large { --base-font-size: 19px; }
-
-        body.font-small .nav-link, body.font-small .sidebar-link { font-size: 11px !important; }
-        body.font-medium .nav-link, body.font-medium .sidebar-link { font-size: 14px !important; }
-        body.font-large .nav-link, body.font-large .sidebar-link { font-size: 18px !important; }
-
-        body.font-small .logo { font-size: 20px !important; }
-        body.font-large .logo { font-size: 32px !important; }
-
-        /* Dark mode styles dipindah ke public/assets/css/theme-dark.css */
-        /* Profile dropdown styles dipindah ke partials/header.blade.php */
-    </style>
+    {{-- Shared layout + sidebar + font scaling → admin.css (centralized).
+         Dark mode → theme-dark.css (via partials/_settings).
+         Header → partials/header.blade.php (auto-loads header.css). --}}
+    <link rel="stylesheet" href="{{ asset('assets/css/admin.css') }}">
     @yield('css')
 </head>
-<body>
+<body class="tp-app-shell">
     {{-- Unified shared header --}}
     @include('partials.header')
 

@@ -57,6 +57,7 @@ class DummyDataSeeder extends Seeder
                 'alamat_pengerajin' => $faker->address,
                 'telp_pengerajin' => $faker->phoneNumber,
                 'email_pengerajin' => $faker->email,
+                'wilayah_id' => $faker->numberBetween(1, 3),
             ]);
         }
 

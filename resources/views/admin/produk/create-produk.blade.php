@@ -61,7 +61,16 @@
         border: 1px solid #e5e7eb;
         display: flex;
         align-items: center;
+        justify-content: center;
+        position: relative;
     }
+
+    .gallery-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
     .btn-add-gallery {
         position: absolute;
         top: 0;
@@ -79,15 +88,18 @@
         transition: all 0.2s;
         margin: 0;
     }
+
     .btn-add-gallery i {
         font-size: 24px;
         margin: 0;
         padding: 0;
     }
+
     .btn-add-gallery:hover {
         border-color: #991b1b;
         color: #991b1b;
     }
+
     .remove-image {
         position: absolute;
         top: 5px;
@@ -106,28 +118,78 @@
         z-index: 10;
         transition: all 0.2s;
     }
+
     .remove-image:hover {
         transform: scale(1.1);
         background: #dc2626;
     }
-    .video-preview-container {
-        margin-top: 12px;
-        border-radius: 8px;
+
+    .video-upload-box {
+        width: 100%;
+        border: 2px dashed #d1d5db;
+        border-radius: 14px;
+        background: #fafafa;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        display: block;
         overflow: hidden;
-        background: #f3f4f6;
+    }
+
+    .video-upload-box:hover {
+        border-color: #991b1b;
+        background: #fff7f7;
+    }
+
+    .video-upload-content {
+        padding: 10px 10px;
+        text-align: center;
+    }
+
+    .video-upload-content i {
+        font-size: 24px;
+        color: #991b1b;
+        margin-bottom: 14px;
+    }
+
+    .video-upload-content h5 {
+        margin: 0;
+        font-size: 12px;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .video-upload-content p {
+        margin: 8px 0 4px;
+        font-size: 10px;
+        color: #6b7280;
+    }
+
+    .video-upload-content span {
+        font-size: 12px;
+        color: #9ca3af;
+    }
+
+    .video-preview-container {
+        margin-top: 16px;
+        border-radius: 14px;
+        overflow: hidden;
+        background: #000;
         border: 1px solid #e5e7eb;
         position: relative;
         display: none;
     }
+
     .video-preview-container video {
         width: 100%;
+        max-height: 350px;
+        object-fit: cover;
         display: block;
     }
 
     .action-footer {
         display: flex;
-        justify-content: flex-end;
-        gap: 12px;
+        justify-content: space-between;
+        align-items: center;
         margin-top: 40px;
         padding-top: 20px;
         border-top: 1px solid #f0f0f0;
@@ -155,8 +217,21 @@
         transition: all 0.2s;
     }
 
+    .btn-delete {
+        background: #fff;
+        color: #dc2626;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        border: 1px solid #fee2e2;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
     .btn-submit:hover { opacity: 0.9; }
     .btn-cancel:hover { background: #f9fafb; }
+    .btn-delete:hover { background: #fee2e2; }
 
     /* Tag/Category Style */
     .category-tag {
@@ -193,7 +268,7 @@
         margin-right: 5px;
     }
 </style>
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
 @stop
 
 @section('content')
@@ -217,8 +292,8 @@
                 <input type="number" name="harga" class="form-input" placeholder="Rp. 0" required>
             </div>
             <div class="form-group">
-                <label>Kategori Produk</label>
-                <select name="kategori_produk_id[]" class="form-input select2" multiple required>
+                <label class="form-label">Kategori Produk</label>
+                <select name="kategori_produk_id[]" id="kategoriSelect" multiple required>
                     @foreach($kategoriProduks as $kat)
                         <option value="{{ $kat->id }}">{{ $kat->nama_kategori_produk }}</option>
                     @endforeach
@@ -258,9 +333,28 @@
 
             <div class="form-group" style="margin-top: 24px;">
                 <label>Video Produk (Opsional)</label>
-                <input type="file" name="video_produk" class="form-input" accept="video/*" onchange="previewVideo(this)">
+
+                <label class="video-upload-box">
+                    <input 
+                        type="file"
+                        name="video_produk"
+                        id="video_input"
+                        accept="video/*"
+                        hidden
+                        onchange="previewVideo(this)"
+                    >
+
+                    <div class="video-upload-content" id="video-upload-content">
+                        <i class="fas fa-video"></i>
+                        <h5>Upload Video Produk</h5>
+                        <p>Klik untuk memilih video</p>
+                        <span>Maksimal 1 video</span>
+                    </div>
+                </label>
+
                 <div class="video-preview-container" id="video-preview-box">
                     <video id="video-preview" controls></video>
+
                     <div class="remove-image" onclick="clearVideo()" title="Hapus Video">
                         <i class="fas fa-times"></i>
                     </div>
@@ -282,14 +376,13 @@
 @stop
 
 @section('js')
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 <script>
-    $(document).ready(function() {
-        $('.select2').select2({
-            placeholder: "Pilih Kategori",
-            allowClear: true
-        });
+    new TomSelect("#kategoriSelect", {
+        plugins: ['remove_button'],
+        placeholder: 'Pilih kategori produk...',
+        create: false,
+        maxOptions: 100,
     });
 
     let selectedFiles = [];
