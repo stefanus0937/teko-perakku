@@ -279,8 +279,16 @@
             </div>
             <div class="social-input-group">
                 <div class="social-icon"><i class="fas fa-map-marker-alt"></i></div>
-                <input type="text" name="link_gmap_usaha" class="form-input" placeholder="Link Google Maps">
+                <input type="text" name="link_gmap_usaha" class="form-input"
+                       placeholder="Link Google Maps (untuk tombol 'Buka di Google Maps')"
+                       value="{{ old('link_gmap_usaha') }}">
             </div>
+
+            {{-- Lokasi: dipilih lewat Leaflet picker, bukan URL parsing --}}
+            @include('admin.usaha._location-picker', [
+                'lat' => null,
+                'lng' => null,
+            ])
             <div class="social-input-group">
                 <div class="social-icon"><i class="fab fa-whatsapp"></i></div>
                 <input type="text" name="link_wa_usaha" class="form-input" placeholder="wa.me/nomor-wa">

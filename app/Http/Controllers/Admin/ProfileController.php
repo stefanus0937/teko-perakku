@@ -60,6 +60,8 @@ class ProfileController extends Controller
                 'link_tiktok_usaha' => 'nullable|string',
                 'link_shopee_usaha' => 'nullable|string',
                 'link_tokopedia_usaha' => 'nullable|string',
+                'latitude'  => 'nullable|numeric|between:-90,90',
+                'longitude' => 'nullable|numeric|between:-180,180',
             ]);
         }
 
@@ -93,9 +95,16 @@ class ProfileController extends Controller
                     'link_instagram_usaha', 'link_facebook_usaha', 'link_tiktok_usaha',
                     'link_shopee_usaha', 'link_tokopedia_usaha'
                 ]);
-                
+
                 // Sync name
                 $usahaData['nama_usaha'] = $request->nama;
+
+                // Lokasi dari Leaflet picker. Lat+lng datang bersamaan atau
+                // dua-duanya kosong (kalau user pencet "Hapus Lokasi").
+                $lat = $request->input('latitude');
+                $lng = $request->input('longitude');
+                $usahaData['latitude']  = is_numeric($lat) ? (float) $lat : null;
+                $usahaData['longitude'] = is_numeric($lng) ? (float) $lng : null;
 
                 // Handle Gallery
                 $existingGallery = $request->input('existing_foto_tempat', []);

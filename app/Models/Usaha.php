@@ -30,11 +30,23 @@ class Usaha extends Model
         'link_facebook_usaha',
         'spesialisasi_usaha',
         'foto_tempat',
+        'latitude',
+        'longitude',
     ];
 
     protected $casts = [
         'foto_tempat' => 'array',
+        'latitude'    => 'float',
+        'longitude'   => 'float',
     ];
+
+    /**
+     * Apakah usaha sudah punya koordinat valid untuk dirender di Leaflet.
+     */
+    public function hasCoordinates(): bool
+    {
+        return $this->latitude !== null && $this->longitude !== null;
+    }
 
     // public function usahaJenis()
     // {

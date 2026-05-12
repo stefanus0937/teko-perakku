@@ -371,6 +371,12 @@
                         <input type="text" name="link_tokopedia_usaha" class="form-control" value="{{ $user->usaha->link_tokopedia_usaha ?? '' }}" placeholder="Tokopedia">
                     </div>
                 </div>
+
+                {{-- Lokasi Usaha (Leaflet picker + manual lat/lng — sinkron dua arah) --}}
+                @include('admin.usaha._location-picker', [
+                    'lat' => $user->usaha->latitude  ?? null,
+                    'lng' => $user->usaha->longitude ?? null,
+                ])
                 @else
                 <div class="form-group">
                     <label>Alamat</label>

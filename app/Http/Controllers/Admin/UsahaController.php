@@ -87,6 +87,9 @@ class UsahaController extends Controller
             'foto_usaha' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
             'foto_tempat' => 'nullable|array|max:3',
             'foto_tempat.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'link_gmap_usaha' => 'nullable|string|max:2048',
+            'latitude'  => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
         ]);
 
         // 1. Authorization check for admin_wilayah
@@ -110,6 +113,13 @@ class UsahaController extends Controller
         $data['user_id'] = $user->id;
         $data['email_usaha'] = $request->email;
         $data['status_usaha'] = 'aktif';
+
+        // Lokasi: koordinat di-pick lewat Leaflet picker di form (lat+lng selalu
+        // datang bersamaan, atau dua-duanya kosong kalau user belum pilih).
+        [$data['latitude'], $data['longitude']] = $this->resolveCoordinates(
+            $request->input('latitude'),
+            $request->input('longitude')
+        );
 
         // 2. Handle Profile Photo
         if ($request->hasFile('foto_usaha')) {
@@ -158,6 +168,9 @@ class UsahaController extends Controller
             'foto_usaha' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
             'foto_tempat' => 'nullable|array|max:3',
             'foto_tempat.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'link_gmap_usaha' => 'nullable|string|max:2048',
+            'latitude'  => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
         ]);
 
         // 1. Update User
@@ -177,6 +190,12 @@ class UsahaController extends Controller
 
         $data = $request->except(['password', 'username', 'email', 'pengerajin_id', 'foto_tempat']);
         $data['email_usaha'] = $request->email;
+
+        // Lokasi: ambil dari Leaflet picker (lat+lng atau dua-duanya kosong).
+        [$data['latitude'], $data['longitude']] = $this->resolveCoordinates(
+            $request->input('latitude'),
+            $request->input('longitude')
+        );
 
         // 2. Handle Profile Photo
         if ($request->hasFile('foto_usaha')) {
@@ -227,6 +246,19 @@ class UsahaController extends Controller
 
         return redirect()->route('admin.usaha-index')
             ->with('success', 'Usaha berhasil diperbarui.');
+    }
+
+    /**
+     * Lat + lng dari Leaflet picker. Datang bersamaan atau dua-duanya kosong;
+     * kalau salah satu invalid, anggap belum dipilih (null/null) → halaman
+     * detail-usaha akan fallback ke placeholder.
+     */
+    private function resolveCoordinates($lat, $lng): array
+    {
+        if (is_numeric($lat) && is_numeric($lng)) {
+            return [(float) $lat, (float) $lng];
+        }
+        return [null, null];
     }
 
     public function destroy($id)

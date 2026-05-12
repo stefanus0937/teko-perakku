@@ -24,12 +24,12 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .tp-app-shell {
     background-color: #fff;
     color: var(--text-main);
+    font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 /* =========================================================
@@ -383,11 +383,11 @@ body.font-large .logo { font-size: 32px !important; }
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
 }
 
 .tp-admin-premium {
     overflow-x: hidden;
+    font-family: 'Inter', sans-serif;
 }
 
 .layout-wrapper {

@@ -4,6 +4,13 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('assets/css/detail-usaha.css') }}">
+    @if ($usaha->hasCoordinates())
+        {{-- Leaflet hanya di-load jika ada koordinat valid — hemat bandwidth utk usaha tanpa lokasi --}}
+        <link rel="stylesheet"
+              href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+              integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+              crossorigin="">
+    @endif
 @endpush
 
 @section('content')
@@ -39,15 +46,7 @@
     }
 
     // Gallery photos: foto_tempat berisi JSON / comma-separated paths (per migrasi awal)
-    $gallery = [];
-    if (!empty($usaha->foto_tempat)) {
-        $decoded = json_decode($usaha->foto_tempat, true);
-        if (is_array($decoded)) {
-            $gallery = $decoded;
-        } else {
-            $gallery = array_filter(array_map('trim', explode(',', $usaha->foto_tempat)));
-        }
-    }
+    $gallery = $usaha->foto_tempat ?? [];
 @endphp
 
 {{-- ── Breadcrumb ── --}}
@@ -183,9 +182,38 @@
                     </aside>
                 @endif
 
-                {{-- Map placeholder --}}
+                {{-- ── Lokasi: 3 state ──
+                     1. Punya koordinat → render Leaflet map + popup + tombol "Buka di Google Maps"
+                     2. Punya link Google Maps saja → placeholder bergaya dengan CTA
+                     3. Tidak ada apa-apa → placeholder "Lokasi belum tersedia" --}}
                 <aside class="usaha-map-card">
-                    @if ($usaha->link_gmap_usaha)
+                    @if ($usaha->hasCoordinates())
+                        @php $usahaAlamat = optional($usaha->user)->alamat; @endphp
+                        <div class="usaha-map" id="usaha-leaflet-map"
+                             data-lat="{{ $usaha->latitude }}"
+                             data-lng="{{ $usaha->longitude }}"
+                             data-name="{{ $usaha->nama_usaha }}"
+                             data-address="{{ $usahaAlamat }}"
+                             aria-label="Peta lokasi {{ $usaha->nama_usaha }}"></div>
+
+                        <div class="usaha-map-card__footer">
+                            @if ($usahaAlamat)
+                                <p class="usaha-map-card__address">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                    {{ $usahaAlamat }}
+                                </p>
+                            @endif
+                            @php
+                                $gmapHref = $usaha->link_gmap_usaha
+                                    ?: 'https://www.google.com/maps?q=' . $usaha->latitude . ',' . $usaha->longitude;
+                            @endphp
+                            <a href="{{ $gmapHref }}" target="_blank" rel="noopener"
+                               class="usaha-map-card__cta">
+                                <i class="fa-solid fa-up-right-from-square"></i>
+                                Buka di Google Maps
+                            </a>
+                        </div>
+                    @elseif ($usaha->link_gmap_usaha)
                         <a href="{{ $usaha->link_gmap_usaha }}" target="_blank" rel="noopener" class="usaha-map-card__link">
                             <div class="usaha-map-placeholder">
                                 <i class="fa-solid fa-map-location-dot"></i>
@@ -285,3 +313,57 @@
     </div>
 </section>
 @endsection
+
+@if ($usaha->hasCoordinates())
+@push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+<script>
+(function () {
+    'use strict';
+    var el = document.getElementById('usaha-leaflet-map');
+    if (!el || typeof L === 'undefined') return;
+
+    var lat  = parseFloat(el.dataset.lat);
+    var lng  = parseFloat(el.dataset.lng);
+    if (!isFinite(lat) || !isFinite(lng)) return;
+
+    var name    = el.dataset.name || '';
+    var address = el.dataset.address || '';
+
+    var map = L.map(el, {
+        center: [lat, lng],
+        zoom: 16,
+        scrollWheelZoom: false,   // jangan ganggu scroll halaman
+        zoomControl: true
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    var popupHtml = '<div class="usaha-map-popup">'
+        + (name ? '<strong>' + escapeHtml(name) + '</strong>' : '')
+        + (address ? '<span>' + escapeHtml(address) + '</span>' : '')
+        + '</div>';
+
+    L.marker([lat, lng])
+        .addTo(map)
+        .bindPopup(popupHtml, { closeButton: false })
+        .openPopup();
+
+    // Aktifkan scroll-zoom hanya saat user klik peta (UX standar)
+    map.on('click', function () { map.scrollWheelZoom.enable(); });
+    map.on('mouseout', function () { map.scrollWheelZoom.disable(); });
+
+    function escapeHtml(s) {
+        return String(s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+}());
+</script>
+@endpush
+@endif

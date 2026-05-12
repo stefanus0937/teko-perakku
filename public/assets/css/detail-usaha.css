@@ -555,3 +555,138 @@ body.dark-mode .usaha-social:hover { background: #dc2626; }
 .alamat-info a:hover {
     text-decoration: underline;
 }
+
+/* =========================================================
+   LEAFLET MAP (state: usaha punya koordinat valid)
+   Render di dalam .usaha-map-card yang sudah ada — pakai
+   border-radius/overflow/border dari card itu.
+   ========================================================= */
+.usaha-map {
+    width: 100%;
+    aspect-ratio: 16 / 11;
+    min-height: 220px;
+    background: #f4f4f5;
+}
+
+/* Leaflet membuat .leaflet-container — pastikan rounded ikut card */
+.usaha-map .leaflet-container {
+    width: 100%;
+    height: 100%;
+    background: #f4f4f5;
+    font-family: inherit;
+}
+
+/* Footer card di bawah peta (alamat + CTA) */
+.usaha-map-card__footer {
+    padding: 12px 14px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-top: 1px solid #f3f4f6;
+}
+
+.usaha-map-card__address {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #4b5563;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+}
+.usaha-map-card__address i {
+    color: #980808;
+    font-size: 13px;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.usaha-map-card__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border-radius: 8px;
+    background: #ffffff;
+    border: 1px solid #e4e4e7;
+    color: #18181b;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background .15s, border-color .15s, color .15s;
+}
+.usaha-map-card__cta:hover {
+    background: #fdecec;
+    border-color: #f3c5c5;
+    color: #980808;
+}
+.usaha-map-card__cta i { font-size: 11px; }
+
+/* Popup marker */
+.usaha-map-popup {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 140px;
+    max-width: 220px;
+    padding: 4px 2px;
+    font-family: 'Plus Jakarta Sans', 'Poppins', sans-serif;
+}
+.usaha-map-popup strong {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #18181b;
+    line-height: 1.3;
+}
+.usaha-map-popup span {
+    font-size: 12px;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+/* Leaflet popup container override agar konsisten dengan card */
+.leaflet-popup-content-wrapper {
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.10);
+}
+.leaflet-popup-content {
+    margin: 10px 12px;
+    line-height: 1.4;
+}
+
+/* Responsive */
+@media (max-width: 575.98px) {
+    .usaha-map { aspect-ratio: 16 / 12; min-height: 200px; }
+    .usaha-map-card__footer { padding: 10px 12px 12px; }
+}
+
+/* Dark mode */
+body.dark-mode .usaha-map,
+body.dark-mode .usaha-map .leaflet-container {
+    background: #1f2937;
+}
+body.dark-mode .usaha-map-card__footer {
+    border-top-color: var(--tp-border, #2d3748);
+}
+body.dark-mode .usaha-map-card__address {
+    color: var(--tp-text-muted, #cbd5e1);
+}
+body.dark-mode .usaha-map-card__address i { color: #f87171; }
+body.dark-mode .usaha-map-card__cta {
+    background: var(--tp-bg-surface, #1f2937);
+    border-color: var(--tp-border, #374151);
+    color: var(--tp-text-strong, #f9fafb);
+}
+body.dark-mode .usaha-map-card__cta:hover {
+    background: #3b1f1f;
+    border-color: #7f1d1d;
+    color: #fca5a5;
+}
+body.dark-mode .leaflet-popup-content-wrapper,
+body.dark-mode .leaflet-popup-tip {
+    background: #111827;
+    color: #f9fafb;
+}
+body.dark-mode .usaha-map-popup strong { color: #f9fafb; }
+body.dark-mode .usaha-map-popup span   { color: #cbd5e1; }
