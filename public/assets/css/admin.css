@@ -320,18 +320,76 @@ body.font-large .logo { font-size: 32px !important; }
     background-color: #f9fafb;
 }
 
-.dropdown:hover .dropdown-content {
+/* Click-toggle dropdowns (was :hover — flaky karena nutup saat pointer lewat row lain).
+   JS di layouts/admin_premium + layouts/umkm yang toggle .is-open. */
+.dropdown.is-open .dropdown-content {
     display: block;
 }
+/* Hover-based open dipertahankan sebagai fallback hanya untuk perangkat
+   yang BENAR-BENAR pakai mouse (hover halus); di touch device hover tidak
+   nutup, jadi user terjebak. Pakai @media supaya hanya berlaku di hover-capable. */
+@media (hover: hover) and (pointer: fine) {
+    .dropdown:hover .dropdown-content { display: block; }
+}
 
-/* Pagination Alignment */
+/* ── Required-field marker ──
+   Pakai class .label-required di <label>. Asterisk merah tampil di belakang
+   teks label. Aksesibilitas: tetap pakai atribut required di <input> agar
+   browser/screen-reader tahu (asterisk hanya hint visual). */
+.label-required::after {
+    content: ' *';
+    color: #dc2626;
+    font-weight: 700;
+    margin-left: 2px;
+}
+body.dark-mode .label-required::after { color: #f87171; }
+
+/* ── Clickable rows (admin/umkm list pages) ───────────── */
+.admin-table tbody tr[data-row-href] {
+    cursor: pointer;
+}
+.admin-table tbody tr[data-row-href]:hover td {
+    background-color: #fafafa;
+}
+.admin-table tbody tr[data-row-href]:focus-visible {
+    outline: 2px solid #991b1b;
+    outline-offset: -2px;
+}
+
+/* Pagination Alignment
+   ─ flex-wrap supaya kalau ruang sempit, "results-text" wrap di atas paginasi
+     bukan menabrak. Gap menjaga jarak yang konsisten. */
 .pagination-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
     margin-top: 40px;
     padding-top: 20px;
     border-top: 1px solid #f3f4f6;
+}
+
+/* DataTables paginate block: paksa 1 baris tombol, scroll-x kalau mepet,
+   alih-alih wrap ke bawah & merusak alignment. */
+.dataTables_wrapper .dataTables_paginate {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    max-width: 100%;
+    scrollbar-width: none;  /* Firefox */
+}
+.dataTables_wrapper .dataTables_paginate::-webkit-scrollbar {
+    display: none;  /* Chrome/Safari */
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    flex-shrink: 0;
+}
+
+@media (max-width: 575.98px) {
+    .pagination-container {
+        justify-content: center;
+    }
+    .results-text { order: 2; text-align: center; width: 100%; }
 }
 
 .results-text {

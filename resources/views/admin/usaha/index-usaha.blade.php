@@ -143,9 +143,7 @@
         background-color: #f5f5f5;
     }
 
-    .dropdown:hover .dropdown-content {
-        display: block;
-    }
+    /* Click-toggle handled centrally in admin.css (.dropdown.is-open). */
 
     .pagination-container {
         display: flex;
@@ -178,11 +176,16 @@
         gap: 8px;
         align-items: center;
     }
+    .dataTables_paginate span {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
 
     .paginate_button {
         width: 36px;
         height: 36px;
-        display: flex !important;
+        display: inline-flex !important;
         align-items: center;
         justify-content: center;
         border-radius: 6px;
@@ -265,7 +268,7 @@
     </thead>
     <tbody>
         @foreach ($usahas as $usaha)
-            <tr>
+            <tr data-row-href="{{ route('admin.usaha-edit', $usaha->id) }}" tabindex="0">
                 <td>
                     <div style="width: 48px; height: 48px; border-radius: 8px; overflow: hidden; background: #f3f4f6;">
                         @if ($usaha->foto_usaha)

@@ -19,6 +19,14 @@ class PageController extends Controller
         $pengerajins = \App\Models\Pengerajin::inRandomOrder()->take(8)->get();
         $usahas = \App\Models\Usaha::inRandomOrder()->take(6)->get();
 
+        // Semua usaha yang punya koordinat — utk peta eksplorasi di homepage.
+        // Eager-load user agar @username di popup tidak N+1.
+        $usahasWithLocation = \App\Models\Usaha::query()
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->with(['user:id,username'])
+            ->get(['id', 'nama_usaha', 'foto_usaha', 'deskripsi_usaha', 'latitude', 'longitude', 'user_id']);
+
         return view('guest.pages.index', [
             'kategoris' => $kategoris,
             'categoryGroups' => $categoryGroups,
@@ -27,6 +35,7 @@ class PageController extends Controller
             'randomProduks' => $randomProduks,
             'pengerajins' => $pengerajins,
             'usahas' => $usahas,
+            'usahasWithLocation' => $usahasWithLocation,
         ]);
     }
 
@@ -268,6 +277,16 @@ class PageController extends Controller
         $kategoris = KategoriProduk::ordered()->get();
         $categoryGroups = $kategoris->where('sort_order', '>', 0)->groupBy('category_type');
 
+        // Toko sekitar utk peta "Toko di Sekitar" — semua usaha yg punya koordinat
+        // (termasuk usaha ini, di-highlight beda di peta). Limit 50 — scope kecil
+        // jadi belum perlu spatial query / clustering.
+        $nearbyUsahas = \App\Models\Usaha::query()
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->with(['user:id,username'])
+            ->limit(50)
+            ->get(['id', 'nama_usaha', 'foto_usaha', 'deskripsi_usaha', 'latitude', 'longitude', 'user_id']);
+
         return view('guest.pages.detail-usaha', [
             'usaha'                 => $usaha,
             'produks'               => $produks,
@@ -276,6 +295,7 @@ class PageController extends Controller
             'selectedKategoriSlugs' => $selectedKategoriSlugs,
             'categoryGroups'        => $categoryGroups,
             'categoryTypeLabels'    => KategoriProduk::TYPE_LABELS,
+            'nearbyUsahas'          => $nearbyUsahas,
         ]);
     }
 

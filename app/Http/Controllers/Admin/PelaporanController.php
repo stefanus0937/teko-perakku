@@ -42,9 +42,8 @@ class PelaporanController extends Controller
         
         $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
         
-        $lastLaporan = Pelaporan::orderBy('id', 'desc')->first();
-        $nextId = $lastLaporan ? $lastLaporan->id + 1 : 1;
-        $autoKode = 'LAP' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+        // Kode di-prefill di form (read-only). Final kode di-regenerate server-side.
+        $autoKode = \App\Support\KodeGenerator::next('LAP', 'pelaporan');
 
         $layout = $user->role == 'umkm' ? 'layouts.umkm' : 'layouts.admin_premium';
         return view('admin.pelaporan.create-pelaporan', compact('usahas', 'months', 'autoKode', 'layout'));
@@ -74,7 +73,13 @@ class PelaporanController extends Controller
             }
         }
 
-        Pelaporan::create($request->all());
+        $data = $request->all();
+        \App\Support\KodeGenerator::safeCreate(
+            function (string $kode) use ($data) {
+                return Pelaporan::create(array_merge($data, ['kode_laporan' => $kode]));
+            },
+            'LAP', 'pelaporan', 'kode_laporan'
+        );
 
         return redirect()->route('admin.pelaporan-index')
             ->with('success', 'Laporan berhasil ditambahkan.');

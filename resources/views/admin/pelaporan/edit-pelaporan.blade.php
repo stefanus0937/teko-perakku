@@ -93,7 +93,7 @@
         <div class="form-column">
             @if(count($usahas) > 1)
             <div class="form-group">
-                <label>Usaha</label>
+                <label class="label-required">Usaha</label>
                 <select name="usaha_id" class="form-input" required>
                     <option value="">Pilih Usaha</option>
                     @foreach($usahas as $u)
@@ -105,7 +105,7 @@
                 <input type="hidden" name="usaha_id" value="{{ $usahas->first()->id }}">
             @endif
             <div class="form-group">
-                <label>Omset</label>
+                <label class="label-required">Omset</label>
                 <input type="number" name="omset" class="form-input" value="{{ (int)$laporan->omset }}" required>
             </div>
             <div class="form-group">
@@ -117,7 +117,7 @@
         <!-- Right Column -->
         <div class="form-column">
             <div class="form-group">
-                <label>Bulan</label>
+                <label class="label-required">Bulan</label>
                 <select name="bulan" class="form-input" required>
                     <option value="">Pilih Bulan</option>
                     @foreach($months as $m)
@@ -126,7 +126,7 @@
                 </select>
             </div>
             <div class="form-group">
-                <label>Tahun</label>
+                <label class="label-required">Tahun</label>
                 <select name="tahun" class="form-input" required>
                     <option value="">Pilih Tahun</option>
                     @for($i = date('Y'); $i >= 2020; $i--)

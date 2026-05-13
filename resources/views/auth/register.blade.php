@@ -12,7 +12,7 @@
         <form action="{{ route('register') }}" method="POST">
             @csrf
             <div class="form-group mb-3">
-                <label for="username" class="form-label">Username</label>
+                <label for="username" class="form-label label-required">Username</label>
                 <input type="text" name="username" id="username" class="form-control" placeholder="masukkan Username" value="{{ old('username') }}" required />
                 @error('username')
                     <small class="text-danger">{{ $message }}</small>
@@ -20,7 +20,7 @@
             </div>
 
             <div class="form-group mb-3">
-                <label for="email" class="form-label">Email</label>
+                <label for="email" class="form-label label-required">Email</label>
                 <input type="email" name="email" id="email" class="form-control" placeholder="masukkan Email" value="{{ old('email') }}" required />
                 @error('email')
                     <small class="text-danger">{{ $message }}</small>
@@ -28,7 +28,7 @@
             </div>
             
             <div class="form-group mb-3">
-                <label for="password" class="form-label">Kata Sandi</label>
+                <label for="password" class="form-label label-required">Kata Sandi</label>
                 <div class="input-group">
                     <input type="password" name="password" id="password" class="form-control" placeholder="masukkan kata Sandi" required />
                     <button type="button" class="btn btn-outline-secondary" id="togglePassword">
@@ -41,7 +41,7 @@
             </div>
 
             <div class="form-group mb-4">
-                <label for="password_confirmation" class="form-label">Konfirmasi Kata Sandi</label>
+                <label for="password_confirmation" class="form-label label-required">Konfirmasi Kata Sandi</label>
                 <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" placeholder="ulangi kata Sandi" required />
             </div>
 

@@ -197,6 +197,29 @@
         background: #f0f0f0;
     }
 
+    .dataTables_paginate span {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .paginate_button {
+        width: 36px;
+        height: 36px;
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #6b7280 !important;
+        text-decoration: none !important;
+        transition: all 0.2s;
+        cursor: pointer;
+        background: transparent !important;
+        border: none !important;
+    }
+
     /* Action Dropdown */
     .dropdown {
         position: relative;
@@ -232,9 +255,7 @@
         background-color: #f5f5f5;
     }
 
-    .dropdown:hover .dropdown-content {
-        display: block;
-    }
+    /* Click-toggle handled centrally in admin.css (.dropdown.is-open). */
 </style>
 @stop
 
@@ -264,7 +285,7 @@
     </thead>
     <tbody>
         @foreach ($admins as $admin)
-            <tr>
+            <tr data-row-href="{{ route('admin.manage.edit', $admin->id) }}" tabindex="0">
                 <td>{{ $admin->username }}</td>
                 <td style="font-weight: 600; color: #1a1a1a;">{{ $admin->nama ?? '-' }}</td>
                 <td>{{ $admin->email }}</td>

@@ -36,10 +36,9 @@ class PengerajinController extends Controller
             $usahas = Usaha::all();
         }
 
-        // Generate automatic code
-        $lastPengerajin = Pengerajin::orderBy('id', 'desc')->first();
-        $nextId = $lastPengerajin ? $lastPengerajin->id + 1 : 1;
-        $autoKode = 'PRJ' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
+        // Kode di-prefill di form (read-only). Kode FINAL di-regenerate server-side
+        // saat store() pakai KodeGenerator::safeCreate (race-safe).
+        $autoKode = \App\Support\KodeGenerator::next('PNG', 'pengerajin');
         
         $wilayahs = Wilayah::all();
 
@@ -94,7 +93,13 @@ class PengerajinController extends Controller
             $data['foto_pengerajin'] = $path;
         }
 
-        $pengerajin = Pengerajin::create($data);
+        // Regenerate kode server-side (abaikan input form) → race-safe via retry.
+        $pengerajin = \App\Support\KodeGenerator::safeCreate(
+            function (string $kode) use ($data) {
+                return Pengerajin::create(array_merge($data, ['kode_pengerajin' => $kode]));
+            },
+            'PNG', 'pengerajin', 'kode_pengerajin'
+        );
 
         if ($request->has('usaha_ids')) {
             foreach ($request->usaha_ids as $usahaId) {

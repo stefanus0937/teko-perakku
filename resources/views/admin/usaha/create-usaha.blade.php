@@ -227,7 +227,7 @@
                 <input type="text" name="kode_usaha" class="form-input" value="{{ $autoKode }}" readonly>
             </div>
             <div class="form-group">
-                <label>Nama Usaha</label>
+                <label class="label-required">Nama Usaha</label>
                 <input type="text" name="nama_usaha" class="form-input" placeholder="Masukkan nama usaha" required>
             </div>
             <div class="form-group">
@@ -235,15 +235,15 @@
                 <input type="text" name="telp_usaha" class="form-input" placeholder="Masukkan nomor telepon" required>
             </div>
             <div class="form-group">
-                <label>Username</label>
+                <label class="label-required">Username</label>
                 <input type="text" name="username" class="form-input" placeholder="Masukkan username" required>
             </div>
             <div class="form-group">
-                <label>Email</label>
+                <label class="label-required">Email</label>
                 <input type="email" name="email" class="form-input" placeholder="Masukkan email" required>
             </div>
             <div class="form-group">
-                <label>Password</label>
+                <label class="label-required">Password</label>
                 <input type="password" name="password" class="form-input" placeholder="Masukkan password" required>
             </div>
             <div class="form-group">
@@ -256,7 +256,7 @@
                 </select>
             </div>
             <div class="form-group">
-                <label>Wilayah</label>
+                <label class="label-required">Wilayah</label>
                 <select name="wilayah_id" class="form-input" required>
                     <option value="">Pilih Wilayah</option>
                     @foreach($wilayahs as $w)

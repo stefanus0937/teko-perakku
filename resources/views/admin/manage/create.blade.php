@@ -162,7 +162,7 @@
             <div class="fields-grid">
                 <!-- Username -->
                 <div class="form-group">
-                    <label>Username</label>
+                    <label class="label-required">Username</label>
                     <input type="text" name="username" class="form-control" placeholder="Masukkan Username" value="{{ old('username') }}" required>
                 </div>
 
@@ -202,19 +202,19 @@
 
                 <!-- Email -->
                 <div class="form-group">
-                    <label>Email</label>
+                    <label class="label-required">Email</label>
                     <input type="email" name="email" class="form-control" placeholder="Masukkan Email" value="{{ old('email') }}" required>
                 </div>
 
                 <!-- Password -->
                 <div class="form-group">
-                    <label>Password</label>
+                    <label class="label-required">Password</label>
                     <input type="password" name="password" class="form-control" placeholder="Masukkan Password" required>
                 </div>
 
                 <!-- Status Admin -->
                 <div class="form-group">
-                    <label>Status Admin</label>
+                    <label class="label-required">Status Admin</label>
                     <select name="role" id="role-select" class="form-control" required onchange="toggleWilayah()">
                         <option value="admin_utama" {{ old('role') == 'admin_utama' ? 'selected' : '' }}>Admin Utama</option>
                         <option value="admin_wilayah" {{ old('role') == 'admin_wilayah' ? 'selected' : '' }}>Admin Wilayah</option>

@@ -284,15 +284,15 @@
                 <input type="text" name="kode_produk" class="form-input" value="{{ $autoKode }}" readonly>
             </div>
             <div class="form-group">
-                <label>Nama Produk</label>
+                <label class="label-required">Nama Produk</label>
                 <input type="text" name="nama_produk" class="form-input" placeholder="Masukkan nama produk" required>
             </div>
             <div class="form-group">
-                <label>Harga</label>
+                <label class="label-required">Harga</label>
                 <input type="number" name="harga" class="form-input" placeholder="Rp. 0" required>
             </div>
             <div class="form-group">
-                <label class="form-label">Kategori Produk</label>
+                <label class="form-label label-required">Kategori Produk</label>
                 <select name="kategori_produk_id[]" id="kategoriSelect" multiple required>
                     @foreach($kategoriProduks as $kat)
                         <option value="{{ $kat->id }}">{{ $kat->nama_kategori_produk }}</option>
@@ -301,7 +301,7 @@
             </div>
             @if(count($usahas) > 1)
             <div class="form-group">
-                <label>Pemilik (Usaha)</label>
+                <label class="label-required">Pemilik (Usaha)</label>
                 <select name="usaha_id" class="form-input" required>
                     <option value="">Pilih Usaha</option>
                     @foreach($usahas as $u)
@@ -362,7 +362,7 @@
             </div>
 
             <div class="form-group" style="margin-top: 40px;">
-                <label>Deskripsi</label>
+                <label class="label-required">Deskripsi</label>
                 <textarea name="deskripsi" class="form-input" rows="10" placeholder="Masukkan deskripsi produk" required></textarea>
             </div>
         </div>

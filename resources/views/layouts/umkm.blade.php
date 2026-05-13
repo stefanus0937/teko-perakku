@@ -135,6 +135,10 @@
         });
         @endif
     </script>
+
+    {{-- Shared UI behaviors: clickable rows + click-toggle action dropdowns --}}
+    @include('partials._admin-shell-js')
+
     @yield('js')
 </body>
 </html>

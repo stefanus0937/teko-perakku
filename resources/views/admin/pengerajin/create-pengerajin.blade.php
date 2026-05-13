@@ -174,22 +174,22 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Nama</label>
+                    <label class="form-label label-required">Nama</label>
                     <input type="text" name="nama_pengerajin" class="form-input" placeholder="Masukkan Nama" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">No Handphone</label>
+                    <label class="form-label label-required">No Handphone</label>
                     <input type="text" name="telp_pengerajin" class="form-input" placeholder="Masukkan No Handphone" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Email</label>
+                    <label class="form-label label-required">Email</label>
                     <input type="email" name="email_pengerajin" class="form-input" placeholder="Masukkan Email" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Wilayah</label>
+                    <label class="form-label label-required">Wilayah</label>
                     <select name="wilayah_id" class="form-input" required>
                     <option value="">Pilih Wilayah</option>
                     @foreach($wilayahs as $w)
@@ -202,7 +202,7 @@
             <!-- Middle Column -->
             <div class="col-form">
                 <div class="form-group">
-                    <label class="form-label">Gender</label>
+                    <label class="form-label label-required">Gender</label>
                     <select name="jk_pengerajin" class="form-input" required>
                         <option value="" disabled selected>Pilih Gender</option>
                         <option value="P">Pria</option>
@@ -211,12 +211,12 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Usia</label>
+                    <label class="form-label label-required">Usia</label>
                     <input type="number" name="usia_pengerajin" class="form-input" placeholder="Masukkan Usia" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Alamat</label>
+                    <label class="form-label label-required">Alamat</label>
                     <textarea name="alamat_pengerajin" class="form-input" rows="4" placeholder="Masukkan Alamat" required></textarea>
                 </div>
 

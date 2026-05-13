@@ -241,7 +241,7 @@
                 <input type="text" name="kode_usaha" class="form-input" value="{{ $usaha->kode_usaha }}" readonly>
             </div>
             <div class="form-group">
-                <label>Nama Usaha</label>
+                <label class="label-required">Nama Usaha</label>
                 <input type="text" name="nama_usaha" class="form-input" value="{{ $usaha->nama_usaha }}" required>
             </div>
             <div class="form-group">
@@ -249,11 +249,11 @@
                 <input type="text" name="telp_usaha" class="form-input" value="{{ $usaha->telp_usaha }}" required>
             </div>
             <div class="form-group">
-                <label>Username</label>
+                <label class="label-required">Username</label>
                 <input type="text" name="username" class="form-input" value="{{ $usaha->user->username ?? '' }}" required>
             </div>
             <div class="form-group">
-                <label>Email</label>
+                <label class="label-required">Email</label>
                 <input type="email" name="email" class="form-input" value="{{ $usaha->user->email ?? '' }}" required>
             </div>
             <div class="form-group">

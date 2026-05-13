@@ -2072,3 +2072,12 @@ div > .dropdown-menu {
 /* Footer social icons — replaces repeated inline color/font-size */
 .footer-social { display: flex; gap: 14px; align-items: center; }
 .footer-social a { color: #ffffff; font-size: 22px; }
+
+/* Required-field marker (digunakan di form auth/contact + admin forms) */
+.label-required::after {
+    content: ' *';
+    color: #dc2626;
+    font-weight: 700;
+    margin-left: 2px;
+}
+body.dark-mode .label-required::after { color: #f87171; }

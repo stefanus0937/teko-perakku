@@ -42,9 +42,8 @@ class UsahaController extends Controller
         }
         $pengerajins = Pengerajin::all();
         
-        $lastUsaha = Usaha::orderBy('id', 'desc')->first();
-        $nextId = $lastUsaha ? $lastUsaha->id + 1 : 1;
-        $autoKode = 'PR' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+        // Kode di-prefill di form (read-only). Final kode di-regenerate server-side.
+        $autoKode = \App\Support\KodeGenerator::next('UMK', 'usaha');
 
         return view('admin.usaha.create-usaha', compact('wilayahs', 'pengerajins', 'autoKode'));
     }
@@ -139,7 +138,13 @@ class UsahaController extends Controller
             $data['foto_tempat'] = $gallery;
         }
 
-        $usaha = Usaha::create($data);
+        // Regenerate kode server-side (abaikan input form) → race-safe via retry.
+        $usaha = \App\Support\KodeGenerator::safeCreate(
+            function (string $kode) use ($data) {
+                return Usaha::create(array_merge($data, ['kode_usaha' => $kode]));
+            },
+            'UMK', 'usaha', 'kode_usaha'
+        );
 
         // 4. Link Pengerajin if selected
         if ($request->filled('pengerajin_id')) {

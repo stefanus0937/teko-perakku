@@ -328,15 +328,15 @@
                 <input type="text" name="kode_produk" class="form-input" value="{{ $produk->kode_produk }}" readonly>
             </div>
             <div class="form-group">
-                <label>Nama Produk</label>
+                <label class="label-required">Nama Produk</label>
                 <input type="text" name="nama_produk" class="form-input" value="{{ $produk->nama_produk }}" required>
             </div>
             <div class="form-group">
-                <label>Harga</label>
+                <label class="label-required">Harga</label>
                 <input type="number" name="harga" class="form-input" value="{{ $produk->harga }}" required>
             </div>
             <div class="form-group">
-                <label class="form-label">Kategori Produk</label>
+                <label class="form-label label-required">Kategori Produk</label>
                 @php
                     $selectedKategories = $produk->kategoriProduk->pluck('id')->toArray();
                 @endphp
@@ -348,7 +348,7 @@
             </div>
             @if(count($usahas) > 1)
             <div class="form-group">
-                <label>Pemilik (Usaha)</label>
+                <label class="label-required">Pemilik (Usaha)</label>
                 <select name="usaha_id" class="form-input" required>
                     <option value="">Pilih Usaha</option>
                     @foreach($usahas as $u)
@@ -425,7 +425,7 @@
             </div>
 
             <div class="form-group" style="margin-top: 40px;">
-                <label>Deskripsi</label>
+                <label class="label-required">Deskripsi</label>
                 <textarea name="deskripsi" class="form-input" rows="10" required>{{ $produk->deskripsi }}</textarea>
             </div>
         </div>

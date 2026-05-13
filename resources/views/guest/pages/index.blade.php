@@ -232,6 +232,23 @@
     </div>
 </section>
 
+{{-- ── Peta Toko Perak (multi-marker eksplorasi) ── --}}
+@if (isset($usahasWithLocation) && $usahasWithLocation->isNotEmpty())
+    <section class="usaha-map-section">
+        <div class="container">
+            <div class="section-heading">
+                <h2>Peta Toko Perak Kotagede</h2>
+                <span>Jelajahi lokasi toko-toko perak di peta — klik marker untuk melihat detail.</span>
+            </div>
+            @include('partials._usaha-map', [
+                'usahas' => $usahasWithLocation,
+                'mapId'  => 'usaha-map-home',
+                'height' => '460px',
+            ])
+        </div>
+    </section>
+@endif
+
 <section class="about-us">
     <div class="container">
         <div class="row align-items-center">

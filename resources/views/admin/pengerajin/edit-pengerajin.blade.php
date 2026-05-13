@@ -176,21 +176,21 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Nama</label>
+                    <label class="form-label label-required">Nama</label>
                     <input type="text" name="nama_pengerajin" class="form-input" value="{{ $pengerajin->nama_pengerajin }}" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">No Handphone</label>
+                    <label class="form-label label-required">No Handphone</label>
                     <input type="text" name="telp_pengerajin" class="form-input" value="{{ $pengerajin->telp_pengerajin }}" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Email</label>
+                    <label class="form-label label-required">Email</label>
                     <input type="email" name="email_pengerajin" class="form-input" value="{{ $pengerajin->email_pengerajin }}" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Wilayah</label>
+                    <label class="form-label label-required">Wilayah</label>
                     <select name="wilayah_id" class="form-input" required>
                     @foreach($wilayahs as $w)
                         <option value="{{ $w->id }}"
@@ -205,7 +205,7 @@
             <!-- Middle Column -->
             <div class="col-form">
                 <div class="form-group">
-                    <label class="form-label">Gender</label>
+                    <label class="form-label label-required">Gender</label>
                     <select name="jk_pengerajin" class="form-input" required>
                         <option value="P" {{ $pengerajin->jk_pengerajin == 'P' ? 'selected' : '' }}>Pria</option>
                         <option value="W" {{ $pengerajin->jk_pengerajin == 'W' ? 'selected' : '' }}>Wanita</option>
@@ -213,12 +213,12 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Usia</label>
+                    <label class="form-label label-required">Usia</label>
                     <input type="number" name="usia_pengerajin" class="form-input" value="{{ $pengerajin->usia_pengerajin }}" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Alamat</label>
+                    <label class="form-label label-required">Alamat</label>
                     <textarea name="alamat_pengerajin" class="form-input" rows="4" required>{{ $pengerajin->alamat_pengerajin }}</textarea>
                 </div>
 

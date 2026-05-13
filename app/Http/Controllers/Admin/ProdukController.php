@@ -47,9 +47,9 @@ class ProdukController extends Controller
             $usahas = Usaha::all();
         }
         
-        $lastProduk = Produk::orderBy('id', 'desc')->first();
-        $nextId = $lastProduk ? $lastProduk->id + 1 : 1;
-        $autoKode = 'PRD' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+        // Kode di-prefill di form (read-only). Final kode di-regenerate server-side
+        // saat store() pakai KodeGenerator::safeCreate (race-safe).
+        $autoKode = \App\Support\KodeGenerator::next('PRD', 'produk');
 
         $layout = $user->role == 'umkm' ? 'layouts.umkm' : 'layouts.admin_premium';
         return view('admin.produk.create-produk', compact('kategoriProduks', 'usahas', 'autoKode', 'layout'));
@@ -123,7 +123,13 @@ class ProdukController extends Controller
             $produkData['video_produk'] = $request->file('video_produk')->store('video_produk', 'public');
         }
 
-        $produk = Produk::create($produkData);
+        // Regenerate kode server-side (abaikan input form) → race-safe via retry.
+        $produk = \App\Support\KodeGenerator::safeCreate(
+            function (string $kode) use ($produkData) {
+                return Produk::create(array_merge($produkData, ['kode_produk' => $kode]));
+            },
+            'PRD', 'produk', 'kode_produk'
+        );
 
         // Sync with Categories
         $produk->kategoriProduk()->sync($request->kategori_produk_id);
