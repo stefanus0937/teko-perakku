@@ -174,7 +174,7 @@
     align-items: center;
     justify-content: center;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    opacity: 0; /* Sembunyikan secara default */
+    opacity: 0;
 }
 
 /* Tampilkan tombol saat container di-hover */
@@ -195,20 +195,15 @@
     right: 15px;
 }
 
-/* Style untuk thumbnail yang aktif */
 .thumbnail-item.active {
     border-color: #980808;
 }
 
 .thumb-nav-btn:focus,
 .thumb-nav-btn:active {
-    outline: none; /* Menghilangkan outline utama */
+    outline: none;
 }
 
-
-/* ==========================================================
-   CSS FINAL INFORMASI PRODUK (KOLOM KANAN)
-   ========================================================== */
 
 .right-content {
     padding-left: 40px;
@@ -304,10 +299,6 @@
     background-color: #ffffff;
 }
 
-/* ============================================================
-   Shop Card — single-row horizontal (matches Figma design)
-   avatar | nama + @handle | chat icon | "Kunjungi Toko" button
-   ============================================================ */
 .shop-card {
     display: flex;
     align-items: center;
@@ -325,7 +316,7 @@
 
 .shop-card__info {
     flex: 1;
-    min-width: 0;            /* allow ellipsis */
+    min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -413,7 +404,6 @@
     outline-offset: 2px;
 }
 
-/* Wrapper for social icons row — give breathing space below the shop card */
 .usaha-actions-wrapper {
     border-top: 1px solid #e4e4e7;
     padding-top: 14px;
@@ -511,18 +501,14 @@ body.dark-mode .usaha-actions-wrapper {
     padding-top: 15px;
 }
 
-/* =========================================
-   STYLING IKON SOSIAL MEDIA
-   ========================================= */
 
-/* Aturan dasar untuk setiap ikon (lingkaran) */
 .social-icon {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 36px;
     height: 36px;
-    border-radius: 50%; /* Membuat bentuknya bulat */
+    border-radius: 50%; 
     color: #fff;
     font-size: 16px;
     text-decoration: none;
@@ -530,18 +516,15 @@ body.dark-mode .usaha-actions-wrapper {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* Efek saat kursor di atas ikon */
 .social-icon:hover {
-    transform: translateY(-2px); /* Sedikit terangkat */
+    transform: translateY(-2px); 
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
-/* Ukuran untuk ikon Font Awesome di dalam lingkaran */
 .social-icon i {
-    line-height: 1; /* Memastikan ikon center vertikal */
+    line-height: 1; 
 }
 
-/* Ukuran untuk gambar (Shopee/Tokped) di dalam lingkaran */
 .social-icon img {
     width: 18px;
     height: auto;
@@ -590,11 +573,15 @@ body.dark-mode .usaha-actions-wrapper {
     color: #2a2a2a;
 }
 
-.product-details p {
-        font-size: 12px;
-        font-weight:lighter;
-        margin-bottom: 12px;
-    }
+/* Specificity dinaikkan dengan prefix #product .right-content supaya menang
+   melawan templatemo-hexashop.css → #product .right-content p (1,1,1)
+   yang men-set color #aaaaaa. */
+#product .right-content .product-details p {
+    font-size: 14px;
+    font-weight: 400;
+    margin-bottom: 12px;
+    color: #4b5563;
+}
 
 /* ========== PRODUK TERKAIT SECTION ========== */
 .section {
@@ -727,9 +714,6 @@ body.dark-mode .usaha-actions-wrapper {
     }
 }
 
-/* =========================================================================
-   Review section (moved from single-product.blade.php inline <style>)
-   ========================================================================= */
 .btn-icon.active i { color: #ef4444; }
 #favoritBtn i { transition: all 0.3s ease; }
 
@@ -946,11 +930,13 @@ body.dark-mode .usaha-actions-wrapper {
     border: 1px solid #eee;
 }
 
-/* Teknik description box */
-.teknik-box p {
+/* Teknik description box.
+   Specificity dinaikkan (1,1,2) supaya menang melawan
+   #product .right-content p (1,1,1) dari templatemo-hexashop.css. */
+#product .right-content #teknik-box p {
     font-size: 12px;
     font-style: italic;
     font-weight: normal;
-    color: #906f6f;
+    color: #812b2b;
     margin: 0;
 }

@@ -46,13 +46,13 @@
             top: 40px;
             right: 40px;
             background: #fff;
-            border: 1px solid #e0e0e0;
+            border: 1.5px solid #980808;
             padding: 10px 35px;
             border-radius: 10px;
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
-            color: #555;
+            color: #980808;
             text-decoration: none;
             transition: all 0.2s ease;
             box-shadow: 0 4px 10px rgba(0,0,0,0.03);
@@ -60,10 +60,24 @@
         }
 
         .edit-btn:hover {
-            background: #f9f9f9;
+            background: #980808;
+            border-color: #980808;
+            color: #fff;
             transform: translateY(-1px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(152, 8, 8, 0.25);
         }
+
+        .form-control {
+            background: #f8fafc;
+            border-color: #e5e7eb;
+        }
+
+        .form-control:focus {
+            background: #fff;
+            border-color: #980808;
+        }
+
+        
 
         .profile-form {
             display: grid;

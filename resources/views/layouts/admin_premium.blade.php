@@ -118,6 +118,9 @@
                 <a href="{{ route('admin.pelaporan-index') }}" class="menu-item {{ request()->routeIs('admin.pelaporan*') ? 'active' : '' }}">
                     <i class="fas fa-file-alt"></i> Pelaporan
                 </a>
+                <a href="{{ route('pengaturan') }}" class="menu-item {{ request()->routeIs('pengaturan') ? 'active' : '' }}">
+                    <i class="fas fa-cog"></i> Pengaturan
+                </a>
                 <form action="{{ route('logout') }}" method="POST" id="logout-form" style="display: none;">
                     @csrf
                 </form>

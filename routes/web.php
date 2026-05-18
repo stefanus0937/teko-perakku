@@ -79,7 +79,13 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('favorit/{id}', [\App\Http\Controllers\User\FavoritController::class, 'destroy'])->name('favorit.destroy');
 
     Route::get('pengaturan', function() {
-        $layout = auth()->user()->role == 'umkm' ? 'layouts.umkm' : 'layouts.user';
+        // Pilih layout sesuai role — admin pakai admin_premium, umkm pakai umkm, user pakai user.
+        $role = auth()->user()->role ?? 'user';
+        $layout = match (true) {
+            in_array($role, ['admin_utama', 'admin_wilayah']) => 'layouts.admin_premium',
+            $role === 'umkm' => 'layouts.umkm',
+            default          => 'layouts.user',
+        };
         return view('user.pengaturan', compact('layout'));
     })->name('pengaturan');
 

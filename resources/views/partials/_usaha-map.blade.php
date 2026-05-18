@@ -312,6 +312,7 @@
             color: #ffffff;
             font-size: 18px;
         }
+        
     </style>
 @endonce
 

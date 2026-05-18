@@ -246,6 +246,9 @@
     </div>
 </div>
 
+{{-- Hapus Akun: tidak tersedia untuk admin (admin_utama / admin_wilayah).
+     Sengaja tidak di-render — script di bawah juga aman karena pakai if(btnOpen). --}}
+@if (!in_array(auth()->user()->role ?? '', ['admin_utama', 'admin_wilayah']))
 <div class="delete-account-card" id="btn-open-delete">
     <div class="delete-label">
         <i class="fas fa-biohazard"></i> Hapus Akun
@@ -271,6 +274,7 @@
         </div>
     </div>
 </div>
+@endif
 @endsection
 
 @section('js')

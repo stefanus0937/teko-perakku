@@ -3,8 +3,11 @@
 @section('title', $produk->nama_produk)
 
 @push('styles')
-    {{-- Memuat file CSS khusus untuk halaman ini (review-section & rating-input styles ada di sini) --}}
-    <link rel="stylesheet" href="{{ asset('assets/css/detail-product.css') }}">
+    {{-- Memuat file CSS khusus untuk halaman ini (review-section & rating-input styles ada di sini).
+         ?v=filemtime → cache-bust otomatis tiap kali file CSS diubah, jadi edit langsung kelihatan
+         tanpa perlu Ctrl+F5. --}}
+    <link rel="stylesheet"
+          href="{{ asset('assets/css/detail-product.css') }}?v={{ filemtime(public_path('assets/css/detail-product.css')) }}">
 @endpush
 
 @section('content')
@@ -226,7 +229,7 @@
 
                             @foreach($produk->kategoriProduk as $kategori)
                                 @if(isset($teknikDescriptions[$kategori->nama_kategori_produk]))
-                                    <div class="teknik-box">
+                                    <div id="teknik-box">
                                         <p>
                                             - {{ $kategori->nama_kategori_produk }} : {{ $teknikDescriptions[$kategori->nama_kategori_produk] }}
                                         </p>

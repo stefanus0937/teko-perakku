@@ -74,24 +74,36 @@
 
     .ubah-btn {
         background: #fff;
-        border: 1px solid #e2e8f0;
+        border: 1.5px solid #980808;
         padding: 10px 24px;
         border-radius: 10px;
         font-size: 14px;
         font-weight: 600;
-        color: #1f2937;
+        color: #980808;
         text-decoration: none;
         transition: all 0.2s;
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        box-shadow: 0 1px 2px rgba(152, 8, 8, 0.08);
     }
 
     .ubah-btn:hover {
-        background: #f8fafc;
-        border-color: #cbd5e1;
+        background: #980808;
+        border-color: #980808;
+        color: #fff;
         transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(152, 8, 8, 0.25);
+    }
+
+    .form-control {
+        background: #f8fafc;
+        border-color: #e5e7eb;
+    }
+
+    .form-control:focus {
+        background: #fff;
+        border-color: #980808;
     }
 
     .info-grid {

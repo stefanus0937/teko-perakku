@@ -248,6 +248,16 @@
             grid-template-columns: 1fr;
         }
     }
+.location-wrapper {
+    margin-top: 20px;
+}
+
+.location-map {
+    height: 300px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+}
 </style>
 @endsection
 

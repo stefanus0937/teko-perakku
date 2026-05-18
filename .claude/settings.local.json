@@ -9,7 +9,8 @@
       "Bash(grep -cn \"color:\\\\s*#333\\\\|color:\\\\s*#000\\\\|color:\\\\s*#111\" public/assets/css/templatemo-hexashop.css public/assets/css/index-css.css public/assets/css/detail-product.css public/assets/css/detail-usaha.css)",
       "Bash(rm -f public/assets/css/tp-bootstrap-shim.css public/assets/css/tp-components.css public/assets/js/tp-dropdown.js)",
       "Bash(ls public/assets/css/tp-*)",
-      "Bash(ls public/assets/js/tp-*)"
+      "Bash(ls public/assets/js/tp-*)",
+      "Bash(grep -iE \"\\(p \\\\{|p,|p$|product|teknik|right-content|down-content\\)\")"
     ]
   }
 }
