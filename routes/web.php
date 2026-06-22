@@ -20,6 +20,17 @@ use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\PelaporanController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ReviewController;
+use Illuminate\Http\Request;
+
+Route::post('/language', function (Request $request) {
+    $validated = $request->validate([
+        'locale' => ['required', 'in:id,en'],
+    ]);
+
+    session(['locale' => $validated['locale']]);
+
+    return back();
+})->name('language.switch');
 
 // Authentication Routes
 Route::get('login', [AuthController::class, 'showLoginForm'])->name('loginForm');

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 
 <head>
 
@@ -86,7 +86,7 @@
 
             {{-- Kolom 2: Kategori --}}
             <div class="col-lg-2 col-md-6 mb-4">
-                <h5 class="footer-title">Kategori</h5>
+                <h5 class="footer-title">{{ __('footer.categories') }}</h5>
                 <ul class="footer-list">
                     @foreach ($randomKategoris->take(4) as $kategori) {{-- Batasi 4 item --}}
                         <li>
@@ -100,17 +100,17 @@
 
             {{-- Kolom 3: Informasi Kami --}}
             <div class="col-lg-3 col-md-6 mb-4">
-                <h5 class="footer-title">Informasi Kami</h5>
+                <h5 class="footer-title">{{ __('footer.our_information') }}</h5>
                 <ul class="footer-list">
-                    <li><a href="{{ route('guest-index') }}">Beranda</a></li>
-                    <li><a href="{{ route('guest-about') }}">Tentang Kami</a></li>
-                    <li><a href="{{ route('guest-contact') }}">Kontak Kami</a></li>
+                    <li><a href="{{ route('guest-index') }}">{{ __('navigation.home') }}</a></li>
+                    <li><a href="{{ route('guest-about') }}">{{ __('navigation.about') }}</a></li>
+                    <li><a href="{{ route('guest-contact') }}">{{ __('navigation.contact_us') }}</a></li>
                 </ul>
             </div>
 
             {{-- Kolom 4: Sosial Media --}}
             <div class="col-lg-3 col-md-6 mb-4">
-                <h5 class="footer-title">Sosial Media</h5>
+                <h5 class="footer-title">{{ __('footer.social_media') }}</h5>
 
                 <div class="footer-social">
                     <a href="https://web.facebook.com/people/Kemantren-Kotagede/pfbid0vbSxN13HcQ5xwfYhn4Qm3wfbFVcGr6QPzh6mYxuRzJwdkZXy41TRf8AqbXVKo4Ttl/" target="_blank">
@@ -130,7 +130,7 @@
         {{-- Copyright --}}
         <div class="row mt-4">
             <div class="col-12 text-center">
-                <p class="footer-copy">Copyright © 2026 | All Rights Reserved.</p>
+                <p class="footer-copy">{{ __('footer.copyright') }}</p>
             </div>
         </div>
     </div>

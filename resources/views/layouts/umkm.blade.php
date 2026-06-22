@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,27 +22,27 @@
             <ul class="sidebar-menu">
                 <li class="sidebar-item">
                     <a href="{{ route('umkm.profile') }}" class="sidebar-link {{ request()->routeIs('umkm.profile') ? 'active' : '' }}">
-                        <i class="far fa-user"></i> Profil
+                        <i class="far fa-user"></i> {{ __('navigation.profile') }}
                     </a>
                 </li>
                 <li class="sidebar-item">
                     <a href="{{ route('chats.index') }}" class="sidebar-link {{ request()->routeIs('chats*') ? 'active' : '' }}">
-                        <i class="fas fa-comments"></i> Chat
+                        <i class="fas fa-comments"></i> {{ __('navigation.chat') }}
                     </a>
                 </li>
                 <li class="sidebar-item">
                     <a href="{{ route('admin.produk-index') }}" class="sidebar-link {{ request()->routeIs('admin.produk*') ? 'active' : '' }}">
-                        <i class="fas fa-box"></i> Produk
+                        <i class="fas fa-box"></i> {{ __('navigation.products') }}
                     </a>
                 </li>
                 <li class="sidebar-item">
                     <a href="{{ route('pengaturan') }}" class="sidebar-link {{ request()->routeIs('pengaturan') ? 'active' : '' }}">
-                        <i class="fas fa-cog"></i> Pengaturan
+                        <i class="fas fa-cog"></i> {{ __('navigation.settings') }}
                     </a>
                 </li>
                 <li class="sidebar-item">
                     <a href="{{ route('admin.pelaporan-index') }}" class="sidebar-link {{ request()->routeIs('admin.pelaporan*') ? 'active' : '' }}">
-                        <i class="fas fa-file-alt"></i> Pelaporan
+                        <i class="fas fa-file-alt"></i> {{ __('navigation.reports') }}
                     </a>
                 </li>
             </ul>

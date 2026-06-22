@@ -1,6 +1,6 @@
 @extends($layout ?? 'layouts.user')
 
-@section('title', 'Pengaturan')
+@section('title', __('settings.title'))
 
 @section('css')
 <style>
@@ -196,24 +196,24 @@
 @endsection
 
 @section('content')
-<h1 class="page-title">Pengaturan</h1>
+<h1 class="page-title">{{ __('settings.title') }}</h1>
 
 <div class="settings-card">
     <div class="setting-item">
         <div class="setting-info">
-            <i class="far fa-eye"></i> Ukuran Font
+            <i class="far fa-eye"></i> {{ __('settings.font_size') }}
         </div>
         <div class="setting-control">
             <select id="font-size-select">
-                <option value="small">Kecil</option>
-                <option value="medium" selected>Sedang</option>
-                <option value="large">Besar</option>
+                <option value="small">{{ __('settings.small') }}</option>
+                <option value="medium" selected>{{ __('settings.medium') }}</option>
+                <option value="large">{{ __('settings.large') }}</option>
             </select>
         </div>
     </div>
     <div class="setting-item">
         <div class="setting-info">
-            <i class="far fa-moon"></i> Mode Gelap
+            <i class="far fa-moon"></i> {{ __('settings.dark_mode') }}
         </div>
         <div class="setting-control">
             <label class="switch">
@@ -224,7 +224,7 @@
     </div>
     <div class="setting-item">
         <div class="setting-info">
-            <i class="far fa-bell"></i> Notifikasi Email
+            <i class="far fa-bell"></i> {{ __('settings.email_notifications') }}
         </div>
         <div class="setting-control">
             <label class="switch">
@@ -235,13 +235,16 @@
     </div>
     <div class="setting-item">
         <div class="setting-info">
-            <i class="fas fa-globe"></i> Bahasa
+            <i class="fas fa-globe"></i> {{ __('settings.language') }}
         </div>
         <div class="setting-control">
-            <select id="language-select">
-                <option value="id" selected>Indonesia</option>
-                <option value="en">English</option>
-            </select>
+            <form action="{{ route('language.switch') }}" method="POST" id="language-form">
+                @csrf
+                <select id="language-select" name="locale">
+                    <option value="id" @selected(app()->getLocale() === 'id')>{{ __('settings.indonesian') }}</option>
+                    <option value="en" @selected(app()->getLocale() === 'en')>{{ __('settings.english') }}</option>
+                </select>
+            </form>
         </div>
     </div>
 </div>
@@ -251,7 +254,7 @@
 @if (!in_array(auth()->user()->role ?? '', ['admin_utama', 'admin_wilayah']))
 <div class="delete-account-card" id="btn-open-delete">
     <div class="delete-label">
-        <i class="fas fa-biohazard"></i> Hapus Akun
+        <i class="fas fa-biohazard"></i> {{ __('settings.delete_account') }}
     </div>
     <i class="fas fa-chevron-right" style="color: #ef4444;"></i>
 </div>
@@ -263,13 +266,13 @@
         <div class="warning-icon">
             <i class="fas fa-exclamation-triangle"></i>
         </div>
-        <p class="modal-text">Apakah anda yakin untuk menghapus akun?</p>
+        <p class="modal-text">{{ __('settings.delete_confirmation') }}</p>
         <div class="modal-actions">
-            <button class="btn-modal-no" id="btn-no">Tidak</button>
+            <button class="btn-modal-no" id="btn-no">{{ __('settings.no') }}</button>
             <form action="{{ route('account.delete') }}" method="POST" style="flex: 1; display: flex;">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="btn-modal-yes">Iya</button>
+                <button type="submit" class="btn-modal-yes">{{ __('settings.yes') }}</button>
             </form>
         </div>
     </div>
@@ -322,9 +325,13 @@
 
         // 2. Font Size
         const fontSelect = document.getElementById('font-size-select');
-        const savedFont = localStorage.getItem('fontSize') || 'medium';
+        const validFontSizes = ['small', 'medium', 'large'];
+        const savedFont = validFontSizes.includes(localStorage.getItem('fontSize'))
+            ? localStorage.getItem('fontSize')
+            : 'medium';
 
         const applyFontSize = (size) => {
+            size = validFontSizes.includes(size) ? size : 'medium';
             document.body.classList.remove('font-small', 'font-medium', 'font-large');
             document.body.classList.add('font-' + size);
             fontSelect.value = size;
@@ -335,8 +342,11 @@
         fontSelect.onchange = (e) => {
             const size = e.target.value;
             localStorage.setItem('fontSize', size);
-            applyFontSize(size);
-            window.location.reload();
+            if (window.TPSettings) {
+                window.TPSettings.set('fontSize', size);
+            } else {
+                applyFontSize(size);
+            }
         };
 
         // 3. Email Notifications
@@ -346,18 +356,14 @@
         notifToggle.checked = isNotifOn;
         notifToggle.onchange = (e) => {
             localStorage.setItem('emailNotif', e.target.checked);
-            alert('Pengaturan notifikasi berhasil disimpan!');
+            alert(@json(__('settings.email_saved')));
         };
 
         // 4. Language
         const langSelect = document.getElementById('language-select');
-        const savedLang = localStorage.getItem('language') || 'id';
-
-        langSelect.value = savedLang;
+        const langForm = document.getElementById('language-form');
         langSelect.onchange = (e) => {
-            localStorage.setItem('language', e.target.value);
-            alert('Bahasa berhasil diubah ke ' + (e.target.value === 'id' ? 'Indonesia' : 'English'));
-            window.location.reload();
+            langForm.submit();
         };
     });
 </script>

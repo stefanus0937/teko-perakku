@@ -29,19 +29,19 @@
 
     $selectedKategoriItems = ($kategoris ?? collect())->whereIn('slug', $selectedKategoriSlugs);
     $kategoriButtonText = $selectedKategoriItems->isEmpty()
-        ? 'Semua Produk'
+        ? __('messages.all_products')
         : ($selectedKategoriItems->count() === 1
             ? $selectedKategoriItems->first()->nama_kategori_produk
-            : $selectedKategoriItems->count() . ' kategori dipilih');
+            : __('messages.categories_selected', ['count' => $selectedKategoriItems->count()]));
 
     $opsiUrutkan = [
-        'terbaru'      => 'Produk Terbaru',
-        'populer'      => 'Popularitas',
-        'harga-rendah' => 'Harga Terendah',
-        'harga-tinggi' => 'Harga Tertinggi',
+        'terbaru'      => __('messages.newest_products_sort'),
+        'populer'      => __('messages.popularity'),
+        'harga-rendah' => __('messages.lowest_price'),
+        'harga-tinggi' => __('messages.highest_price'),
     ];
     $urutkanAktif    = request('urutkan', 'terbaru');
-    $namaUrutkanAktif = $opsiUrutkan[$urutkanAktif] ?? 'Produk Terbaru';
+    $namaUrutkanAktif = $opsiUrutkan[$urutkanAktif] ?? __('messages.newest_products_sort');
 @endphp
 
 <form action="{{ $formAction }}" method="GET" class="w-100 catalog-filter-form">
@@ -58,7 +58,7 @@
 
             {{-- Filter Kategori --}}
             <div class="filter-group-custom filter-group-category">
-                <label for="kategoriDropdown">Kategori:</label>
+                <label for="kategoriDropdown">{{ __('navigation.categories') }}:</label>
                 <div class="dropdown">
                     <button class="form-select-custom dropdown-toggle {{ $selectedKategoriItems->isNotEmpty() ? 'filter-active' : '' }}"
                             type="button" id="kategoriDropdown"
@@ -86,8 +86,8 @@
 
                         <div class="category-filter-actions">
                             <a href="{{ $formAction . '?' . http_build_query(array_merge($extraHidden, request()->except(['kategori', 'page']))) }}"
-                               class="btn-filter-clear">Reset</a>
-                            <button type="submit" class="btn-filter-apply">Terapkan</button>
+                               class="btn-filter-clear">{{ __('messages.reset') }}</a>
+                            <button type="submit" class="btn-filter-apply">{{ __('messages.apply') }}</button>
                         </div>
                     </div>
                 </div>
@@ -111,7 +111,7 @@
 
             {{-- Filter Harga --}}
             <div class="filter-group-custom filter-group-dropdown">
-                <label for="harga-dropdown">Harga:</label>
+                <label for="harga-dropdown">{{ __('messages.price') }}:</label>
                 <div class="dropdown w-100">
                     <button class="btn-dropdown-custom {{ (request('min_harga') || request('max_harga')) ? 'filter-active' : '' }}"
                             type="button" id="harga-dropdown"
@@ -120,11 +120,11 @@
                         @if (request('min_harga') && request('max_harga'))
                             Rp {{ number_format(request('min_harga'), 0, ',', '.') }} - Rp {{ number_format(request('max_harga'), 0, ',', '.') }}
                         @elseif (request('min_harga'))
-                            Diatas Rp {{ number_format(request('min_harga'), 0, ',', '.') }}
+                            {{ __('messages.above_price', ['price' => number_format(request('min_harga'), 0, ',', '.')]) }}
                         @elseif (request('max_harga'))
-                            Dibawah Rp {{ number_format(request('max_harga'), 0, ',', '.') }}
+                            {{ __('messages.below_price', ['price' => number_format(request('max_harga'), 0, ',', '.')]) }}
                         @else
-                            Semua Harga
+                            {{ __('messages.all_prices') }}
                         @endif
                     </button>
                     <div class="dropdown-menu dropdown-menu-custom" aria-labelledby="harga-dropdown">
@@ -139,7 +139,7 @@
                                 </div>
                                 <span class="price-separator">-</span>
                                 <div class="price-input-group-new">
-                                    <label for="max_harga" class="price-label-new">Maks</label>
+                                    <label for="max_harga" class="price-label-new">{{ __('messages.max') }}</label>
                                     <input type="number" class="price-input"
                                            name="max_harga" id="max_harga"
                                            placeholder="1.000.000"
@@ -152,9 +152,9 @@
                             @endif
 
                             <div class="price-buttons-wrapper">
-                                <button type="submit" class="btn-apply-new">Terapkan</button>
+                                <button type="submit" class="btn-apply-new">{{ __('messages.apply') }}</button>
                                 <a href="{{ $formAction . '?' . http_build_query(array_merge($extraHidden, request()->except(['min_harga', 'max_harga']))) }}"
-                                   class="btn-reset-new">Reset</a>
+                                   class="btn-reset-new">{{ __('messages.reset') }}</a>
                             </div>
                         </div>
                     </div>
@@ -165,7 +165,7 @@
         {{-- Sort dropdown --}}
         @if ($showSort)
             <div class="filter-group-custom">
-                <label for="urutkanDropdown">Urut Berdasarkan:</label>
+                <label for="urutkanDropdown">{{ __('messages.sort_by') }}:</label>
                 <div class="dropdown">
                     <button class="form-select-custom dropdown-toggle {{ $urutkanAktif != 'terbaru' ? 'filter-active' : '' }}"
                             type="button" id="urutkanDropdown"

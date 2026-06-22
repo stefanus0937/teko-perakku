@@ -22,15 +22,15 @@
         <form action="{{ route('guest-katalog') }}" method="GET" class="search-container" role="search">
             <i class="fas fa-search search-icon"></i>
             <input type="search" name="search" class="search-input"
-                   placeholder="Cari Produk" value="{{ request('search') }}" autocomplete="off">
+                   placeholder="{{ __('navigation.search_products') }}" value="{{ request('search') }}" autocomplete="off">
         </form>
 
         <div class="header-actions">
             @auth
                 @if($userRole === 'user')
-                    <a href="{{ route('favorit') }}" class="action-link" aria-label="Favorit"><i class="far fa-heart"></i></a>
+                <a href="{{ route('favorit') }}" class="action-link" aria-label="{{ __('navigation.favorites') }}"><i class="far fa-heart"></i></a>
                 @endif
-                <a href="{{ route('chats.index') }}" class="action-link" aria-label="Pesan"><i class="far fa-comment-dots"></i></a>
+                <a href="{{ route('chats.index') }}" class="action-link" aria-label="{{ __('navigation.messages') }}"><i class="far fa-comment-dots"></i></a>
 
                 <div class="user-profile-trigger" id="profileTrigger" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false">
                     <div class="avatar-circle">
@@ -49,46 +49,46 @@
                             elseif (in_array($userRole, ['admin_utama','admin_wilayah'])) $panelRoute = 'admin.dashboard';
                         @endphp
                         <a href="{{ Route::has($panelRoute) ? route($panelRoute) : '#' }}" class="dropdown-item-link">
-                            <i class="fas fa-th-large"></i> Panel Akun
+                            <i class="fas fa-th-large"></i> {{ __('navigation.account_panel') }}
                         </a>
                         @if(Route::has('pengaturan'))
                             <a href="{{ route('pengaturan') }}" class="dropdown-item-link">
-                                <i class="fas fa-cog"></i> Pengaturan
+                                <i class="fas fa-cog"></i> {{ __('navigation.settings') }}
                             </a>
                         @endif
                         <hr class="dropdown-divider-line">
                         <form action="{{ route('logout') }}" method="POST" class="m-0">
                             @csrf
                             <button type="submit" class="dropdown-item-link dropdown-item-danger">
-                                <i class="fas fa-sign-out-alt"></i> Logout
+                                <i class="fas fa-sign-out-alt"></i> {{ __('navigation.logout') }}
                             </button>
                         </form>
                     </div>
                 </div>
             @else
-                <a href="{{ route('loginForm') }}" class="action-link login-btn" aria-label="Login">
+                <a href="{{ route('loginForm') }}" class="action-link login-btn" aria-label="{{ __('navigation.login') }}">
                     <i class="far fa-user"></i>
-                    <span class="login-btn-text">Login</span>
+                    <span class="login-btn-text">{{ __('navigation.login') }}</span>
                 </a>
             @endauth
 
-            <button type="button" class="hamburger-btn" id="hamburgerBtn" aria-label="Buka menu" aria-controls="navMenu" aria-expanded="false">
+            <button type="button" class="hamburger-btn" id="hamburgerBtn" aria-label="{{ __('navigation.open_menu') }}" aria-controls="navMenu" aria-expanded="false">
                 <span></span><span></span><span></span>
             </button>
         </div>
     </div>
 
-    <nav class="nav-menu" id="navMenu" aria-label="Navigasi utama">
+    <nav class="nav-menu" id="navMenu" aria-label="{{ __('navigation.main_navigation') }}">
         <a href="{{ route('guest-index') }}"
-           class="nav-link {{ $isHome ? 'is-active' : '' }}">Beranda</a>
+           class="nav-link {{ $isHome ? 'is-active' : '' }}">{{ __('navigation.home') }}</a>
 
         <a href="{{ Route::has('guest-katalog') ? route('guest-katalog') : route('guest-products') }}"
-           class="nav-link {{ $isKatalog ? 'is-active' : '' }}">Katalog</a>
+           class="nav-link {{ $isKatalog ? 'is-active' : '' }}">{{ __('navigation.catalog') }}</a>
 
         <div class="category-dropdown-wrapper" id="categoryWrap">
             <a href="#" class="nav-link nav-link-toggle" id="categoryToggle"
                role="button" aria-haspopup="true" aria-expanded="false">
-                Kategori <i class="fas fa-chevron-down nav-chevron" aria-hidden="true"></i>
+                {{ __('navigation.categories') }} <i class="fas fa-chevron-down nav-chevron" aria-hidden="true"></i>
             </a>
             <div class="category-dropdown" id="categoryDropdown" role="menu">
                 <div class="category-dropdown-grid">
@@ -101,7 +101,7 @@
                                     {{ $kategori->nama_kategori_produk }}
                                 </a>
                             @empty
-                                <span class="category-item category-empty">Belum ada kategori</span>
+                                <span class="category-item category-empty">{{ __('messages.no_categories') }}</span>
                             @endforelse
                         </div>
                     @endforeach
@@ -110,10 +110,10 @@
         </div>
 
         <a href="{{ Route::has('guest-about') ? route('guest-about') : '#' }}"
-           class="nav-link {{ $isAbout ? 'is-active' : '' }}">Tentang Kami</a>
+           class="nav-link {{ $isAbout ? 'is-active' : '' }}">{{ __('navigation.about') }}</a>
 
         <a href="{{ Route::has('guest-contact') ? route('guest-contact') : '#' }}"
-           class="nav-link {{ $isContact ? 'is-active' : '' }}">Kontak</a>
+           class="nav-link {{ $isContact ? 'is-active' : '' }}">{{ __('navigation.contact') }}</a>
     </nav>
 </header>
 

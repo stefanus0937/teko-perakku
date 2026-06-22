@@ -1,0 +1,28 @@
+<?php
+
+return [
+    'home' => 'Beranda',
+    'catalog' => 'Katalog',
+    'categories' => 'Kategori',
+    'about' => 'Tentang Kami',
+    'contact' => 'Kontak',
+    'contact_us' => 'Kontak Kami',
+    'profile' => 'Profil',
+    'my_profile' => 'Profil Saya',
+    'account_panel' => 'Panel Akun',
+    'chat' => 'Chat',
+    'messages' => 'Pesan',
+    'favorites' => 'Favorit',
+    'settings' => 'Pengaturan',
+    'logout' => 'Logout',
+    'login' => 'Login',
+    'register' => 'Daftar',
+    'search_products' => 'Cari Produk',
+    'open_menu' => 'Buka menu',
+    'main_navigation' => 'Navigasi utama',
+    'products' => 'Produk',
+    'reports' => 'Pelaporan',
+    'craftsmen' => 'Pengrajin',
+    'businesses' => 'Usaha',
+    'manage_admin' => 'Kelola Admin',
+];

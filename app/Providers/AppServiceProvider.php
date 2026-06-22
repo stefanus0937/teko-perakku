@@ -50,17 +50,17 @@ class AppServiceProvider extends ServiceProvider
                 'icon' => 'fas fa-user',
                 'submenu' => [
                     [
-                        'text' => 'Profile',
+                        'text' => __('navigation.profile'),
                         'url' => 'admin/profile',
                         'icon' => 'fas fa-id-badge',
                     ],
                     [
-                        'text' => 'Change Password',
+                        'text' => __('auth.change_password'),
                         'url' => 'admin/change-password',
                         'icon' => 'fas fa-key',
                     ],
                     [
-                        'text' => 'Logout',
+                        'text' => __('navigation.logout'),
                         'url' => '#',
                         'icon' => 'fas fa-sign-out-alt',
                         'id' => 'logout-button',
@@ -73,111 +73,111 @@ class AppServiceProvider extends ServiceProvider
 
             if ($role === 'admin_utama') {
                 $event->menu->add([
-                    'text' => 'Profile',
+                    'text' => __('navigation.profile'),
                     'url'  => 'admin/profile',
                     'icon' => 'fas fa-fw fa-user',
                 ]);
                 $event->menu->add([
-                    'text' => 'Kelola Admin',
+                    'text' => __('navigation.manage_admin'),
                     'url'  => '#',
                     'icon' => 'fas fa-fw fa-users-cog',
                 ]);
                 $event->menu->add([
-                    'text' => 'Pengrajin',
+                    'text' => __('navigation.craftsmen'),
                     'url'  => 'admin/pengerajin',
                     'icon' => 'fas fa-fw fa-users',
                 ]);
                 $event->menu->add([
-                    'text' => 'Usaha',
+                    'text' => __('navigation.businesses'),
                     'url'  => 'admin/usaha',
                     'icon' => 'fas fa-fw fa-briefcase',
                 ]);
                 $event->menu->add([
-                    'text' => 'Produk',
+                    'text' => __('navigation.products'),
                     'url'  => 'admin/produk',
                     'icon' => 'fas fa-fw fa-box',
                 ]);
                 $event->menu->add([
-                    'text' => 'Pelaporan',
+                    'text' => __('navigation.reports'),
                     'url'  => 'admin/export-data',
                     'icon' => 'fas fa-fw fa-file-export',
                 ]);
             } elseif ($role === 'admin_wilayah') {
                 $event->menu->add([
-                    'text' => 'Profile',
+                    'text' => __('navigation.profile'),
                     'url'  => 'admin/profile',
                     'icon' => 'fas fa-fw fa-user',
                 ]);
                 $event->menu->add([
-                    'text' => 'Pengrajin',
+                    'text' => __('navigation.craftsmen'),
                     'url'  => 'admin/pengerajin',
                     'icon' => 'fas fa-fw fa-users',
                 ]);
                 $event->menu->add([
-                    'text' => 'Usaha',
+                    'text' => __('navigation.businesses'),
                     'url'  => 'admin/usaha',
                     'icon' => 'fas fa-fw fa-briefcase',
                 ]);
                 $event->menu->add([
-                    'text' => 'Produk',
+                    'text' => __('navigation.products'),
                     'url'  => 'admin/produk',
                     'icon' => 'fas fa-fw fa-box',
                 ]);
                 $event->menu->add([
-                    'text' => 'Pelaporan',
+                    'text' => __('navigation.reports'),
                     'url'  => 'admin/export-data',
                     'icon' => 'fas fa-fw fa-file-export',
                 ]);
             } elseif ($role === 'umkm') {
                 $event->menu->add([
-                    'text' => 'Profile',
+                    'text' => __('navigation.profile'),
                     'url'  => 'admin/profile',
                     'icon' => 'fas fa-fw fa-user',
                 ]);
                 $unreadCount = \App\Models\Chat::where('receiver_id', $user->id)->where('is_read', false)->count();
                 $event->menu->add([
-                    'text' => 'Chat',
+                    'text' => __('navigation.chat'),
                     'url'  => 'chats',
                     'icon' => 'fas fa-fw fa-comments',
                     'label' => $unreadCount > 0 ? $unreadCount : null,
                     'label_color' => 'primary',
                 ]);
                 $event->menu->add([
-                    'text' => 'Produk',
+                    'text' => __('navigation.products'),
                     'url'  => 'admin/produk',
                     'icon' => 'fas fa-fw fa-box',
                 ]);
                 $event->menu->add([
-                    'text' => 'Pengaturan',
+                    'text' => __('navigation.settings'),
                     'url'  => '#',
                     'icon' => 'fas fa-fw fa-cogs',
                 ]);
                 $event->menu->add([
-                    'text' => 'Pelaporan',
+                    'text' => __('navigation.reports'),
                     'url'  => 'admin/export-data',
                     'icon' => 'fas fa-fw fa-file-export',
                 ]);
             } elseif ($role === 'user') {
                 $event->menu->add([
-                    'text' => 'Profile',
+                    'text' => __('navigation.profile'),
                     'url'  => 'admin/profile',
                     'icon' => 'fas fa-fw fa-user',
                 ]);
                 $unreadCount = \App\Models\Chat::where('receiver_id', $user->id)->where('is_read', false)->count();
                 $event->menu->add([
-                    'text' => 'Chat',
+                    'text' => __('navigation.chat'),
                     'url'  => 'chats',
                     'icon' => 'fas fa-fw fa-comments',
                     'label' => $unreadCount > 0 ? $unreadCount : null,
                     'label_color' => 'primary',
                 ]);
                 $event->menu->add([
-                    'text' => 'Favorit',
+                    'text' => __('navigation.favorites'),
                     'url'  => '#',
                     'icon' => 'fas fa-fw fa-heart',
                 ]);
                 $event->menu->add([
-                    'text' => 'Pengaturan',
+                    'text' => __('navigation.settings'),
                     'url'  => '#',
                     'icon' => 'fas fa-fw fa-cogs',
                 ]);

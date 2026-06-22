@@ -80,7 +80,7 @@ return [
 
     'locale' => 'id',
 
-    'fallback_locale' => 'en',
+    'fallback_locale' => 'id',
 
     'faker_locale' => 'id_ID',
 

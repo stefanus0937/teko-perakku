@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="id">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -99,27 +99,27 @@
             <nav class="sidebar-menu">
 
                 <a href="{{ route('profile') }}" class="menu-item {{ request()->routeIs('profile*') ? 'active' : '' }}">
-                    <i class="far fa-user"></i> Profil
+                    <i class="far fa-user"></i> {{ __('navigation.profile') }}
                 </a>
 @if(auth()->user()->role == 'admin_utama')
                 <a href="{{ route('admin.manage.index') }}" class="menu-item {{ request()->routeIs('admin.manage.*') ? 'active' : '' }}">
-                    <i class="fas fa-user-shield"></i> Kelola Admin
+                    <i class="fas fa-user-shield"></i> {{ __('navigation.manage_admin') }}
                 </a>
 @endif
                 <a href="{{ route('admin.pengerajin-index') }}" class="menu-item {{ request()->routeIs('admin.pengerajin*') ? 'active' : '' }}">
-                    <i class="fas fa-users"></i> Pengrajin
+                    <i class="fas fa-users"></i> {{ __('navigation.craftsmen') }}
                 </a>
                 <a href="{{ route('admin.usaha-index') }}" class="menu-item {{ request()->routeIs('admin.usaha*') ? 'active' : '' }}">
-                    <i class="fas fa-briefcase"></i> Usaha
+                    <i class="fas fa-briefcase"></i> {{ __('navigation.businesses') }}
                 </a>
                 <a href="{{ route('admin.produk-index') }}" class="menu-item {{ request()->routeIs('admin.produk*') ? 'active' : '' }}">
-                    <i class="fas fa-box"></i> Produk
+                    <i class="fas fa-box"></i> {{ __('navigation.products') }}
                 </a>
                 <a href="{{ route('admin.pelaporan-index') }}" class="menu-item {{ request()->routeIs('admin.pelaporan*') ? 'active' : '' }}">
-                    <i class="fas fa-file-alt"></i> Pelaporan
+                    <i class="fas fa-file-alt"></i> {{ __('navigation.reports') }}
                 </a>
                 <a href="{{ route('pengaturan') }}" class="menu-item {{ request()->routeIs('pengaturan') ? 'active' : '' }}">
-                    <i class="fas fa-cog"></i> Pengaturan
+                    <i class="fas fa-cog"></i> {{ __('navigation.settings') }}
                 </a>
                 <form action="{{ route('logout') }}" method="POST" id="logout-form" style="display: none;">
                     @csrf
@@ -152,7 +152,7 @@
                             @csrf
                             <button type="submit" class="profile-dropdown-item logout">
                                 <i class="fas fa-sign-out-alt"></i>
-                                Logout
+                                {{ __('navigation.logout') }}
                             </button>
                         </form>
 
