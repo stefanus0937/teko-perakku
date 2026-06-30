@@ -5,6 +5,7 @@ use App\Http\Middleware\RoleCheck; // pastikan ada use ini di atas
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route; // pastikan ada use ini di atas
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Blade;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +22,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Blade::directive('translate', function ($expression) {
+            return "<?php echo e(translate_text($expression)); ?>";
+        });
+
         \Illuminate\Support\Facades\Route::aliasMiddleware('role', RoleCheck::class);
         \Illuminate\Pagination\Paginator::useBootstrapFive();
 
@@ -30,7 +35,7 @@ class AppServiceProvider extends ServiceProvider
 
             $view->with('kategoris', $kategoris);
             $view->with('categoryGroups', $structuredKategoris->groupBy('category_type'));
-            $view->with('categoryTypeLabels', \App\Models\KategoriProduk::TYPE_LABELS);
+            $view->with('categoryTypeLabels', \App\Models\KategoriProduk::typeLabels());
             $view->with('randomKategoris', \App\Models\KategoriProduk::inRandomOrder()->get());
         });
 

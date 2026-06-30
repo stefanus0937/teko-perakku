@@ -52,11 +52,12 @@ class TranslationService
     private function translateChunk(string $text, string $targetLocale): string
     {
         // Cache hasil translasi untuk mengurangi request berulang ke Google Translate.
-        $cacheKey = 'translation_' . $targetLocale . '_' . sha1($text);
+        $sourceLocale = config('translation.source_language', 'id');
+        $cacheKey = 'translation_' . $sourceLocale . '_' . $targetLocale . '_' . sha1($text);
 
         return Cache::remember(
             $cacheKey,
-            now()->addDays(self::CACHE_DAYS),
+            now()->addDays((int) config('translation.cache_days', self::CACHE_DAYS)),
             fn () => $this->requestTranslation($text, $targetLocale)
         );
     }

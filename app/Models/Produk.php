@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslatedAttributes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Produk extends Model
 {
-    use HasFactory;
+    use HasFactory, HasTranslatedAttributes;
 
     protected $table = 'produk';
     protected $fillable = [
@@ -56,5 +57,15 @@ class Produk extends Model
     public function reviews()
     {
         return $this->hasMany(Review::class);
+    }
+
+    public function getTranslatedNamaProdukAttribute(): string
+    {
+        return $this->translated('nama_produk');
+    }
+
+    public function getTranslatedDeskripsiAttribute(): string
+    {
+        return $this->translated('deskripsi');
     }
 }

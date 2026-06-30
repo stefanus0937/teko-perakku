@@ -1,5 +1,5 @@
 @extends('guest.layouts.main')
-@section('title', 'Tentang Kami')
+@section('title', __('about.title'))
 
 @push('styles')
 <style>
@@ -281,16 +281,9 @@
     {{-- ── Hero: Siapa Kami? ── --}}
     <section class="about-hero">
         <div class="container">
-            <h1 class="about-hero__title">Siapa Kami?</h1>
+            <h1 class="about-hero__title">{{ __('about.hero_title') }}</h1>
             <p class="about-hero__lede">
-                <strong>Kotagede</strong> merupakan sebuah kawasan bersejarah di Yogyakarta yang dahulu menjadi
-                pusat Kerajaan Mataram Islam pada abad ke-16 hingga ke-17. Selain dikenal melalui peninggalan
-                arsitektur tradisional Jawa dan jejak sejarah kerajaan, Kotagede juga masyhur sebagai sentra
-                kerajinan perak. Tradisi mengolah perak di wilayah ini berawal dari masa kejayaan Mataram, ketika
-                para pengrajin menghasilkan perhiasan dan benda-benda bernilai seni tinggi untuk kalangan
-                bangsawan dan masyarakat luas. Dari masa ke masa, keterampilan mengukir perak diwariskan secara
-                turun-temurun, sehingga Kotagede memperoleh julukan sebagai <em>“Kota Perak”</em> dan menjadi
-                ikon kesenian logam mulia di Yogyakarta.
+                {{ __('about.hero_body') }}
             </p>
         </div>
     </section>
@@ -301,20 +294,13 @@
             <div class="row align-items-center g-5">
                 <div class="col-lg-6">
                     <img src="{{ asset('assets/images/Kota_Gede_Jogjakarta.jpg') }}"
-                         alt="Sentra Kerajinan Perak Kotagede"
+                         alt="{{ __('about.image_alt') }}"
                          class="about-split__img"
                          onerror="this.onerror=null;this.src='{{ asset('assets/images/kerajinan-perak-kota-ged.png') }}';">
                 </div>
                 <div class="col-lg-6">
                     <p class="about-split__text">
-                        Hingga saat ini, kerajinan perak di Kotagede tetap bertahan dan berkembang sebagai bagian
-                        penting dari industri kreatif dan pariwisata budaya. Para pengrajin lokal masih
-                        memproduksi perhiasan, aksesoris, perlengkapan rumah tangga, hingga karya seni dekoratif
-                        dengan teknik tradisional yang dipadukan dengan desain modern. Wisatawan yang datang ke
-                        Yogyakarta kerap diajak berkunjung ke bengkel-bengkel perak di Kotagede untuk menyaksikan
-                        langsung proses pembuatan dan membeli hasil karya pengrajin. Dengan dukungan festival,
-                        pameran, serta pemasaran digital, kerajinan perak Kotagede kini tidak hanya menjadi
-                        kebanggaan lokal, tetapi juga memiliki daya saing di pasar nasional maupun internasional.
+                        {{ __('about.split_body') }}
                     </p>
                 </div>
             </div>
@@ -325,27 +311,24 @@
     <section class="about-section">
         <div class="container">
             <div class="about-section__head">
-                <h2>Visi &amp; Misi</h2>
-                <p>Komitmen kami untuk mengangkat warisan kerajinan perak Kotagede ke panggung yang lebih luas.</p>
+                <h2>{{ __('about.vision_mission_title') }}</h2>
+                <p>{{ __('about.vision_mission_subtitle') }}</p>
             </div>
             <div class="vision-grid">
                 <article class="vision-card">
                     <div class="vision-card__icon"><i class="fa-solid fa-eye"></i></div>
-                    <h3 class="vision-card__title">Visi</h3>
+                    <h3 class="vision-card__title">{{ __('about.vision_title') }}</h3>
                     <p class="vision-card__text">
-                        Menjadi platform digital terpercaya yang menghubungkan pengrajin perak Kotagede dengan
-                        pasar nasional maupun internasional, sekaligus menjaga warisan budaya agar tetap hidup
-                        di tengah perkembangan zaman.
+                        {{ __('about.vision_body') }}
                     </p>
                 </article>
                 <article class="vision-card">
                     <div class="vision-card__icon"><i class="fa-solid fa-flag"></i></div>
-                    <h3 class="vision-card__title">Misi</h3>
+                    <h3 class="vision-card__title">{{ __('about.mission_title') }}</h3>
                     <ul class="vision-card__list">
-                        <li>Memberdayakan UMKM dan pengrajin lokal lewat etalase digital yang mudah digunakan.</li>
-                        <li>Memperluas akses pasar agar karya pengrajin sampai ke lebih banyak pembeli.</li>
-                        <li>Melestarikan teknik tradisional ukir, filigree, tatahan, dan cor perak khas Kotagede.</li>
-                        <li>Membangun komunitas pengrajin yang saling mendukung dan berkembang bersama.</li>
+                        @foreach (__('about.missions') as $mission)
+                            <li>{{ $mission }}</li>
+                        @endforeach
                     </ul>
                 </article>
             </div>
@@ -356,37 +339,24 @@
     <section class="about-section" style="padding-top: 20px;">
         <div class="container">
             <div class="about-section__head">
-                <h2>Apa yang Kami Bangun</h2>
-                <p>Tiga fokus utama TekoPerakku — memberdayakan pengrajin, menumbuhkan komunitas,
-                   dan menjaga warisan tetap relevan.</p>
+                <h2>{{ __('about.build_title') }}</h2>
+                <p>{{ __('about.build_subtitle') }}</p>
             </div>
             <div class="feature-grid">
                 <article class="feature-card">
                     <div class="feature-card__icon"><i class="fa-solid fa-hand-holding-heart"></i></div>
-                    <h3>Dukungan untuk Pengrajin</h3>
-                    <p>
-                        Kami menyediakan etalase digital, panduan pemasaran sederhana, dan jalur komunikasi
-                        langsung dengan pembeli. Tujuannya satu — agar pengrajin bisa fokus berkarya tanpa
-                        kerumitan jualan online.
-                    </p>
+                    <h3>{{ __('about.features.0.title') }}</h3>
+                    <p>{{ __('about.features.0.body') }}</p>
                 </article>
                 <article class="feature-card">
                     <div class="feature-card__icon"><i class="fa-solid fa-store"></i></div>
-                    <h3>Marketplace &amp; Komunitas</h3>
-                    <p>
-                        Pembeli bisa menjelajah toko-toko perak Kotagede dalam satu tempat, melihat karya dari
-                        beragam teknik dan gaya, lalu langsung terhubung dengan pengrajinnya. Sebuah ekosistem
-                        yang saling menghidupkan.
-                    </p>
+                    <h3>{{ __('about.features.1.title') }}</h3>
+                    <p>{{ __('about.features.1.body') }}</p>
                 </article>
                 <article class="feature-card">
                     <div class="feature-card__icon"><i class="fa-solid fa-gem"></i></div>
-                    <h3>Pelestarian Kerajinan</h3>
-                    <p>
-                        Setiap karya yang tampil di sini membawa cerita teknik turun-temurun — ukir, filigree,
-                        tatahan, hingga cor. Dengan menampilkannya secara modern, kami membantu menjaga tradisi
-                        tetap dikenal generasi baru.
-                    </p>
+                    <h3>{{ __('about.features.2.title') }}</h3>
+                    <p>{{ __('about.features.2.body') }}</p>
                 </article>
             </div>
         </div>
@@ -396,15 +366,14 @@
     <section class="about-video">
         <div class="container">
             <div class="about-section__head">
-                <h2>Kerajinan Perak Kotagede</h2>
-                <p>Sebuah perubahan besar dimulai dari satu ketikan aspirasi yang jujur.
-                   Jadilah bagian dari komunitas yang kritis, cerdas, dan solutif.</p>
+                <h2>{{ __('about.video_title') }}</h2>
+                <p>{{ __('about.video_subtitle') }}</p>
             </div>
             <div class="about-video__wrap">
                 <div class="about-video__ratio">
                     <iframe
                         src="https://www.youtube.com/embed/3j4Rf2ojD5Q"
-                        title="Video Kerajinan Perak Kotagede"
+                        title="{{ __('about.video_iframe_title') }}"
                         loading="lazy"
                         allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         referrerpolicy="strict-origin-when-cross-origin"

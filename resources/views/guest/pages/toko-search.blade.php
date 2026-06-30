@@ -56,13 +56,13 @@
                         <img src="{{ $usaha->foto_usaha 
                             ? asset('storage/' . $usaha->foto_usaha) 
                             : asset('assets/images/kategori-default.jpg') }}"
-                            alt="{{ translate_text($usaha->nama_usaha) }}"
+                            alt="{{ $usaha->translated_nama_usaha }}"
                             onerror="this.onerror=null;this.src='{{ asset('assets/images/kategori-default.jpg') }}';">
                     </div>
 
                     {{-- Content --}}
                     <div class="usaha-content">
-                        <h4>{{ translate_text($usaha->nama_usaha) }}</h4>
+                        <h4>{{ $usaha->translated_nama_usaha }}</h4>
 
                         <span class="usaha-username">
                             @ {{ $usaha->user->username }}
@@ -70,7 +70,7 @@
 
                         <p>
                             {{ \Illuminate\Support\Str::limit(
-                                $usaha->deskripsi_usaha ??
+                                $usaha->translated_deskripsi_usaha ?:
                                 'Temukan berbagai kerajinan perak asli Kotagede dengan kualitas terbaik.',
                                 85
                             ) }}

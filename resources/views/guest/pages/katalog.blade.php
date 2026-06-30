@@ -18,7 +18,7 @@
                 $kategoriButtonText = $selectedKategoriItems->isEmpty()
                     ? 'Semua Produk'
                     : ($selectedKategoriItems->count() === 1
-                        ? translate_text($selectedKategoriItems->first()->nama_kategori_produk)
+                        ? $selectedKategoriItems->first()->translated_nama_kategori_produk
                         : $selectedKategoriItems->count() . ' kategori dipilih');
             @endphp
             @if (request()->filled('search'))
@@ -48,11 +48,11 @@
                     <a href="{{ route('guest-singleProduct', $produk->slug) }}">
                         <div class="thumb">
                             <img src="{{ asset('storage/' . optional($produk->fotoProduk->first())->file_foto_produk) }}"
-                                alt="{{ translate_text($produk->nama_produk) }}"
+                                alt="{{ $produk->translated_nama_produk }}"
                                 onerror="this.onerror=null;this.src='{{ asset('assets/images/produk-default.jpg') }}';">
                         </div>
                         <div class="down-content">
-                            <h4>{{ translate_text($produk->nama_produk) }}</h4>
+                            <h4>{{ $produk->translated_nama_produk }}</h4>
                             <span class="product-price">Rp {{ number_format($produk->harga, 0, ',', '.') }}</span>
 
                             {{-- Rating: bintang + jumlah review --}}
@@ -66,8 +66,8 @@
                             {{-- Nama toko --}}
                             @php $shop = $produk->usaha->first(); @endphp
                             @if($shop)
-                                <span class="product-shop" title="{{ translate_text($shop->nama_usaha) }}">
-                                    <i class="fa-regular fa-building"></i>{{ translate_text($shop->nama_usaha) }}
+                                <span class="product-shop" title="{{ $shop->translated_nama_usaha }}">
+                                    <i class="fa-regular fa-building"></i>{{ $shop->translated_nama_usaha }}
                                 </span>
                             @endif
                         </div>
@@ -132,13 +132,13 @@
                         <img src="{{ $usaha->foto_usaha 
                             ? asset('storage/' . $usaha->foto_usaha) 
                             : asset('assets/images/kategori-default.jpg') }}"
-                            alt="{{ translate_text($usaha->nama_usaha) }}"
+                            alt="{{ $usaha->translated_nama_usaha }}"
                             onerror="this.onerror=null;this.src='{{ asset('assets/images/kategori-default.jpg') }}';">
                     </div>
 
                     {{-- Content --}}
                     <div class="usaha-content">
-                        <h4>{{ translate_text($usaha->nama_usaha) }}</h4>
+                        <h4>{{ $usaha->translated_nama_usaha }}</h4>
 
                         <span class="usaha-username">
                             @ {{ $usaha->user->username }}
@@ -146,7 +146,7 @@
 
                         <p>
                             {{ \Illuminate\Support\Str::limit(
-                                $usaha->deskripsi_usaha ??
+                                $usaha->translated_deskripsi_usaha ?:
                                 'Temukan berbagai kerajinan perak asli Kotagede dengan kualitas terbaik.',
                                 85
                             ) }}

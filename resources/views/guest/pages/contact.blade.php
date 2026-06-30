@@ -1,5 +1,5 @@
 @extends('guest.layouts.main')
-@section('title', 'Kontak Kami')
+@section('title', translate_text('Kontak Kami'))
 
 @push('styles')
 {{-- Leaflet CSS untuk peta kantor di section "Hubungi Kami" --}}
@@ -467,11 +467,11 @@
     {{-- ── Hero ── --}}
     <section class="contact-hero">
         <div class="container">
-            <h1 class="contact-hero__title">Halo, ada yang bisa kami bantu?</h1>
+            <h1 class="contact-hero__title">@translate('Halo, ada yang bisa kami bantu?')</h1>
             <p class="contact-hero__lede">
-                Tim TekoPerakku selalu terbuka untuk pengrajin, calon mitra, maupun pembeli.
+                @translate('Tim TekoPerakku selalu terbuka untuk pengrajin, calon mitra, maupun pembeli.')
                 Kirim pesan, mampir ke kantor kami di Kotagede, atau sapa kami lewat media sosial —
-                pilih cara yang paling nyaman buat Anda.
+                @translate('pilih cara yang paling nyaman buat Anda.')
             </p>
         </div>
     </section>
@@ -483,17 +483,17 @@
 
                 <div class="col-lg-6">
                     {{-- Leaflet map — lokasi kantor TekoPerakku, Kotagede --}}
-                    <div class="contact-map-card" aria-label="Peta lokasi kantor TekoPerakku">
+                    <div class="contact-map-card" aria-label="{{ translate_text('Peta lokasi kantor TekoPerakku') }}">
                         <div class="contact-map-card__canvas" id="contact-office-map"></div>
                         <div class="contact-map-card__caption">
                             <span>
                                 <i class="fa-solid fa-location-dot" style="color:#980808;"></i>
-                                Kemantren Kotagede, Yogyakarta
+                                @translate('Kemantren Kotagede, Yogyakarta')
                             </span>
                             <a href="https://maps.app.goo.gl/4n6BZVu9xEQDqBun7"
                                target="_blank" rel="noopener">
                                 <i class="fa-solid fa-up-right-from-square"></i>
-                                Buka di Google Maps
+                                @translate('Buka di Google Maps')
                             </a>
                         </div>
                     </div>
@@ -501,16 +501,16 @@
 
                 <div class="col-lg-6">
                     <div class="contact-info">
-                        <h2 class="contact-info__title">Hubungi Kami</h2>
+                        <h2 class="contact-info__title">@translate('Hubungi Kami')</h2>
                         <div class="contact-info__list">
 
                             <div class="contact-info__row">
                                 <span class="contact-info__icon"><i class="fa-regular fa-building"></i></span>
-                                <span><strong>Kantor:</strong> Kemantren Kotagede, Yogyakarta</span>
+                                <span><strong>@translate('Kantor'):</strong> @translate('Kemantren Kotagede, Yogyakarta')</span>
                             </div>
                             <div class="contact-info__row">
                                 <span class="contact-info__icon"><i class="fa-solid fa-location-dot"></i></span>
-                                <span>Jl. Nyi Wiji Adisara 39, Kel. Prenggan, Kem. Kotagede, Kota Yogyakarta</span>
+                                <span>@translate('Jl. Nyi Wiji Adisara 39, Kel. Prenggan, Kem. Kotagede, Kota Yogyakarta')</span>
                             </div>
                             <div class="contact-info__row">
                                 <span class="contact-info__icon"><i class="fa-regular fa-envelope"></i></span>
@@ -520,7 +520,7 @@
                             </div>
                             <div class="contact-info__row">
                                 <span class="contact-info__icon"><i class="fa-solid fa-phone"></i></span>
-                                <span><strong>Telepon:</strong>
+                                <span><strong>@translate('Telepon'):</strong>
                                     <a href="tel:+62274375790">(0274) 375.790</a>
                                 </span>
                             </div>
@@ -532,7 +532,7 @@
                             <div class="contact-info__row" style="margin-top: 4px;">
                                 <span class="contact-info__icon"><i class="fa-solid fa-share-nodes"></i></span>
                                 <span>
-                                    <strong>Sosial media:</strong>
+                                    <strong>@translate('Sosial media'):</strong>
                                     <div class="contact-info__socials">
                                         <a href="https://web.facebook.com/people/Kemantren-Kotagede/pfbid0vbSxN13HcQ5xwfYhn4Qm3wfbFVcGr6QPzh6mYxuRzJwdkZXy41TRf8AqbXVKo4Ttl/"
                                            target="_blank" rel="noopener"
@@ -566,7 +566,7 @@
         <div class="container">
             <div class="contact-form-card">
                 <div class="contact-form-card__head">
-                    <h2>Kirim Pesan</h2>
+                    <h2>@translate('Kirim Pesan')</h2>
                     <p>Isi form di bawah — kami akan membalas paling lambat 1×24 jam pada hari kerja.</p>
                 </div>
 
@@ -578,9 +578,9 @@
                       enctype="text/plain">
                     <div class="contact-form-grid">
                         <div class="contact-form-field">
-                            <label for="contact-nama" class="label-required">Nama</label>
+                            <label for="contact-nama" class="label-required">@translate('Nama')</label>
                             <input type="text" id="contact-nama" name="nama"
-                                   placeholder="Nama lengkap Anda" required>
+                                   placeholder="{{ translate_text('Nama lengkap Anda') }}" required>
                         </div>
                         <div class="contact-form-field">
                             <label for="contact-email" class="label-required">Email</label>
@@ -588,12 +588,12 @@
                                    placeholder="nama@contoh.com" required>
                         </div>
                         <div class="contact-form-field full">
-                            <label for="contact-subjek" class="label-required">Subjek</label>
+                            <label for="contact-subjek" class="label-required">@translate('Subjek')</label>
                             <input type="text" id="contact-subjek" name="subjek"
-                                   placeholder="Tentang apa pesan Anda?" required>
+                                   placeholder="{{ translate_text('Tentang apa pesan Anda?') }}" required>
                         </div>
                         <div class="contact-form-field full">
-                            <label for="contact-pesan" class="label-required">Pesan</label>
+                            <label for="contact-pesan" class="label-required">@translate('Pesan')</label>
                             <textarea id="contact-pesan" name="pesan"
                                       placeholder="Tuliskan pesan Anda di sini…" required></textarea>
                         </div>
@@ -602,13 +602,13 @@
                     <div class="contact-form-actions">
                         <button type="submit" class="contact-form-submit" id="contact-submit-btn">
                             <i class="fa-regular fa-paper-plane"></i>
-                            <span>Kirim Pesan</span>
+                            <span>@translate('Kirim Pesan')</span>
                         </button>
                     </div>
 
                     <div class="contact-form-success" id="contact-form-success">
                         <i class="fa-solid fa-circle-check"></i>
-                        Terima kasih! Pesan Anda akan dibuka di aplikasi email default Anda.
+                        @translate('Terima kasih! Pesan Anda akan dibuka di aplikasi email default Anda.')
                     </div>
                 </form>
             </div>
@@ -621,33 +621,33 @@
             <div class="extras-grid">
 
                 <div class="extras-card">
-                    <h3><i class="fa-regular fa-clock"></i> Jam Layanan</h3>
+                    <h3><i class="fa-regular fa-clock"></i> @translate('Jam Layanan')</h3>
                     <div class="hours-row"><span>Senin – Kamis</span><span>08.00 – 16.00</span></div>
                     <div class="hours-row"><span>Jumat</span><span>08.00 – 16.30</span></div>
-                    <div class="hours-row"><span>Sabtu</span><span>Tutup</span></div>
-                    <div class="hours-row"><span>Minggu &amp; Libur Nasional</span><span>Tutup</span></div>
+                    <div class="hours-row"><span>@translate('Sabtu')</span><span>@translate('Tutup')</span></div>
+                    <div class="hours-row"><span>@translate('Minggu & Libur Nasional')</span><span>@translate('Tutup')</span></div>
                 </div>
 
                 <div class="extras-card">
-                    <h3><i class="fa-regular fa-circle-question"></i> Pertanyaan yang Sering Ditanyakan</h3>
+                    <h3><i class="fa-regular fa-circle-question"></i> @translate('Pertanyaan yang Sering Ditanyakan')</h3>
 
                     <details class="faq-item">
-                        <summary>Bagaimana cara menjadi mitra UMKM di TekoPerakku?</summary>
+                        <summary>@translate('Bagaimana cara menjadi mitra UMKM di TekoPerakku?')</summary>
                         <p>Anda dapat mendaftar lewat halaman pendaftaran atau menghubungi kami via
                            email/telepon. Tim kami akan memandu proses verifikasi toko Anda.</p>
                     </details>
                     <details class="faq-item">
-                        <summary>Apakah pembeli bisa langsung chat dengan pengrajin?</summary>
+                        <summary>@translate('Apakah pembeli bisa langsung chat dengan pengrajin?')</summary>
                         <p>Ya. Setiap halaman toko menyediakan tombol “Hubungi Penjual” untuk chat
                            langsung dengan pemilik usaha setelah login.</p>
                     </details>
                     <details class="faq-item">
-                        <summary>Berapa lama balasan dari tim TekoPerakku?</summary>
+                        <summary>@translate('Berapa lama balasan dari tim TekoPerakku?')</summary>
                         <p>Pesan yang masuk melalui form atau email biasanya dibalas dalam
                            1×24 jam pada hari kerja.</p>
                     </details>
                     <details class="faq-item">
-                        <summary>Apakah saya bisa berkunjung langsung ke kantor?</summary>
+                        <summary>@translate('Apakah saya bisa berkunjung langsung ke kantor?')</summary>
                         <p>Tentu. Anda bisa mampir ke Kemantren Kotagede pada jam layanan di atas.
                            Disarankan membuat janji terlebih dahulu via email atau telepon.</p>
                     </details>

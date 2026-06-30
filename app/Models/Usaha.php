@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslatedAttributes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Usaha extends Model
 {
-    use HasFactory;
+    use HasFactory, HasTranslatedAttributes;
 
     protected $table = 'usaha';
     protected $fillable = [
@@ -81,5 +82,20 @@ class Usaha extends Model
     public function wilayah()
     {
         return $this->belongsTo(Wilayah::class);
+    }
+
+    public function getTranslatedNamaUsahaAttribute(): string
+    {
+        return $this->translated('nama_usaha');
+    }
+
+    public function getTranslatedDeskripsiUsahaAttribute(): string
+    {
+        return $this->translated('deskripsi_usaha');
+    }
+
+    public function getTranslatedSpesialisasiUsahaAttribute(): string
+    {
+        return $this->translated('spesialisasi_usaha');
     }
 }

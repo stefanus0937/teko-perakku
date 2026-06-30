@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslatedAttributes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class KategoriProduk extends Model
 {
-    use HasFactory;
+    use HasFactory, HasTranslatedAttributes;
 
     protected $table = 'kategori_produk';
     protected $fillable = [
@@ -34,6 +35,24 @@ class KategoriProduk extends Model
         self::TYPE_FORM => 'Jelajahi koleksi berdasarkan bentuk produk.',
         self::TYPE_MATERIAL => 'Temukan produk dari bahan utama pilihan.',
     ];
+
+    public static function typeLabels(): array
+    {
+        return [
+            self::TYPE_TECHNIQUE => __('messages.category_types.production_technique'),
+            self::TYPE_FORM => __('messages.category_types.product_form'),
+            self::TYPE_MATERIAL => __('messages.category_types.material_type'),
+        ];
+    }
+
+    public static function typeDescriptions(): array
+    {
+        return [
+            self::TYPE_TECHNIQUE => __('messages.category_type_descriptions.production_technique'),
+            self::TYPE_FORM => __('messages.category_type_descriptions.product_form'),
+            self::TYPE_MATERIAL => __('messages.category_type_descriptions.material_type'),
+        ];
+    }
 
     public static function boot()
     {
@@ -75,5 +94,21 @@ class KategoriProduk extends Model
     public function getCategoryTypeLabelAttribute(): string
     {
         return self::TYPE_LABELS[$this->category_type] ?? 'Kategori Produk';
+    }
+
+    public function getTranslatedNamaKategoriProdukAttribute(): string
+    {
+        $localized = __('messages.category_names.' . $this->slug);
+
+        if ($localized !== 'messages.category_names.' . $this->slug) {
+            return $localized;
+        }
+
+        return $this->translated('nama_kategori_produk');
+    }
+
+    public function getTranslatedCategoryTypeLabelAttribute(): string
+    {
+        return self::typeLabels()[$this->category_type] ?? translate_text($this->category_type_label);
     }
 }

@@ -55,12 +55,12 @@
                 : asset('assets/images/kategori-default.jpg');
 
             $desc = $u->deskripsi_usaha
-                ? \Illuminate\Support\Str::limit(translate_text($u->deskripsi_usaha), 90)
+                ? \Illuminate\Support\Str::limit($u->translated_deskripsi_usaha, 90)
                 : 'Kerajinan perak asli Kotagede.';
 
             return [
                 'id'        => $u->id,
-                'name'      => translate_text($u->nama_usaha),
+                'name'      => $u->translated_nama_usaha,
                 'username'  => optional($u->user)->username,
                 'lat'       => (float) $u->latitude,
                 'lng'       => (float) $u->longitude,

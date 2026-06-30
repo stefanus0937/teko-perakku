@@ -15,7 +15,7 @@ class PageController extends Controller
     {
         $kategoris = KategoriProduk::ordered()->get();
         $categoryGroups = $kategoris->where('sort_order', '>', 0)->groupBy('category_type');
-        $randomProduks = Produk::with(['fotoProduk', 'reviews'])->latest()->take(8)->get();
+        $randomProduks = Produk::with(['fotoProduk', 'reviews', 'usaha.user'])->latest()->take(8)->get();
         $pengerajins = \App\Models\Pengerajin::inRandomOrder()->take(8)->get();
         $usahas = \App\Models\Usaha::inRandomOrder()->take(6)->get();
 
@@ -30,8 +30,8 @@ class PageController extends Controller
         return view('guest.pages.index', [
             'kategoris' => $kategoris,
             'categoryGroups' => $categoryGroups,
-            'categoryTypeLabels' => KategoriProduk::TYPE_LABELS,
-            'categoryTypeDescriptions' => KategoriProduk::TYPE_DESCRIPTIONS,
+            'categoryTypeLabels' => KategoriProduk::typeLabels(),
+            'categoryTypeDescriptions' => KategoriProduk::typeDescriptions(),
             'randomProduks' => $randomProduks,
             'pengerajins' => $pengerajins,
             'usahas' => $usahas,
@@ -42,7 +42,7 @@ class PageController extends Controller
     public function productsByCategory($slug)
     {
         $kategori = KategoriProduk::where('slug', $slug)->firstOrFail();
-        $produks = Produk::whereHas('kategoriProduk', function ($q) use ($kategori) {
+        $produks = Produk::with(['fotoProduk', 'reviews', 'usaha.user'])->whereHas('kategoriProduk', function ($q) use ($kategori) {
             $q->where('kategori_produk_id', $kategori->id);
         })->get();
 
@@ -55,7 +55,7 @@ class PageController extends Controller
     public function katalog(Request $request)
     {
         // Memuat relasi yang dibutuhkan untuk efisiensi
-        $query = Produk::with(['kategoriProduk', 'fotoProduk', 'reviews']);
+        $query = Produk::with(['kategoriProduk', 'fotoProduk', 'reviews', 'usaha.user']);
 
         // -- LOGIKA PENCARIAN (SEARCH) --
         if ($request->filled('search')) {
@@ -198,7 +198,7 @@ class PageController extends Controller
 
     public function singleProduct($slug)
     {
-        $produk = Produk::with(['fotoProduk', 'usaha', 'reviews.user'])->where('slug', $slug)->firstOrFail();
+        $produk = Produk::with(['fotoProduk', 'usaha.user', 'kategoriProduk', 'reviews.user'])->where('slug', $slug)->firstOrFail();
         
         $reviewsCount = $produk->reviews->count();
         $averageRating = $reviewsCount > 0 ? round($produk->reviews->avg('rating'), 1) : 0;
@@ -214,7 +214,7 @@ class PageController extends Controller
             }
         }
 
-        $randomProduks = Produk::with(['fotoProduk', 'reviews'])->where('id', '!=', $produk->id)->inRandomOrder()->take(4)->get();
+        $randomProduks = Produk::with(['fotoProduk', 'reviews', 'usaha.user'])->where('id', '!=', $produk->id)->inRandomOrder()->take(4)->get();
 
         return view('guest.pages.single-product', [
             'produk' => $produk,
@@ -294,7 +294,7 @@ class PageController extends Controller
             'kategoris'             => $kategoris,
             'selectedKategoriSlugs' => $selectedKategoriSlugs,
             'categoryGroups'        => $categoryGroups,
-            'categoryTypeLabels'    => KategoriProduk::TYPE_LABELS,
+            'categoryTypeLabels'    => KategoriProduk::typeLabels(),
             'nearbyUsahas'          => $nearbyUsahas,
         ]);
     }

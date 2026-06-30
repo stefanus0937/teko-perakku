@@ -15,11 +15,11 @@
 
     {{-- Konten hero di sebelah kanan; tombol "Beli Sekarang" discroll oleh JavaScript ke section Produk Terbaru. --}}
     <div class="banner-content">
-        <h1>Perak Asli Kotagede – Warisan Seni dari Jogja</h1>
+        <h1>@translate('Perak Asli Kotagede - Warisan Seni dari Jogja')</h1>
         <p>
-            Karya seni perak dari Kotagede, Yogyakarta yang menggabungkan tradisi, ketelitian, dan keanggunan. Setiap detail menyimpan cerita, setiap ukiran merekam sejarah. Dibuat oleh tangan pengrajin lokal dengan teknik turun-temurun, menghadirkan keindahan otentik dengan kualitas terbaik.
+            @translate('Karya seni perak dari Kotagede, Yogyakarta yang menggabungkan tradisi, ketelitian, dan keanggunan. Setiap detail menyimpan cerita, setiap ukiran merekam sejarah. Dibuat oleh tangan pengrajin lokal dengan teknik turun-temurun, menghadirkan keindahan otentik dengan kualitas terbaik.')
         </p>
-        <a href="javascript:void(0);" class="btn btn-danger btn-lg mt-3 scroll-to-produk">Beli Sekarang</a>
+        <a href="javascript:void(0);" class="btn btn-danger btn-lg mt-3 scroll-to-produk">@translate('Beli Sekarang')</a>
     </div>
 </div>
 
@@ -27,8 +27,8 @@
 <section class="categories">
     <div class="container">
         <div class="section-heading">
-            <h2>Kategori Produk</h2>
-            <p class="text-muted">Jelajahi koleksi berdasarkan teknik, bentuk, dan bahan pembuatan</p>
+            <h2>@translate('Kategori Produk')</h2>
+            <p class="text-muted">@translate('Jelajahi koleksi berdasarkan teknik, bentuk, dan bahan pembuatan')</p>
         </div>
 
         @php
@@ -62,11 +62,11 @@
             $categoryCarouselItems = collect($categoryTypeLabels ?? [])
                 ->flatMap(fn ($label, $type) => ($categoryGroups[$type] ?? collect())->map(function ($kategori) use ($label, $type, $categoryTypeDescriptions, $categoryImageMap) {
                     return [
-                        'nama' => translate_text($kategori->nama_kategori_produk),
+                        'nama' => $kategori->translated_nama_kategori_produk,
                         'slug' => $kategori->slug,
                         'type' => $type,
-                        'type_label' => $label,
-                        'description' => ($categoryTypeDescriptions ?? [])[$type] ?? 'Pesona Perak',
+                        'type_label' => translate_text($label),
+                        'description' => translate_text(($categoryTypeDescriptions ?? [])[$type] ?? 'Pesona Perak'),
                         'image' => $categoryImageMap[$kategori->slug] ?? $kategori->slug . '.jpg',
                     ];
                 }));
@@ -108,7 +108,7 @@
         <div class="category-carousel-groups" aria-label="Kelompok kategori">
             @foreach(($categoryTypeLabels ?? []) as $type => $label)
                 <button type="button" class="category-group-chip" data-category-group="{{ $type }}">
-                    {{ $label }}
+                    {{ translate_text($label) }}
                 </button>
             @endforeach
         </div>
@@ -120,8 +120,8 @@
 <section class="products">
     <div class="container">
         <div class="section-heading">
-            <h2>Produk Terbaru Kami!</h2>
-            <span>Temukan Produk Terfavoritmu!</span>
+            <h2>@translate('Produk Terbaru Kami!')</h2>
+            <span>@translate('Temukan Produk Terfavoritmu!')</span>
         </div>
     </div>
     <div class="container">
@@ -133,11 +133,11 @@
                         <a href="{{ route('guest-singleProduct', $produk->slug) }}">
                             <div class="thumb">
                                 <img src="{{ asset('storage/' . optional($produk->fotoProduk->first())->file_foto_produk) }}"
-                                    alt="{{ translate_text($produk->nama_produk) }}"
+                                    alt="{{ $produk->translated_nama_produk }}"
                                     onerror="this.onerror=null;this.src='{{ asset('assets/images/produk-default.jpg') }}';">
                             </div>
                             <div class="down-content">
-                                <h4>{{ translate_text($produk->nama_produk) }}</h4>
+                                <h4>{{ $produk->translated_nama_produk }}</h4>
                                 <span class="product-price">Rp {{ number_format($produk->harga, 0, ',', '.') }}</span>
 
                                 {{-- Komponen rating kecil: menghasilkan bintang dan jumlah review di kartu produk. --}}
@@ -151,8 +151,8 @@
                                 {{-- Nama toko (UMKM yang menjual produk ini) --}}
                                 @php $shop = $produk->usaha->first(); @endphp
                                 @if($shop)
-                                    <span class="product-shop" title="{{ translate_text($shop->nama_usaha) }}">
-                                        <i class="fa-regular fa-building"></i>{{ translate_text($shop->nama_usaha) }}
+                                    <span class="product-shop" title="{{ $shop->translated_nama_usaha }}">
+                                        <i class="fa-regular fa-building"></i>{{ $shop->translated_nama_usaha }}
                                     </span>
                                 @endif
                             </div>
@@ -165,7 +165,7 @@
         <div class="col-lg-12">
             <div class="text-center mt-5">
                 {{-- Tombol ini membawa user ke halaman katalog lengkap, bukan hanya produk yang tampil di homepage. --}}
-                <a href="{{ route('guest-katalog') }}" class="see-all-button btn">Lihat Semua</a>
+                <a href="{{ route('guest-katalog') }}" class="see-all-button btn">@translate('Lihat Semua')</a>
             </div>
         </div>
     </div>
@@ -176,8 +176,8 @@
 <section class="usaha-section">
     <div class="container">
         <div class="section-heading">
-            <h2>Toko & Usaha Perak</h2>
-            <span>Kunjungi toko-toko perak terbaik di Kotagede</span>
+            <h2>@translate('Toko & Usaha Perak')</h2>
+            <span>@translate('Kunjungi toko-toko perak terbaik di Kotagede')</span>
         </div>
 
         <div class="row">
@@ -195,13 +195,13 @@
                         <img src="{{ $usaha->foto_usaha 
                             ? asset('storage/' . $usaha->foto_usaha) 
                             : asset('assets/images/kategori-default.jpg') }}"
-                            alt="{{ translate_text($usaha->nama_usaha) }}"
+                            alt="{{ $usaha->translated_nama_usaha }}"
                             onerror="this.onerror=null;this.src='{{ asset('assets/images/kategori-default.jpg') }}';">
                     </div>
 
                     {{-- Konten kartu toko: nama usaha, username pemilik, dan ringkasan deskripsi yang terlihat di homepage. --}}
                     <div class="usaha-content">
-                        <h4>{{ translate_text($usaha->nama_usaha) }}</h4>
+                        <h4>{{ $usaha->translated_nama_usaha }}</h4>
 
                         <span class="usaha-username">
                             @ {{ $usaha->user->username }}
@@ -209,7 +209,7 @@
 
                         <p>
                             {{ \Illuminate\Support\Str::limit(
-                                $usaha->deskripsi_usaha ??
+                                $usaha->translated_deskripsi_usaha ?:
                                 'Temukan berbagai kerajinan perak asli Kotagede dengan kualitas terbaik.',
                                 85
                             ) }}
@@ -219,7 +219,7 @@
                     {{-- Elemen visual seperti tombol; seluruh kartu tetap menjadi link ke detail usaha. --}}
                     <div class="usaha-action">
                         <span class="btn-kunjungi">
-                            Kunjungi
+                            @translate('Kunjungi')
                         </span>
                     </div>
 
@@ -235,7 +235,7 @@
         <div class="col-lg-12">
             <div class="text-center mt-5">
                 {{-- Mengarahkan user ke bagian toko terkait di halaman katalog. --}}
-                <a href="{{ route('guest-katalog') }}#related-stores" class="see-all-button btn">Lihat Semua</a>
+                <a href="{{ route('guest-katalog') }}#related-stores" class="see-all-button btn">@translate('Lihat Semua')</a>
             </div>
         </div>
     </div>
@@ -247,7 +247,7 @@
     <section class="usaha-map-section">
         <div class="container">
             <div class="section-heading">
-                <h2>Peta Toko Perak Kotagede</h2>
+                <h2>@translate('Peta Toko Perak Kotagede')</h2>
                 <span>Jelajahi lokasi toko-toko perak di peta — klik marker untuk melihat detail.</span>
             </div>
             {{-- Partial ini merender peta interaktif dengan marker toko dari $usahasWithLocation. --}}
@@ -274,8 +274,8 @@
             <div class="col-lg-5 col-md-12">
                 <div class="about-content">
                     <h3>TekoPerakku</h3>
-                    <p>TekoPerakku menghadirkan kerajinan perak asli Kotagede dengan kualitas terbaik. Setiap karya diproses secara teliti oleh pengrajin berpengalaman untuk menjaga keaslian dan keindahan tradisi. Kami berkomitmen memberikan produk yang elegan, otentik, dan bernilai seni tinggi bagi setiap pelanggan.</p>
-                    <a href="{{ route('guest-about') }}" class="btn btn-primary about-btn">Pelajari Lebih Lanjut</a>
+                    <p>@translate('TekoPerakku menghadirkan kerajinan perak asli Kotagede dengan kualitas terbaik. Setiap karya diproses secara teliti oleh pengrajin berpengalaman untuk menjaga keaslian dan keindahan tradisi. Kami berkomitmen memberikan produk yang elegan, otentik, dan bernilai seni tinggi bagi setiap pelanggan.')</p>
+                    <a href="{{ route('guest-about') }}" class="btn btn-primary about-btn">@translate('Pelajari Lebih Lanjut')</a>
                 </div>
             </div>
         </div>
@@ -321,3 +321,4 @@
     });
 </script>
 @endpush
+

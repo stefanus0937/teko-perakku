@@ -31,7 +31,7 @@
     $kategoriButtonText = $selectedKategoriItems->isEmpty()
         ? __('messages.all_products')
         : ($selectedKategoriItems->count() === 1
-            ? translate_text($selectedKategoriItems->first()->nama_kategori_produk)
+            ? $selectedKategoriItems->first()->translated_nama_kategori_produk
             : __('messages.categories_selected', ['count' => $selectedKategoriItems->count()]));
 
     $opsiUrutkan = [
@@ -70,14 +70,14 @@
                         <div class="category-filter-grid">
                             @foreach (($categoryTypeLabels ?? []) as $type => $label)
                                 <div class="category-filter-column">
-                                    <h6>{{ $label }}</h6>
+                                    <h6>{{ translate_text($label) }}</h6>
                                     @foreach (($categoryGroups[$type] ?? collect()) as $kat)
                                         <label class="category-check {{ $selectedKategoriSlugs->contains($kat->slug) ? 'is-active' : '' }}">
                                             <input type="checkbox" name="kategori[]"
                                                    value="{{ $kat->slug }}"
                                                    {{ $selectedKategoriSlugs->contains($kat->slug) ? 'checked' : '' }}>
                                             <span class="category-check-box"></span>
-                                            <span>{{ translate_text($kat->nama_kategori_produk) }}</span>
+                                            <span>{{ $kat->translated_nama_kategori_produk }}</span>
                                         </label>
                                     @endforeach
                                 </div>
@@ -101,7 +101,7 @@
                                 if (!empty($remaining)) $removeQuery['kategori'] = $remaining;
                             @endphp
                             <a href="{{ $formAction . '?' . http_build_query($removeQuery) }}" class="active-filter-tag">
-                                {{ translate_text($kat->nama_kategori_produk) }}
+                                {{ $kat->translated_nama_kategori_produk }}
                                 <span aria-hidden="true">&times;</span>
                             </a>
                         @endforeach
