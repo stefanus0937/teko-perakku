@@ -12,6 +12,7 @@ return [
     'large' => 'Besar',
     'indonesian' => 'Indonesia',
     'english' => 'English',
+    'language_saved' => 'Pilihan bahasa berhasil disimpan!',
     'delete_confirmation' => 'Apakah anda yakin untuk menghapus akun?',
     'no' => 'Tidak',
     'yes' => 'Iya',

@@ -39,7 +39,7 @@
             @foreach ($fotoProduks as $fotoProduk)
                 <tr>
                     <td>{{ $fotoProduk->kode_foto_produk }}</td>
-                    <td>{{ $fotoProduk->produk->nama_produk }}</td>
+                    <td>{{ translate_text($fotoProduk->produk->nama_produk) }}</td>
                     <td>
                         <img src="{{ asset('storage/' . $fotoProduk->file_foto_produk) }}" alt="Foto Produk"
                             style="width: 100px; height: auto;">

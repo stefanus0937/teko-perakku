@@ -12,6 +12,7 @@ return [
     'large' => 'Large',
     'indonesian' => 'Indonesian',
     'english' => 'English',
+    'language_saved' => 'Language preference saved successfully!',
     'delete_confirmation' => 'Are you sure you want to delete your account?',
     'no' => 'No',
     'yes' => 'Yes',

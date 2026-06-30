@@ -31,7 +31,7 @@
     $kategoriButtonText = $selectedKategoriItems->isEmpty()
         ? __('messages.all_products')
         : ($selectedKategoriItems->count() === 1
-            ? $selectedKategoriItems->first()->nama_kategori_produk
+            ? translate_text($selectedKategoriItems->first()->nama_kategori_produk)
             : __('messages.categories_selected', ['count' => $selectedKategoriItems->count()]));
 
     $opsiUrutkan = [
@@ -77,7 +77,7 @@
                                                    value="{{ $kat->slug }}"
                                                    {{ $selectedKategoriSlugs->contains($kat->slug) ? 'checked' : '' }}>
                                             <span class="category-check-box"></span>
-                                            <span>{{ $kat->nama_kategori_produk }}</span>
+                                            <span>{{ translate_text($kat->nama_kategori_produk) }}</span>
                                         </label>
                                     @endforeach
                                 </div>
@@ -101,7 +101,7 @@
                                 if (!empty($remaining)) $removeQuery['kategori'] = $remaining;
                             @endphp
                             <a href="{{ $formAction . '?' . http_build_query($removeQuery) }}" class="active-filter-tag">
-                                {{ $kat->nama_kategori_produk }}
+                                {{ translate_text($kat->nama_kategori_produk) }}
                                 <span aria-hidden="true">&times;</span>
                             </a>
                         @endforeach

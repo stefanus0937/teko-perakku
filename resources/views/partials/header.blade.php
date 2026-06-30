@@ -98,7 +98,7 @@
                             @forelse(($categoryGroups[$type] ?? collect()) as $kategori)
                                 <a href="{{ route('guest-katalog', ['kategori' => $kategori->slug]) }}"
                                    class="category-item {{ request('kategori') === $kategori->slug ? 'is-active' : '' }}">
-                                    {{ $kategori->nama_kategori_produk }}
+                                    {{ translate_text($kategori->nama_kategori_produk) }}
                                 </a>
                             @empty
                                 <span class="category-item category-empty">{{ __('messages.no_categories') }}</span>

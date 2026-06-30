@@ -91,7 +91,7 @@
                     @foreach ($randomKategoris->take(4) as $kategori) {{-- Batasi 4 item --}}
                         <li>
                             <a href="#">{{-- Ganti dengan route --}}
-                                {{ $kategori->nama_kategori_produk }}
+                                {{ translate_text($kategori->nama_kategori_produk) }}
                             </a>
                         </li>
                     @endforeach

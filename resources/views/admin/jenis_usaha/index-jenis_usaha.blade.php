@@ -37,7 +37,7 @@
             @foreach ($jenisUsahas as $jenisUsaha)
                 <tr>
                     <td>{{ $jenisUsaha->kode_jenis_usaha }}</td>
-                    <td>{{ $jenisUsaha->nama_jenis_usaha }}</td>
+                    <td>{{ translate_text($jenisUsaha->nama_jenis_usaha) }}</td>
                     <td>
                         <a href="{{ route('admin.jenis_usaha-edit', $jenisUsaha->id) }}" class="btn btn-warning btn-sm">
                             <i class="fas fa-edit"></i></a>

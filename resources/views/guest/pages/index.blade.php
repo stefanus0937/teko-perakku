@@ -62,7 +62,7 @@
             $categoryCarouselItems = collect($categoryTypeLabels ?? [])
                 ->flatMap(fn ($label, $type) => ($categoryGroups[$type] ?? collect())->map(function ($kategori) use ($label, $type, $categoryTypeDescriptions, $categoryImageMap) {
                     return [
-                        'nama' => $kategori->nama_kategori_produk,
+                        'nama' => translate_text($kategori->nama_kategori_produk),
                         'slug' => $kategori->slug,
                         'type' => $type,
                         'type_label' => $label,
@@ -133,11 +133,11 @@
                         <a href="{{ route('guest-singleProduct', $produk->slug) }}">
                             <div class="thumb">
                                 <img src="{{ asset('storage/' . optional($produk->fotoProduk->first())->file_foto_produk) }}"
-                                    alt="{{ $produk->nama_produk }}"
+                                    alt="{{ translate_text($produk->nama_produk) }}"
                                     onerror="this.onerror=null;this.src='{{ asset('assets/images/produk-default.jpg') }}';">
                             </div>
                             <div class="down-content">
-                                <h4>{{ $produk->nama_produk }}</h4>
+                                <h4>{{ translate_text($produk->nama_produk) }}</h4>
                                 <span class="product-price">Rp {{ number_format($produk->harga, 0, ',', '.') }}</span>
 
                                 {{-- Komponen rating kecil: menghasilkan bintang dan jumlah review di kartu produk. --}}
@@ -151,8 +151,8 @@
                                 {{-- Nama toko (UMKM yang menjual produk ini) --}}
                                 @php $shop = $produk->usaha->first(); @endphp
                                 @if($shop)
-                                    <span class="product-shop" title="{{ $shop->nama_usaha }}">
-                                        <i class="fa-regular fa-building"></i>{{ $shop->nama_usaha }}
+                                    <span class="product-shop" title="{{ translate_text($shop->nama_usaha) }}">
+                                        <i class="fa-regular fa-building"></i>{{ translate_text($shop->nama_usaha) }}
                                     </span>
                                 @endif
                             </div>
@@ -195,13 +195,13 @@
                         <img src="{{ $usaha->foto_usaha 
                             ? asset('storage/' . $usaha->foto_usaha) 
                             : asset('assets/images/kategori-default.jpg') }}"
-                            alt="{{ $usaha->nama_usaha }}"
+                            alt="{{ translate_text($usaha->nama_usaha) }}"
                             onerror="this.onerror=null;this.src='{{ asset('assets/images/kategori-default.jpg') }}';">
                     </div>
 
                     {{-- Konten kartu toko: nama usaha, username pemilik, dan ringkasan deskripsi yang terlihat di homepage. --}}
                     <div class="usaha-content">
-                        <h4>{{ $usaha->nama_usaha }}</h4>
+                        <h4>{{ translate_text($usaha->nama_usaha) }}</h4>
 
                         <span class="usaha-username">
                             @ {{ $usaha->user->username }}

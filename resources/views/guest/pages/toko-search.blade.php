@@ -56,13 +56,13 @@
                         <img src="{{ $usaha->foto_usaha 
                             ? asset('storage/' . $usaha->foto_usaha) 
                             : asset('assets/images/kategori-default.jpg') }}"
-                            alt="{{ $usaha->nama_usaha }}"
+                            alt="{{ translate_text($usaha->nama_usaha) }}"
                             onerror="this.onerror=null;this.src='{{ asset('assets/images/kategori-default.jpg') }}';">
                     </div>
 
                     {{-- Content --}}
                     <div class="usaha-content">
-                        <h4>{{ $usaha->nama_usaha }}</h4>
+                        <h4>{{ translate_text($usaha->nama_usaha) }}</h4>
 
                         <span class="usaha-username">
                             @ {{ $usaha->user->username }}

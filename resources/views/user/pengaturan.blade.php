@@ -238,6 +238,7 @@
             <i class="fas fa-globe"></i> {{ __('settings.language') }}
         </div>
         <div class="setting-control">
+            {{-- Form switch bahasa: pilihan dikirim ke LanguageController dan disimpan di session. --}}
             <form action="{{ route('language.switch') }}" method="POST" id="language-form">
                 @csrf
                 <select id="language-select" name="locale">
@@ -245,6 +246,14 @@
                     <option value="en" @selected(app()->getLocale() === 'en')>{{ __('settings.english') }}</option>
                 </select>
             </form>
+        </div>
+    </div>
+    <div class="setting-item">
+        <div class="setting-info">
+            <i class="fas fa-language"></i> {{ translate_text('Contoh teks otomatis diterjemahkan') }}
+        </div>
+        <div class="setting-control">
+            {{ strtoupper(app()->getLocale()) }}
         </div>
     </div>
 </div>
@@ -363,6 +372,7 @@
         const langSelect = document.getElementById('language-select');
         const langForm = document.getElementById('language-form');
         langSelect.onchange = (e) => {
+            // Submit otomatis agar locale session langsung berubah setelah user memilih bahasa.
             langForm.submit();
         };
     });

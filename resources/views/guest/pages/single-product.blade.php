@@ -1,6 +1,6 @@
 @extends('guest.layouts.main')
 
-@section('title', $produk->nama_produk)
+@section('title', translate_text($produk->nama_produk))
 
 @push('styles')
     {{-- Memuat file CSS khusus untuk halaman ini (review-section & rating-input styles ada di sini).
@@ -37,7 +37,7 @@
                 <nav aria-label="breadcrumb" class="product-breadcrumb">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{ route('guest-katalog') }}">Katalog</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">{{ $produk->nama_produk }}</li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ translate_text($produk->nama_produk) }}</li>
                     </ol>
                 </nav>
             </div>
@@ -56,7 +56,7 @@
                         <div class="main-image-container mb-3" id="mainMediaContainer">
                             @if($produk->fotoProduk->isNotEmpty())
                                 <a href="{{ asset('storage/' . $produk->fotoProduk->first()->file_foto_produk) }}" data-lightbox="product-gallery" id="mainImageLink">
-                                    <img src="{{ asset('storage/' . $produk->fotoProduk->first()->file_foto_produk) }}" alt="{{ $produk->nama_produk }}" id="mainProductImage" class="img-fluid"
+                                    <img src="{{ asset('storage/' . $produk->fotoProduk->first()->file_foto_produk) }}" alt="{{ translate_text($produk->nama_produk) }}" id="mainProductImage" class="img-fluid"
                                      onerror="this.onerror=null;this.src='{{ asset('assets/images/produk-default.jpg') }}';">
                                 </a>
                             @else
@@ -97,7 +97,7 @@
                     <div class="right-content">
                         {{-- BARIS 1: JUDUL PRODUK DAN IKON AKSI --}}
                         <div class="product-header">
-                            <h2 class="product-title">{{ $produk->nama_produk }}</h2>
+                            <h2 class="product-title">{{ translate_text($produk->nama_produk) }}</h2>
                             <div class="action-icons d-flex gap-2">
                                 @auth
                                     <button class="btn btn-icon {{ Auth::user()->favoritProduks->contains($produk->id) ? 'active' : '' }}" 
@@ -143,7 +143,7 @@
                         <div class="product-categories mb-3">
                             @foreach($produk->kategoriProduk as $kat)
                                 <a href="{{ route('guest-katalog', ['kategori' => $kat->slug]) }}" class="badge bg-light text-dark text-decoration-none me-1 category-pill">
-                                    {{ $kat->nama_kategori_produk }}
+                                    {{ translate_text($kat->nama_kategori_produk) }}
                                 </a>
                             @endforeach
                         </div>
@@ -158,14 +158,14 @@
                                     <a href="{{ route('guest-detail-usaha', ['usaha' => $usaha, 'from_product' => $produk->slug]) }}">
                                     <img
                                         src="{{ $usaha->foto_usaha ? asset('storage/'.$usaha->foto_usaha) : asset('assets/images/kategori-default.jpg') }}"
-                                        alt="Logo {{ $usaha->nama_usaha }}"
+                                        alt="Logo {{ translate_text($usaha->nama_usaha) }}"
                                         class="shop-card__avatar"
                                         onerror="this.onerror=null;this.src='{{ asset('assets/images/kategori-default.jpg') }}';"
                                     >
                                     </a>
                                     <a href="{{ route('guest-detail-usaha', ['usaha' => $usaha, 'from_product' => $produk->slug]) }}">
                                     <div class="shop-card__info">
-                                        <div class="shop-card__name">{{ $usaha->nama_usaha }}</div>
+                                        <div class="shop-card__name">{{ translate_text($usaha->nama_usaha) }}</div>
                                         <div class="shop-card__handle">
                                             &#64;{{ \Illuminate\Support\Str::slug($usaha-> user-> username, '') }}
                                         </div>
@@ -213,7 +213,7 @@
                         {{-- DESKRIPSI DAN DETAIL PRODUK --}}
                         <div class="product-details">
                             <h5>Detail</h5>
-                            <p>{{ $produk->deskripsi }}</p>
+                            <p>{{ translate_text($produk->deskripsi) }}</p>
 
                             @php
                                 $teknikDescriptions = [
@@ -231,7 +231,7 @@
                                 @if(isset($teknikDescriptions[$kategori->nama_kategori_produk]))
                                     <div id="teknik-box">
                                         <p>
-                                            - {{ $kategori->nama_kategori_produk }} : {{ $teknikDescriptions[$kategori->nama_kategori_produk] }}
+                                            - {{ translate_text($kategori->nama_kategori_produk) }} : {{ translate_text($teknikDescriptions[$kategori->nama_kategori_produk]) }}
                                         </p>
                                     </div>
                                 @endif
@@ -258,11 +258,11 @@
                             <a href="{{ route('guest-singleProduct', $relatedProduct->slug) }}">
                                 <div class="thumb">
                                     <img src="{{ asset('storage/' . optional($relatedProduct->fotoProduk->first())->file_foto_produk) }}"
-                                        alt="{{ $relatedProduct->nama_produk }}"
+                                        alt="{{ translate_text($relatedProduct->nama_produk) }}"
                                         onerror="this.onerror=null;this.src='{{ asset('images/produk-default.jpg') }}';">
                                 </div>
                                 <div class="down-content">
-                                    <h4>{{ $relatedProduct->nama_produk }}</h4>
+                                    <h4>{{ translate_text($relatedProduct->nama_produk) }}</h4>
                                     <span class="product-price">Rp {{ number_format($relatedProduct->harga, 0, ',', '.') }}</span>
 
                                     {{-- Rating dari relasi reviews milik produk terkait
@@ -276,8 +276,8 @@
 
                                     @php $relShop = $relatedProduct->usaha->first(); @endphp
                                     @if($relShop)
-                                        <span class="product-shop" title="{{ $relShop->nama_usaha }}">
-                                            <i class="fa-regular fa-building"></i>{{ $relShop->nama_usaha }}
+                                        <span class="product-shop" title="{{ translate_text($relShop->nama_usaha) }}">
+                                            <i class="fa-regular fa-building"></i>{{ translate_text($relShop->nama_usaha) }}
                                         </span>
                                     @endif
                                 </div>

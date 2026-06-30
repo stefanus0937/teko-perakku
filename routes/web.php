@@ -19,18 +19,12 @@ use App\Http\Controllers\Guest\PageController;
 use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\PelaporanController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\ReviewController;
-use Illuminate\Http\Request;
 
-Route::post('/language', function (Request $request) {
-    $validated = $request->validate([
-        'locale' => ['required', 'in:id,en'],
-    ]);
-
-    session(['locale' => $validated['locale']]);
-
-    return back();
-})->name('language.switch');
+// Language routes: locale disimpan di session dan dipakai oleh LocaleMiddleware.
+Route::post('/language', [LanguageController::class, 'switch'])->name('language.switch');
+Route::post('/translate', [LanguageController::class, 'translate'])->name('language.translate');
 
 // Authentication Routes
 Route::get('login', [AuthController::class, 'showLoginForm'])->name('loginForm');

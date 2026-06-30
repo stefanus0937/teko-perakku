@@ -252,11 +252,11 @@
     <div class="favorit-item">
         <div class="product-img-container">
             <img src="{{ asset('storage/' . optional($favorite->fotoProduk->first())->file_foto_produk) }}" 
-                 alt="{{ $favorite->nama_produk }}"
+                 alt="{{ translate_text($favorite->nama_produk) }}"
                  onerror="this.onerror=null;this.src='{{ asset('assets/images/produk-default.jpg') }}';">
         </div>
         <div class="product-details">
-            <h3 class="product-name">{{ $favorite->nama_produk }}</h3>
+            <h3 class="product-name">{{ translate_text($favorite->nama_produk) }}</h3>
             <div class="product-meta">
                 <div class="rating">
                     @php
@@ -272,9 +272,9 @@
                         @endif
                     @endfor
                 </div>
-                <a href="{{ route('guest-detail-usaha', $favorite->usaha->first()) }}" class="store-name">{{ $favorite->usaha->first()->nama_usaha ?? 'Toko Perak' }}</a>
+                <a href="{{ route('guest-detail-usaha', $favorite->usaha->first()) }}" class="store-name">{{ translate_text($favorite->usaha->first()->nama_usaha ?? 'Toko Perak') }}</a>
             </div>
-            <p class="product-desc">{{ \Illuminate\Support\Str::limit($favorite->deskripsi, 150) }}</p>
+            <p class="product-desc">{{ \Illuminate\Support\Str::limit(translate_text($favorite->deskripsi), 150) }}</p>
             <div class="added-date">Ditambahkan pada: {{ $favorite->pivot->created_at->format('d M Y') }}</div>
         </div>
         <div class="product-price">Rp {{ number_format($favorite->harga, 0, ',', '.') }}</div>

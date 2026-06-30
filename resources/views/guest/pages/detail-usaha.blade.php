@@ -1,6 +1,6 @@
 @extends('guest.layouts.main')
 
-@section('title', 'Profil Usaha - ' . $usaha->nama_usaha)
+@section('title', 'Profil Usaha - ' . translate_text($usaha->nama_usaha))
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('assets/css/detail-usaha.css') }}">
@@ -58,10 +58,10 @@
                     <li class="breadcrumb-item"><a href="{{ route('guest-katalog') }}">Katalog</a></li>
                     @if (isset($previousProduct) && $previousProduct)
                         <li class="breadcrumb-item">
-                            <a href="{{ route('guest-singleProduct', $previousProduct->slug) }}">{{ $previousProduct->nama_produk }}</a>
+                            <a href="{{ route('guest-singleProduct', $previousProduct->slug) }}">{{ translate_text($previousProduct->nama_produk) }}</a>
                         </li>
                     @endif
-                    <li class="breadcrumb-item active" aria-current="page">{{ $usaha->nama_usaha }}</li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ translate_text($usaha->nama_usaha) }}</li>
                 </ol>
             </nav>
         </div>
@@ -78,7 +78,7 @@
 
                     {{-- Header: nama + handle --}}
                     <header class="usaha-profile-card__header">
-                        <h2 class="usaha-profile-card__name">{{ $usaha->nama_usaha }}</h2>
+                        <h2 class="usaha-profile-card__name">{{ translate_text($usaha->nama_usaha) }}</h2>
                         <p class="usaha-profile-card__handle">{{ $usahaHandle }}</p>
                     </header>
 
@@ -86,7 +86,7 @@
                     <div class="usaha-profile-card__photo">
                         <img
                             src="{{ $usaha->foto_usaha ? asset('storage/'.$usaha->foto_usaha) : asset('assets/images/kategori-default.jpg') }}"
-                            alt="Foto {{ $usaha->nama_usaha }}"
+                            alt="Foto {{ translate_text($usaha->nama_usaha) }}"
                             onerror="this.onerror=null;this.src='{{ asset('assets/images/kategori-default.jpg') }}';"
                         >
                     </div>
@@ -137,7 +137,7 @@
 
                     {{-- Deskripsi --}}
                     @if ($usaha->deskripsi_usaha)
-                        <p class="usaha-description">{{ $usaha->deskripsi_usaha }}</p>
+                        <p class="usaha-description">{{ translate_text($usaha->deskripsi_usaha) }}</p>
                     @endif
 
                     {{-- Spesialisasi (jika ada di data) --}}
@@ -239,7 +239,7 @@
                         @foreach ($shown as $i => $photo)
                             <a href="{{ asset('storage/'.$photo) }}" class="usaha-gallery__item" data-lightbox="usaha-gallery">
                                 <img src="{{ asset('storage/'.$photo) }}"
-                                     alt="Galeri {{ $usaha->nama_usaha }} {{ $i+1 }}"
+                                     alt="Galeri {{ translate_text($usaha->nama_usaha) }} {{ $i+1 }}"
                                      onerror="this.onerror=null;this.src='{{ asset('assets/images/kategori-default.jpg') }}';">
                                 @if ($i === count($shown) - 1 && $more > 0)
                                     <span class="usaha-gallery__more">+{{ $more }}</span>
@@ -272,11 +272,11 @@
                                     <a href="{{ route('guest-singleProduct', $produk->slug) }}">
                                         <div class="thumb">
                                             <img src="{{ asset('storage/' . optional($produk->fotoProduk->first())->file_foto_produk) }}"
-                                                 alt="{{ $produk->nama_produk }}"
+                                                 alt="{{ translate_text($produk->nama_produk) }}"
                                                  onerror="this.onerror=null;this.src='{{ asset('assets/images/produk-default.jpg') }}';">
                                         </div>
                                         <div class="down-content">
-                                            <h4>{{ $produk->nama_produk }}</h4>
+                                            <h4>{{ translate_text($produk->nama_produk) }}</h4>
                                             <span class="product-price">Rp {{ number_format($produk->harga, 0, ',', '.') }}</span>
 
                                             @include('partials._rating', [
@@ -286,8 +286,8 @@
                                                 'size'      => 'sm',
                                             ])
 
-                                            <span class="product-shop" title="{{ $usaha->nama_usaha }}">
-                                                <i class="fa-regular fa-building"></i>{{ $usaha->nama_usaha }}
+                                            <span class="product-shop" title="{{ translate_text($usaha->nama_usaha) }}">
+                                                <i class="fa-regular fa-building"></i>{{ translate_text($usaha->nama_usaha) }}
                                             </span>
                                         </div>
                                     </a>

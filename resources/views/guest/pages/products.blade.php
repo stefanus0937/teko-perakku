@@ -33,10 +33,10 @@
                                         </ul>
                                     </div>
                                     <img src="{{ asset('storage/' . $produk->fotoProduk->first()->file_foto_produk) }}"
-                                        alt="{{ $produk->nama_produk }}">
+                                        alt="{{ translate_text($produk->nama_produk) }}">
                                 </div>
                                 <div class="down-content">
-                                    <h4>{{ $produk->nama_produk }}</h4>
+                                    <h4>{{ translate_text($produk->nama_produk) }}</h4>
                                     <span>Rp {{ number_format($produk->harga, 0, ',', '.') }}</span>
 
                                     @include('partials._rating', [
@@ -48,12 +48,12 @@
 
                                     @php $shop = $produk->usaha->first(); @endphp
                                     @if($shop)
-                                        <span class="product-shop" title="{{ $shop->nama_usaha }}">
-                                            <i class="fa-regular fa-building"></i>{{ $shop->nama_usaha }}
+                                        <span class="product-shop" title="{{ translate_text($shop->nama_usaha) }}">
+                                            <i class="fa-regular fa-building"></i>{{ translate_text($shop->nama_usaha) }}
                                         </span>
                                     @endif
 
-                                    <p>{{ \Illuminate\Support\Str::limit($produk->deskripsi, 80) }}</p>
+                                    <p>{{ \Illuminate\Support\Str::limit(translate_text($produk->deskripsi), 80) }}</p>
                                 </div>
                             </div>
                         </div>

@@ -37,8 +37,8 @@
         <tbody>
             @foreach ($usahaProduks as $usahaProduk)
                 <tr>
-                    <td>{{ $usahaProduk->usaha->nama_usaha }}</td>
-                    <td>{{ $usahaProduk->produk->nama_produk }}</td>
+                    <td>{{ translate_text($usahaProduk->usaha->nama_usaha) }}</td>
+                    <td>{{ translate_text($usahaProduk->produk->nama_produk) }}</td>
                     <td>
                         <a href="{{ route('admin.usaha_produk-edit', $usahaProduk->id) }}" class="btn btn-warning btn-sm">
                             <i class="fas fa-edit"></i></a>

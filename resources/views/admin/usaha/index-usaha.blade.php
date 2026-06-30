@@ -280,7 +280,7 @@
                         @endif
                     </div>
                 </td>
-                <td style="font-weight: 600; color: #1a1a1a;">{{ $usaha->nama_usaha }}</td>
+                <td style="font-weight: 600; color: #1a1a1a;">{{ translate_text($usaha->nama_usaha) }}</td>
                 <td>{{ $usaha->kode_usaha }}</td>
                 <td>{{ $usaha->telp_usaha }}</td>
                 <td>{{ $usaha->email_usaha }}</td>

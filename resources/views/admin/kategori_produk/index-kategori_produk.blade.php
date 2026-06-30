@@ -39,7 +39,7 @@
             @foreach ($kategoriProduks as $kategoriProduk)
                 <tr>
                     <td>{{ $kategoriProduk->kode_kategori_produk }}</td>
-                    <td>{{ $kategoriProduk->nama_kategori_produk }}</td>
+                    <td>{{ translate_text($kategoriProduk->nama_kategori_produk) }}</td>
                     <td>{{ $categoryTypeLabels[$kategoriProduk->category_type] ?? 'Kategori Produk' }}</td>
                     <td>{{ $kategoriProduk->sort_order }}</td>
                     <td>
